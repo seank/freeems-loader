@@ -1,0 +1,361 @@
+<ui version="4.0" >
+ <class>FreeEMS_LoaderClass</class>
+ <widget class="QWidget" name="FreeEMS_LoaderClass" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1102</width>
+    <height>518</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>FreeEMS_Loader</string>
+  </property>
+  <widget class="QGroupBox" name="groupBox" >
+   <property name="geometry" >
+    <rect>
+     <x>750</x>
+     <y>10</y>
+     <width>331</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string>Status</string>
+   </property>
+   <widget class="QLabel" name="label" >
+    <property name="geometry" >
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>MCU Connection:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2" >
+    <property name="geometry" >
+     <rect>
+      <x>20</x>
+      <y>60</y>
+      <width>131</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Source s19 Checksum:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3" >
+    <property name="geometry" >
+     <rect>
+      <x>20</x>
+      <y>90</y>
+      <width>161</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Last Average Transfer Rate</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4" >
+    <property name="geometry" >
+     <rect>
+      <x>130</x>
+      <y>30</y>
+      <width>191</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Detected $freeems-version</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QTabWidget" name="tabWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>721</width>
+     <height>421</height>
+    </rect>
+   </property>
+   <property name="currentIndex" >
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="tab" >
+    <attribute name="title" >
+     <string>Main</string>
+    </attribute>
+    <widget class="QGroupBox" name="groupBox_2" >
+     <property name="geometry" >
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>651</width>
+       <height>141</height>
+      </rect>
+     </property>
+     <property name="title" >
+      <string>s19 To ECU Actions</string>
+     </property>
+     <widget class="QCheckBox" name="checkBox" >
+      <property name="geometry" >
+       <rect>
+        <x>450</x>
+        <y>10</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Burn All</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_2" >
+      <property name="geometry" >
+       <rect>
+        <x>550</x>
+        <y>10</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Burn Code</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_3" >
+      <property name="geometry" >
+       <rect>
+        <x>450</x>
+        <y>40</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Burn Config</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_4" >
+      <property name="geometry" >
+       <rect>
+        <x>550</x>
+        <y>40</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Burn Tables</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit" >
+      <property name="geometry" >
+       <rect>
+        <x>130</x>
+        <y>20</y>
+        <width>231</width>
+        <height>22</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_4" >
+      <property name="geometry" >
+       <rect>
+        <x>370</x>
+        <y>20</y>
+        <width>51</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Open</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_7" >
+      <property name="geometry" >
+       <rect>
+        <x>40</x>
+        <y>20</y>
+        <width>71</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Source File:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_8" >
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>60</y>
+        <width>131</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Application Notes:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_9" >
+      <property name="geometry" >
+       <rect>
+        <x>40</x>
+        <y>90</y>
+        <width>61</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Maintainer:</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_3" >
+     <property name="geometry" >
+      <rect>
+       <x>10</x>
+       <y>150</y>
+       <width>651</width>
+       <height>151</height>
+      </rect>
+     </property>
+     <property name="title" >
+      <string>ECU to s19 Actions</string>
+     </property>
+     <widget class="QPushButton" name="pushButton_5" >
+      <property name="geometry" >
+       <rect>
+        <x>210</x>
+        <y>110</y>
+        <width>101</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Download Config</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_6" >
+      <property name="geometry" >
+       <rect>
+        <x>330</x>
+        <y>110</y>
+        <width>101</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Download Tables</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_2" >
+    <attribute name="title" >
+     <string>Settings</string>
+    </attribute>
+    <widget class="QGroupBox" name="groupBox_4" >
+     <property name="geometry" >
+      <rect>
+       <x>0</x>
+       <y>10</y>
+       <width>501</width>
+       <height>131</height>
+      </rect>
+     </property>
+     <property name="title" >
+      <string>Com Settings</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_4" >
+    <attribute name="title" >
+     <string>Diagnostics</string>
+    </attribute>
+   </widget>
+   <widget class="QWidget" name="tab_3" >
+    <attribute name="title" >
+     <string>Output</string>
+    </attribute>
+   </widget>
+  </widget>
+  <widget class="QProgressBar" name="progressBar" >
+   <property name="geometry" >
+    <rect>
+     <x>910</x>
+     <y>440</y>
+     <width>118</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="value" >
+    <number>24</number>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_7" >
+   <property name="geometry" >
+    <rect>
+     <x>760</x>
+     <y>390</y>
+     <width>121</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Connect/Disconnect</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_9" >
+   <property name="geometry" >
+    <rect>
+     <x>930</x>
+     <y>470</y>
+     <width>141</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Execute Action</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5" >
+   <property name="geometry" >
+    <rect>
+     <x>760</x>
+     <y>450</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Requested Actions</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6" >
+   <property name="geometry" >
+    <rect>
+     <x>780</x>
+     <y>470</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Burn All From s19</string>
+   </property>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <resources/>
+ <connections/>
+</ui>
