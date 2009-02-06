@@ -105,56 +105,17 @@
      <property name="title" >
       <string>s19 To ECU Actions</string>
      </property>
-     <widget class="QCheckBox" name="checkBox" >
-      <property name="geometry" >
-       <rect>
-        <x>450</x>
-        <y>10</y>
-        <width>81</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="text" >
-       <string>Burn All</string>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="checkBox_2" >
-      <property name="geometry" >
-       <rect>
-        <x>550</x>
-        <y>10</y>
-        <width>81</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="text" >
-       <string>Burn Code</string>
-      </property>
-     </widget>
      <widget class="QCheckBox" name="checkBox_3" >
       <property name="geometry" >
        <rect>
-        <x>450</x>
-        <y>40</y>
+        <x>550</x>
+        <y>120</y>
         <width>91</width>
         <height>21</height>
        </rect>
       </property>
       <property name="text" >
-       <string>Burn Config</string>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="checkBox_4" >
-      <property name="geometry" >
-       <rect>
-        <x>550</x>
-        <y>40</y>
-        <width>81</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="text" >
-       <string>Burn Tables</string>
+       <string>Smart Burn</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit" >
@@ -219,6 +180,58 @@
        <string>Maintainer:</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="pushButton_8" >
+      <property name="geometry" >
+       <rect>
+        <x>450</x>
+        <y>50</y>
+        <width>101</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Burn All</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_10" >
+      <property name="geometry" >
+       <rect>
+        <x>450</x>
+        <y>10</y>
+        <width>101</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Burn Config</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_11" >
+      <property name="geometry" >
+       <rect>
+        <x>570</x>
+        <y>10</y>
+        <width>71</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Burn Code</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_12" >
+      <property name="geometry" >
+       <rect>
+        <x>570</x>
+        <y>50</y>
+        <width>71</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Burn Tables</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QGroupBox" name="groupBox_3" >
      <property name="geometry" >
@@ -258,6 +271,42 @@
        <string>Download Tables</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_10" >
+      <property name="geometry" >
+       <rect>
+        <x>30</x>
+        <y>20</y>
+        <width>91</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Destination File:</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_9" >
+      <property name="geometry" >
+       <rect>
+        <x>370</x>
+        <y>20</y>
+        <width>51</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Open</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_2" >
+      <property name="geometry" >
+       <rect>
+        <x>130</x>
+        <y>20</y>
+        <width>231</width>
+        <height>22</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_2" >
@@ -267,15 +316,143 @@
     <widget class="QGroupBox" name="groupBox_4" >
      <property name="geometry" >
       <rect>
-       <x>0</x>
+       <x>10</x>
        <y>10</y>
-       <width>501</width>
-       <height>131</height>
+       <width>381</width>
+       <height>201</height>
       </rect>
      </property>
      <property name="title" >
       <string>Com Settings</string>
      </property>
+     <widget class="QLineEdit" name="lineEdit_3" >
+      <property name="geometry" >
+       <rect>
+        <x>80</x>
+        <y>20</y>
+        <width>231</width>
+        <height>22</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_11" >
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>71</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Device/Port</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_13" >
+      <property name="geometry" >
+       <rect>
+        <x>320</x>
+        <y>20</y>
+        <width>51</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Open</string>
+      </property>
+     </widget>
+     <widget class="QFontComboBox" name="fontComboBox" >
+      <property name="geometry" >
+       <rect>
+        <x>100</x>
+        <y>50</y>
+        <width>189</width>
+        <height>23</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_12" >
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>60</y>
+        <width>81</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Speed/BAUD:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_15" >
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>90</y>
+        <width>81</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Data Bits:</string>
+      </property>
+     </widget>
+     <widget class="QFontComboBox" name="fontComboBox_3" >
+      <property name="geometry" >
+       <rect>
+        <x>100</x>
+        <y>90</y>
+        <width>111</width>
+        <height>23</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_16" >
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>130</y>
+        <width>81</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Stop Bits:</string>
+      </property>
+     </widget>
+     <widget class="QFontComboBox" name="fontComboBox_4" >
+      <property name="geometry" >
+       <rect>
+        <x>100</x>
+        <y>120</y>
+        <width>111</width>
+        <height>23</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_17" >
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>160</y>
+        <width>81</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>Parity:</string>
+      </property>
+     </widget>
+     <widget class="QFontComboBox" name="fontComboBox_5" >
+      <property name="geometry" >
+       <rect>
+        <x>100</x>
+        <y>160</y>
+        <width>111</width>
+        <height>23</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_4" >
@@ -313,45 +490,6 @@
    </property>
    <property name="text" >
     <string>Connect/Disconnect</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton_9" >
-   <property name="geometry" >
-    <rect>
-     <x>930</x>
-     <y>470</y>
-     <width>141</width>
-     <height>28</height>
-    </rect>
-   </property>
-   <property name="text" >
-    <string>Execute Action</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_5" >
-   <property name="geometry" >
-    <rect>
-     <x>760</x>
-     <y>450</y>
-     <width>111</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text" >
-    <string>Requested Actions</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_6" >
-   <property name="geometry" >
-    <rect>
-     <x>780</x>
-     <y>470</y>
-     <width>81</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text" >
-    <string>Burn All From s19</string>
    </property>
   </widget>
  </widget>
