@@ -11,6 +11,8 @@
 </extensions>
 </storageModule>
 <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+
+
 <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
 <buildTargets>
 <target name="Qt Release Build" path="" targetID="org.eclipse.cdt.make.MakeTargetBuilder">
@@ -33,24 +35,24 @@
 </storageModule>
 <storageModule moduleId="org.eclipse.cdt.core.pathentry">
 <pathentry base-path="/usr/share/qt4/include" include="" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtXmlPatterns" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtSql" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtXml" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="Qt" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="Qt3Support" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtDBus" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtUiTools" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtAssistant" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtHelp" kind="inc" path="" system="true"/>
 <pathentry base-path="/usr/share/qt4/include" include="QtSvg" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtGui" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtScript" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtWebKit" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtDesigner" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtUiTools" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtHelp" kind="inc" path="" system="true"/>
 <pathentry base-path="/usr/share/qt4/include" include="QtCore" kind="inc" path="" system="true"/>
 <pathentry base-path="/usr/share/qt4/include" include="QtTest" kind="inc" path="" system="true"/>
-<pathentry base-path="/usr/share/qt4/include" include="QtOpenGL" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtAssistant" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtGui" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtDBus" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtSql" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtXmlPatterns" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtDesigner" kind="inc" path="" system="true"/>
 <pathentry base-path="/usr/share/qt4/include" include="QtNetwork" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtWebKit" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="Qt" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtXml" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtScript" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="Qt3Support" kind="inc" path="" system="true"/>
+<pathentry base-path="/usr/share/qt4/include" include="QtOpenGL" kind="inc" path="" system="true"/>
 </storageModule>
 </cconfiguration>
 </storageModule>

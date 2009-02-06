@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>FreeEMS-Loader</name>
+	<name>FreeEMS-LoaderGUI</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -60,7 +60,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.environment</key>
-					<value>PATH=/usr/share/qt4/bin:${env_var:PATH}|</value>
+					<value>PATH=/usr/share/qt4/bin:${env_var:PATH}:${env_var:PATH}|</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.stopOnError</key>
