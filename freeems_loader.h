@@ -6,17 +6,19 @@
 
 class FreeEMS_Loader : public QWidget
 {
-    Q_OBJECT   /* enable signals and slots */
+    Q_OBJECT
 
 public:
     FreeEMS_Loader(QWidget *parent = 0);
     ~FreeEMS_Loader();
 
+    protected:
+    void fillBaud();
+    void fillStopBits();
+    void fillDataBits();
+
 private:
     Ui::FreeEMS_LoaderClass ui;
-public slots:	/* list possible slot functions here */
-//	void testSlot();
-
 };
 
 #endif // FREEEMS_LOADER_H
