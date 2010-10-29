@@ -6,10 +6,12 @@ QT += core \
     xmlpatterns \
     network \
     opengl
-HEADERS += freeems_loader.h \
+HEADERS += FreeEMS_LoaderComms.h \
+    freeems_loader.h \
     freeems_loader.h \
     freeems_loader.h
-SOURCES += freeems_loader.cpp \
+SOURCES += FreeEMS_LoaderComms.cpp \
+    freeems_loader.cpp \
     main.cpp
 FORMS += freeems_loader.ui \
     freeems_loader.ui \

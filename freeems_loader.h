@@ -16,6 +16,7 @@ public:
     void fillBaud();
     void fillStopBits();
     void fillDataBits();
+    void connect();
 
 private:
     Ui::FreeEMS_LoaderClass ui;

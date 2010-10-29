@@ -4,11 +4,14 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
     : QWidget(parent)
 {
 	ui.setupUi(this);
+
+	//ui.textWindow.parent->
 	//ui.
 
 	fillBaud();
 	fillDataBits();
 	fillStopBits();
+
 
 }
 
@@ -106,9 +109,14 @@ void FreeEMS_Loader::fillStopBits()
 
 void FreeEMS_Loader::fillDataBits()
 {
-    ui.comboDataBits->addItem("5");
+	ui.comboDataBits->addItem("5");
     ui.comboDataBits->addItem("6");
     ui.comboDataBits->addItem("7");
     ui.comboDataBits->addItem("8");
     ui.comboDataBits->setCurrentIndex(ui.comboDataBits->count()-1);
+}
+
+void FreeEMS_Loader::connect()
+{
+	ui.comboDataBits->addItem("test");
 }
