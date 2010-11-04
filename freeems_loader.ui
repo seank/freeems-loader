@@ -253,9 +253,28 @@
  <resources>
   <include location="resource-root.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushConnect</sender>
+   <signal>clicked()</signal>
+   <receiver>FreeEMS_LoaderClass</receiver>
+   <slot>connect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>228</x>
+     <y>216</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>47</x>
+     <y>201</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <slots>
-  <signal>signal1()</signal>
+  <signal>signal2()</signal>
   <slot>test()</slot>
+  <slot>slot1()</slot>
+  <slot>connect()</slot>
  </slots>
 </ui>

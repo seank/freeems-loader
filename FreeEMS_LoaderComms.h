@@ -8,10 +8,14 @@
 #ifndef FREEEMS_LOADERCOMMS_H_
 #define FREEEMS_LOADERCOMMS_H_
 
+#include "freeems_loader_types.h"
+
 class FreeEMS_LoaderComms {
 public:
 	FreeEMS_LoaderComms();
-	char* SerialConnect(char*);
+
+	int serialConnect(serialComSettings *settings);
+
 	virtual ~FreeEMS_LoaderComms();
 };
 

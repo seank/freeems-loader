@@ -118,5 +118,15 @@ void FreeEMS_Loader::fillDataBits()
 
 void FreeEMS_Loader::connect()
 {
-	ui.comboDataBits->addItem("test");
+	serialComSettings settings;
+
+	char *test = "haha";
+
+	FreeEMS_LoaderComms *connection;
+	connection = new FreeEMS_LoaderComms;
+
+	//QString  *call = ;
+	connection->serialConnect(&settings);
+
+	//ui.comboDataBits->addItem(connection->serialConnect(settings));
 }

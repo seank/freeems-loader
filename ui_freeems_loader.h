@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'freeems_loader.ui'
 **
-** Created: Fri Oct 29 15:28:14 2010
+** Created: Mon Nov 1 14:50:27 2010
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -120,7 +120,7 @@ public:
         tabWidget->addTab(tab_2, QString());
 
         retranslateUi(FreeEMS_LoaderClass);
-        QObject::connect(pushConnect, SIGNAL(clicked()), FreeEMS_LoaderClass, SLOT(close()));
+        QObject::connect(pushConnect, SIGNAL(clicked()), FreeEMS_LoaderClass, SLOT(connect()));
 
         tabWidget->setCurrentIndex(0);
 

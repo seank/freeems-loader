@@ -3,6 +3,7 @@
 
 #include <QtGui/QWidget>
 #include "ui_freeems_loader.h"
+#include "FreeEMS_LoaderComms.h"
 
 class FreeEMS_Loader : public QWidget
 {
@@ -16,10 +17,13 @@ public:
     void fillBaud();
     void fillStopBits();
     void fillDataBits();
-    void connect();
+
 
 private:
     Ui::FreeEMS_LoaderClass ui;
+
+public slots:
+	void connect();
 };
 
 #endif // FREEEMS_LOADER_H

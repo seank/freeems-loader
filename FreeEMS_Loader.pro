@@ -6,7 +6,8 @@ QT += core \
     xmlpatterns \
     network \
     opengl
-HEADERS += FreeEMS_LoaderComms.h \
+HEADERS += freeems_loader_types.h \
+    FreeEMS_LoaderComms.h \
     freeems_loader.h \
     freeems_loader.h \
     freeems_loader.h
