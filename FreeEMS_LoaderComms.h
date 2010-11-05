@@ -15,6 +15,7 @@ public:
 	FreeEMS_LoaderComms();
 
 	int serialConnect(serialComSettings *settings);
+	int initPort(int fd, serialComSettings *settings);
 
 	virtual ~FreeEMS_LoaderComms();
 };
