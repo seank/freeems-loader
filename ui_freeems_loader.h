@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'freeems_loader.ui'
 **
-** Created: Mon Nov 1 14:50:27 2010
+** Created: Fri Nov 5 13:43:38 2010
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
