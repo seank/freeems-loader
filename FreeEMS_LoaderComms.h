@@ -1,6 +1,7 @@
 /*
  * FreeEMS_LoaderComms.h
  *
+ *
  *  Created on: Oct 29, 2010
  *      Author: seank
  */
@@ -9,6 +10,8 @@
 #define FREEEMS_LOADERCOMMS_H_
 
 #include "freeems_loader_types.h"
+
+#define BUFF_SIZE	4096
 
 class FreeEMS_LoaderComms {
 public:

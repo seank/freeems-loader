@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'freeems_loader.ui'
 **
-** Created: Mon Nov 1 14:50:27 2010
+** Created: Mon Nov 8 16:45:25 2010
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -14,12 +14,14 @@
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
+#include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QProgressBar>
 #include <QtGui/QPushButton>
 #include <QtGui/QRadioButton>
+#include <QtGui/QSpinBox>
 #include <QtGui/QTabWidget>
 #include <QtGui/QTextBrowser>
 #include <QtGui/QWidget>
@@ -49,6 +51,13 @@ public:
     QLabel *label_4;
     QComboBox *comboDataBits;
     QComboBox *comboStopBits;
+    QLabel *label_6;
+    QComboBox *comboParity;
+    QCheckBox *chkSoft;
+    QCheckBox *chkHard;
+    QLabel *label_7;
+    QSpinBox *spinBox;
+    QLabel *label_8;
 
     void setupUi(QWidget *FreeEMS_LoaderClass)
     {
@@ -57,7 +66,7 @@ public:
         FreeEMS_LoaderClass->resize(800, 547);
         label = new QLabel(FreeEMS_LoaderClass);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(370, 20, 411, 151));
+        label->setGeometry(QRect(390, 10, 411, 151));
         label->setPixmap(QPixmap(QString::fromUtf8("FreeEMS_Picture_5.png")));
         pushConnect = new QPushButton(FreeEMS_LoaderClass);
         pushConnect->setObjectName(QString::fromUtf8("pushConnect"));
@@ -67,7 +76,7 @@ public:
         pushLoad->setGeometry(QRect(330, 210, 111, 27));
         textWindow = new QTextBrowser(FreeEMS_LoaderClass);
         textWindow->setObjectName(QString::fromUtf8("textWindow"));
-        textWindow->setGeometry(QRect(20, 250, 731, 211));
+        textWindow->setGeometry(QRect(20, 250, 761, 211));
         pushRip = new QPushButton(FreeEMS_LoaderClass);
         pushRip->setObjectName(QString::fromUtf8("pushRip"));
         pushRip->setGeometry(QRect(500, 210, 101, 27));
@@ -86,7 +95,7 @@ public:
         pushLoad_2->setGeometry(QRect(20, 490, 71, 31));
         tabWidget = new QTabWidget(FreeEMS_LoaderClass);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
-        tabWidget->setGeometry(QRect(10, 10, 351, 181));
+        tabWidget->setGeometry(QRect(10, 10, 371, 191));
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
         label_2 = new QLabel(tab);
@@ -117,7 +126,28 @@ public:
         comboStopBits = new QComboBox(tab_2);
         comboStopBits->setObjectName(QString::fromUtf8("comboStopBits"));
         comboStopBits->setGeometry(QRect(110, 90, 61, 27));
+        label_6 = new QLabel(tab_2);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+        label_6->setGeometry(QRect(30, 130, 41, 17));
+        comboParity = new QComboBox(tab_2);
+        comboParity->setObjectName(QString::fromUtf8("comboParity"));
+        comboParity->setGeometry(QRect(110, 130, 78, 27));
+        chkSoft = new QCheckBox(tab_2);
+        chkSoft->setObjectName(QString::fromUtf8("chkSoft"));
+        chkSoft->setGeometry(QRect(260, 90, 81, 22));
+        chkHard = new QCheckBox(tab_2);
+        chkHard->setObjectName(QString::fromUtf8("chkHard"));
+        chkHard->setGeometry(QRect(260, 120, 91, 22));
+        label_7 = new QLabel(tab_2);
+        label_7->setObjectName(QString::fromUtf8("label_7"));
+        label_7->setGeometry(QRect(260, 70, 81, 17));
         tabWidget->addTab(tab_2, QString());
+        spinBox = new QSpinBox(FreeEMS_LoaderClass);
+        spinBox->setObjectName(QString::fromUtf8("spinBox"));
+        spinBox->setGeometry(QRect(730, 470, 50, 25));
+        label_8 = new QLabel(FreeEMS_LoaderClass);
+        label_8->setObjectName(QString::fromUtf8("label_8"));
+        label_8->setGeometry(QRect(650, 470, 71, 21));
 
         retranslateUi(FreeEMS_LoaderClass);
         QObject::connect(pushConnect, SIGNAL(clicked()), FreeEMS_LoaderClass, SLOT(connect()));
@@ -143,7 +173,12 @@ public:
         label_5->setText(QApplication::translate("FreeEMS_LoaderClass", "Stop bits:", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("FreeEMS_LoaderClass", "Baud rate:", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("FreeEMS_LoaderClass", "Data bits:", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("FreeEMS_LoaderClass", "Parity:", 0, QApplication::UnicodeUTF8));
+        chkSoft->setText(QApplication::translate("FreeEMS_LoaderClass", "Software", 0, QApplication::UnicodeUTF8));
+        chkHard->setText(QApplication::translate("FreeEMS_LoaderClass", "Hardware", 0, QApplication::UnicodeUTF8));
+        label_7->setText(QApplication::translate("FreeEMS_LoaderClass", "Handshake", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("FreeEMS_LoaderClass", "Advanced Settings", 0, QApplication::UnicodeUTF8));
+        label_8->setText(QApplication::translate("FreeEMS_LoaderClass", "Char Delay", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
