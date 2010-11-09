@@ -1,6 +1,7 @@
 /*
  * FreeEMS_LoaderComms.h
  *
+ *
  *  Created on: Oct 29, 2010
  *      Author: seank
  */
@@ -10,11 +11,14 @@
 
 #include "freeems_loader_types.h"
 
+#define BUFF_SIZE	4096
+
 class FreeEMS_LoaderComms {
 public:
 	FreeEMS_LoaderComms();
 
 	int serialConnect(serialComSettings *settings);
+	int initPort(int fd, serialComSettings *settings);
 
 	virtual ~FreeEMS_LoaderComms();
 };
