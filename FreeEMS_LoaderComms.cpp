@@ -28,8 +28,10 @@
 using namespace std;
 
 /* static vars  */
-static int fd; /* access to serial file data */
+static int serial_fd; /* serial file descriptor*/
+
 static int fdConfigured;
+
 //static char comInBuffer[BUFF_SIZE];
 //static char comOutBuffer[BUFF_SIZE];
 
@@ -46,15 +48,24 @@ FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
 int FreeEMS_LoaderComms::serialConnect(serialComSettings *settings) {
 
 	if(!fdConfigured)
-		initPort(fd, settings);
+	{
+		if(initPort(serial_fd, settings) < 0)
+		{
+			printf("error configuring port");
+		}
+		else
+		{
+		 return -2;
+		}
+	}
 
-	fd = open(settings->port, O_RDWR | O_NOCTTY | O_NDELAY);
-		if (fd == -1) {
+	serial_fd = open(settings->port, O_RDWR | O_NOCTTY | O_NDELAY);
+		if (serial_fd == -1) {
 			perror("open_port: Unable to open port - ");
 			printf("%s",settings->port);
 			return 1;
 		} else {
-			fcntl(fd, F_SETFL, 0);
+			fcntl(serial_fd, F_SETFL, 0);
 		}
 
 	return 0;
@@ -150,6 +161,7 @@ int FreeEMS_LoaderComms::initPort(int fd, serialComSettings *settings)
 	#endif
 	 	default:
 	 		printf("\n Invalid BAUD rate setting %d", settings->baudrate);
+	 		return -5;
 		break;
 	 	}
 
@@ -168,6 +180,7 @@ int FreeEMS_LoaderComms::initPort(int fd, serialComSettings *settings)
 	 		break;
 	 	default:
 	 		printf("\n invalid databits setting %d", settings->databits);
+	 		return -6;
 	 		break;
 	 	}
 
@@ -254,5 +267,33 @@ int FreeEMS_LoaderComms::initPort(int fd, serialComSettings *settings)
 	 	std::cerr<<"tcsetattr() 2 failed"<<std::endl;
 	 	}
 
-		return 1;
+		return 0;
+}
+
+int FreeEMS_LoaderComms::readBytes(char *buffer, int numBytes)
+{
+	/* http://www.easysw.com/~mike/serial/serial.html#2_1
+	  Reading data from a port is a little trickier. When you operate the port in raw data
+	  mode, each read(2) system call will return the number of characters that are actually
+	  available in the serial input buffers. If no characters are available, the call will
+	  block (wait) until characters come in, an interval timer expires, or an error occurs.
+
+	   The read function can be made to return immediately by doing the following:
+
+		fcntl(fd, F_SETFL, FNDELAY);
+
+	   The FNDELAY option causes the read function to return 0 if no characters are available
+	   on the port. To restore normal (blocking) behavior, call fcntl() without the FNDELAY option:
+
+		fcntl(fd, F_SETFL, 0);
+
+	  This is also used after opening a serial port with the O_NDELAY option.
+	 */
+
+
+	//fcntl(serial_fd, F_SETFL, FNDELAY);
+	fcntl(serial_fd, F_SETFL, FNDELAY);
+	read(serial_fd, buffer, numBytes);
+
+	return 0;
 }
