@@ -55,7 +55,7 @@
     <string>Load Firmware</string>
    </property>
   </widget>
-  <widget class="QTextBrowser" name="textWindow">
+  <widget class="QTextBrowser" name="textOutput">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -140,7 +140,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
