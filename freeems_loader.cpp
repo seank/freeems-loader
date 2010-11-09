@@ -1,4 +1,5 @@
 #include "freeems_loader.h"
+#include "freeems_LoaderRedirector.h"
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
     : QWidget(parent)
@@ -7,12 +8,11 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 
 	//ui.textWindow.parent->
 	//ui.
-
 	fillBaud();
 	fillDataBits();
 	fillStopBits();
-
-
+	fillParity();
+	redirectCLI();
 }
 
 FreeEMS_Loader::~FreeEMS_Loader()
@@ -21,7 +21,25 @@ FreeEMS_Loader::~FreeEMS_Loader()
 
 }
 
+void FreeEMS_Loader::redirectCLI()
+{
 
+	//QDebug cout(std::cout, ui.textOutput&);
+	//myRedirector = new StdRedirector<>(std::cout, outcallback, ui.textOutput&);
+
+	//QDebugStream cerr(std::cerr,logTextEdit);
+
+	std::cout <<"Hello! We are ready for working" << endl;
+	//QDebugStream test;
+
+	//QDebugStream cout(std::cout,logTextEdit);
+	//Redirector test = new Redirector(std::cout, ui.textOutput);
+  // ui.QDebugStream qout(std::cout, ui.textOutput);
+
+//	StdRedirector localRedirector = new StdRedirector( std::cout, outcallback, textOutput );
+
+	return;
+}
 
 void FreeEMS_Loader::fillBaud()
 
@@ -116,17 +134,38 @@ void FreeEMS_Loader::fillDataBits()
     ui.comboDataBits->setCurrentIndex(ui.comboDataBits->count()-1);
 }
 
+void FreeEMS_Loader::fillParity()
+{
+	ui.comboParity->addItem("NONE");
+	ui.comboParity->addItem("ODD");
+	ui.comboParity->addItem("EVEN");
+	ui.comboParity->addItem("MARK");
+	ui.comboParity->addItem("SPACE");
+}
+
 void FreeEMS_Loader::connect()
 {
 	serialComSettings settings;
 
-	char *test = "haha";
+	settings.baudrate = ui.comboBaud->currentText().toUInt();
+	settings.databits = ui.comboDataBits->currentText().toUInt();
+	settings.hardwareHandshake = (uint)ui.chkHard->isChecked();
+	settings.parity = ui.comboParity->currentText().toUInt();
+	settings.port = ui.comboDevice->currentText().toAscii().data();
+	settings.softwareHandshake = (uint)ui.chkSoft->isChecked();
+	settings.stop = ui.comboStopBits->currentText().toUInt();
 
 	FreeEMS_LoaderComms *connection;
 	connection = new FreeEMS_LoaderComms;
 
 	//QString  *call = ;
 	connection->serialConnect(&settings);
-
-	//ui.comboDataBits->addItem(connection->serialConnect(settings));
 }
+
+void FreeEMS_Loader::outcallback( const char* ptr, std::streamsize count, void* pTextBox )
+{
+  (void) count;
+  QTextBrowser* p = static_cast< QTextBrowser* >( pTextBox );
+  p->append( ptr );
+}
+
