@@ -30,8 +30,8 @@ using namespace std;
 /* static vars  */
 static int fd; /* access to serial file data */
 static int fdConfigured;
-static char comInBuffer[BUFF_SIZE];
-static char comOutBuffer[BUFF_SIZE];
+//static char comInBuffer[BUFF_SIZE];
+//static char comOutBuffer[BUFF_SIZE];
 
 FreeEMS_LoaderComms::FreeEMS_LoaderComms() {
 	// TODO Auto-generated constructor stub
