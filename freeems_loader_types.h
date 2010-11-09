@@ -16,5 +16,4 @@ typedef struct  {
 	unsigned int  hardwareHandshake;
 }serialComSettings;
 
-
 #endif
