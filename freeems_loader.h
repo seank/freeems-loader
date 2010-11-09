@@ -2,8 +2,12 @@
 #define FREEEMS_LOADER_H
 
 #include <QtGui/QWidget>
+#include <QtGui>
 #include "ui_freeems_loader.h"
 #include "FreeEMS_LoaderComms.h"
+#include "qdebug.h"
+#include "stdio.h"
+#include <iostream>
 
 class FreeEMS_Loader : public QWidget
 {
@@ -17,7 +21,9 @@ public:
     void fillBaud();
     void fillStopBits();
     void fillDataBits();
-
+    void fillParity();
+    void redirectCLI();
+    void outcallback( const char* ptr, std::streamsize count, void* pTextBox );
 
 private:
     Ui::FreeEMS_LoaderClass ui;
