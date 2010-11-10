@@ -1,6 +1,7 @@
 #include "freeems_loader.h"
 #include "freeems_LoaderRedirector.h"
 
+
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
     : QWidget(parent)
 {
@@ -142,6 +143,8 @@ void FreeEMS_Loader::connect()
 {
 	serialComSettings settings;
 
+	char testBuffer[4096];
+
 	char portName[100];
 	strcpy(portName, ui.comboDevice->currentText().toAscii().data());
 
@@ -158,6 +161,11 @@ void FreeEMS_Loader::connect()
 
 	//QString  *call = ;
 	connection->serialConnect(&settings);
+
+	connection->readBytes(testBuffer, sizeof(testBuffer));
+
+	std::cout<<testBuffer;
+
 }
 
 
