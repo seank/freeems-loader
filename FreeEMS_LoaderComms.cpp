@@ -51,17 +51,19 @@ int FreeEMS_LoaderComms::serialConnect(serialComSettings *settings) {
 	{
 		if(initPort(serial_fd, settings) < 0)
 		{
-			printf("error configuring port");
+			cout<<"error configuring port";
+			return -1;
 		}
 		else
 		{
-		 return -2;
+			fdConfigured = 1;
 		}
 	}
 
 	serial_fd = open(settings->port, O_RDWR | O_NOCTTY | O_NDELAY);
 		if (serial_fd == -1) {
-			perror("open_port: Unable to open port - ");
+			cout << "unable to open port" << (char*)settings->port;
+			//perror("open_port: Unable to open port - ");
 			printf("%s",settings->port);
 			return 1;
 		} else {
