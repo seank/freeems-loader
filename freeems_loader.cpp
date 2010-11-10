@@ -18,27 +18,22 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 FreeEMS_Loader::~FreeEMS_Loader()
 {
 
-
 }
 
 void FreeEMS_Loader::redirectCLI()
 {
+	StdRedirector<char>* coutRedirector = new StdRedirector <char>(std::cout, outCallBack, ui.textOutput);
 
-	//QDebug cout(std::cout, ui.textOutput&);
-	//myRedirector = new StdRedirector<>(std::cout, outcallback, ui.textOutput&);
+	//StdRedirector<char>* perrorRedirector = new StdRedirector <char>(&perror, outCallBack, ui.textOutput);
 
-	//QDebugStream cerr(std::cerr,logTextEdit);
+	std::cout <<"CLI output redirected";
+}
 
-	std::cout <<"Hello! We are ready for working" << endl;
-	//QDebugStream test;
-
-	//QDebugStream cout(std::cout,logTextEdit);
-	//Redirector test = new Redirector(std::cout, ui.textOutput);
-  // ui.QDebugStream qout(std::cout, ui.textOutput);
-
-//	StdRedirector localRedirector = new StdRedirector( std::cout, outcallback, textOutput );
-
-	return;
+void FreeEMS_Loader::outCallBack( const char* ptr, std::streamsize count, void* pTextBox )
+{
+  (void) count;
+  QTextBrowser* p = static_cast< QTextBrowser* >( pTextBox );
+  p->append( ptr );
 }
 
 void FreeEMS_Loader::fillBaud()
@@ -147,11 +142,14 @@ void FreeEMS_Loader::connect()
 {
 	serialComSettings settings;
 
+	char portName[100];
+	strcpy(portName, ui.comboDevice->currentText().toAscii().data());
+
 	settings.baudrate = ui.comboBaud->currentText().toUInt();
 	settings.databits = ui.comboDataBits->currentText().toUInt();
 	settings.hardwareHandshake = (uint)ui.chkHard->isChecked();
 	settings.parity = ui.comboParity->currentText().toUInt();
-	settings.port = ui.comboDevice->currentText().toAscii().data();
+	settings.port = portName;
 	settings.softwareHandshake = (uint)ui.chkSoft->isChecked();
 	settings.stop = ui.comboStopBits->currentText().toUInt();
 
@@ -162,10 +160,4 @@ void FreeEMS_Loader::connect()
 	connection->serialConnect(&settings);
 }
 
-void FreeEMS_Loader::outcallback( const char* ptr, std::streamsize count, void* pTextBox )
-{
-  (void) count;
-  QTextBrowser* p = static_cast< QTextBrowser* >( pTextBox );
-  p->append( ptr );
-}
 
