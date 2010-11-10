@@ -23,7 +23,7 @@ public:
     void fillDataBits();
     void fillParity();
     void redirectCLI();
-    void outcallback( const char* ptr, std::streamsize count, void* pTextBox );
+    static void outCallBack( const char* ptr, std::streamsize count, void* pTextBox );
 
 private:
     Ui::FreeEMS_LoaderClass ui;
