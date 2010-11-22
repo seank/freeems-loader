@@ -29,15 +29,25 @@ using namespace std;
 
 /* static vars  */
 static int serial_fd; /* serial file descriptor*/
-
-static int fdConfigured;
-
-//static char comInBuffer[BUFF_SIZE];
+//static int fdConfigured;
+static int connected;
+//static int smReady;
+static char comInBuffer[BUFF_SIZE];
 //static char comOutBuffer[BUFF_SIZE];
+
+void millisleep(int ms)
+{
+   if (ms>0)
+   {
+      struct timeval tv;
+      tv.tv_sec=0;
+      tv.tv_usec=ms*1000;
+      select(0, 0, 0, 0, &tv);
+   }
+}
 
 FreeEMS_LoaderComms::FreeEMS_LoaderComms() {
 	// TODO Auto-generated constructor stub
-
 }
 
 FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
@@ -47,11 +57,28 @@ FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
 
 int FreeEMS_LoaderComms::serialConnect(serialComSettings *settings) {
 
+	if(!connected)
+		{
+			serial_fd = open(settings->port, O_RDWR | O_NOCTTY | O_NDELAY);
+			if (serial_fd == -1) {
+				cout << "unable to open port" << (char*)settings->port;
+				//perror("open_port: Unable to open port - ");
+				return -1;
+			} else {
+				connected = 1;
+				std::cout<<"port opened";
+			}
+		}
+		else
+		{
+			return -1;
+		}
+
 	if(!fdConfigured)
 	{
 		if(initPort(serial_fd, settings) < 0)
 		{
-			cout<<"error configuring port";
+			std::cout<<"error configuring port";
 			return -1;
 		}
 		else
@@ -60,23 +87,13 @@ int FreeEMS_LoaderComms::serialConnect(serialComSettings *settings) {
 		}
 	}
 
-	serial_fd = open(settings->port, O_RDWR | O_NOCTTY | O_NDELAY);
-		if (serial_fd == -1) {
-			cout << "unable to open port" << (char*)settings->port;
-			//perror("open_port: Unable to open port - ");
-			printf("%s",settings->port);
-			return 1;
-		} else {
-			fcntl(serial_fd, F_SETFL, 0);
-		}
-
 	return 0;
 }
 
 int FreeEMS_LoaderComms::initPort(int fd, serialComSettings *settings)
 {
-	 	struct termios options;
-
+		/* TODO SAVE OLD OPTIONS */
+		struct termios options;
 	 	speed_t _baud = 0;
 
 	 	switch(settings->baudrate){
@@ -229,18 +246,17 @@ int FreeEMS_LoaderComms::initPort(int fd, serialComSettings *settings)
 	 		options.c_iflag &= ~(IXON|IXOFF|IXANY);
 	 	}
 
-	 	options.c_lflag=0;
+	 	/* set input mode (non-canonical, no echo,...) */
+	 	options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 	 	options.c_oflag=0;
-
-	 	options.c_cc[VTIME]=1;
-	 	options.c_cc[VMIN]=60;
+	 	options.c_cc[VTIME]=10; /* inter-character timer unused (1 second)*/
+	 	options.c_cc[VMIN]=0; /* blocking read until 0 chars received */
 
 	    //   tcflush(m_fd, TCIFLUSH);
 	    if (tcsetattr(fd, TCSANOW, &options)!=0)
 	    {
 	    	std::cerr<<"tcsetattr() 1 failed"<<std::endl;
 	 	}
-
 	 	int mcs=0;
 	 	ioctl(fd, TIOCMGET, &mcs);
 	 	mcs |= TIOCM_RTS;
@@ -260,11 +276,8 @@ int FreeEMS_LoaderComms::initPort(int fd, serialComSettings *settings)
 	 	{
 	 		options.c_cflag &= ~CRTSCTS;
 	 	}
-	 	/*  if (on)
-	 	options.c_cflag |= CRTSCTS;
-	 	else
-	 	options.c_cflag &= ~CRTSCTS;*/
-	    if (tcsetattr(fd, TCSANOW, &options)!=0)
+
+	 	if (tcsetattr(fd, TCSAFLUSH, &options)!=0)
 	    {
 	 	std::cerr<<"tcsetattr() 2 failed"<<std::endl;
 	 	}
@@ -291,11 +304,46 @@ int FreeEMS_LoaderComms::readBytes(char *buffer, int numBytes)
 
 	  This is also used after opening a serial port with the O_NDELAY option.
 	 */
+	//fcntl(serial_fd, F_SETFL, O_NDELAY);
+	return read(serial_fd, buffer, numBytes);
+}
 
+int FreeEMS_LoaderComms::writeBytes(char *buffer, int numBytes)
+{
+	int n;
+	n = write(serial_fd, buffer, numBytes);
+	if (n < 0)
+		std::cerr<<"writeBytes failed"<<std::endl;
+	return n;
+}
 
-	//fcntl(serial_fd, F_SETFL, FNDELAY);
-	fcntl(serial_fd, F_SETFL, FNDELAY);
-	read(serial_fd, buffer, numBytes);
+int FreeEMS_LoaderComms::checkSM()
+{
+	int nBytesRead = 0;
+	int nBytesWrote = 0;
+	while(readBytes(comInBuffer,1) > 0);
+	memset(comInBuffer, 0, sizeof(comInBuffer)); /* clear buffer contents */
+	char cr = CARRIAGE_RETURN;
+	char ready[4] = {0xE1,0xE00,0x3E};
 
-	return 0;
+	nBytesWrote = writeBytes(&cr,1);
+	if(!nBytesWrote)
+		std::cout<<"Error, wrote zero bytes to serial device";
+
+	millisleep(50);
+
+	nBytesRead = readBytes(comInBuffer, sizeof(comInBuffer));
+	if(nBytesRead < 0)
+		std::cout<<"Error, read zero bytes from serial device";
+	if(!strcmp(comInBuffer, ready))
+	{
+		smReady = 1;
+		std::cout<<"detected SM";
+		return 0;
+	}else
+	{
+		smReady = 0;
+		std::cout<<"Error detecting SM";
+		return -4;
+	}
 }

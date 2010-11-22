@@ -2,18 +2,20 @@
 #include "freeems_LoaderRedirector.h"
 
 
+//static int connected;
+
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
     : QWidget(parent)
 {
 	ui.setupUi(this);
-
-	//ui.textWindow.parent->
-	//ui.
+	connection = new FreeEMS_LoaderComms;
+	fillDevice();
 	fillBaud();
 	fillDataBits();
 	fillStopBits();
 	fillParity();
 	redirectCLI();
+	initGUI();
 }
 
 FreeEMS_Loader::~FreeEMS_Loader()
@@ -21,12 +23,29 @@ FreeEMS_Loader::~FreeEMS_Loader()
 
 }
 
+int FreeEMS_Loader::fillDevice()
+{
+	ui.comboDevice->addItem("/dev/ttyUSB0");
+/*	DIR *dp;
+	struct dirent *dirp;
+	if((dp = opendir(dir.c_str("/dev/"))) == NULL) {
+	cout << "Error(" << errno << ") opening " << dir << endl;
+	return errno;
+	}
+
+	while ((dirp = readdir(dp)) != NULL) {
+	//files.push_back(string(dirp->d_name));
+	ui.comboDevice->addItem(string(dirp->d_name));
+	}
+	closedir(dp);
+*/
+	return 0;
+}
+
 void FreeEMS_Loader::redirectCLI()
 {
 	StdRedirector<char>* coutRedirector = new StdRedirector <char>(std::cout, outCallBack, ui.textOutput);
-
 	//StdRedirector<char>* perrorRedirector = new StdRedirector <char>(&perror, outCallBack, ui.textOutput);
-
 	std::cout <<"CLI output redirected";
 }
 
@@ -143,11 +162,8 @@ void FreeEMS_Loader::connect()
 {
 	serialComSettings settings;
 
-	char testBuffer[4096];
-
 	char portName[100];
 	strcpy(portName, ui.comboDevice->currentText().toAscii().data());
-
 	settings.baudrate = ui.comboBaud->currentText().toUInt();
 	settings.databits = ui.comboDataBits->currentText().toUInt();
 	settings.hardwareHandshake = (uint)ui.chkHard->isChecked();
@@ -156,16 +172,25 @@ void FreeEMS_Loader::connect()
 	settings.softwareHandshake = (uint)ui.chkSoft->isChecked();
 	settings.stop = ui.comboStopBits->currentText().toUInt();
 
-	FreeEMS_LoaderComms *connection;
-	connection = new FreeEMS_LoaderComms;
+//	if(!connection->connected)
+//	{
+		//QString  *call = ;
+		connection->serialConnect(&settings);
+//	}
+	connection->checkSM();
+	//if(connection->smReady)
+	//{
 
-	//QString  *call = ;
-	connection->serialConnect(&settings);
-
-	connection->readBytes(testBuffer, sizeof(testBuffer));
-
-	std::cout<<testBuffer;
+	//}
+	//std::cout<<testBuffer;
 
 }
 
-
+void FreeEMS_Loader::initGUI()
+{
+	ui.pushLoad->setEnabled(0);
+	ui.pushRip->setEnabled(0);
+	ui.pushGo->setEnabled(0);
+	ui.chkVerify->setChecked(true);
+	ui.chkRip->setChecked(true);
+}
