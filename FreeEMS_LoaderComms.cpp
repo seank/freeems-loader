@@ -321,10 +321,10 @@ int FreeEMS_LoaderComms::checkSM()
 {
 	int nBytesRead = 0;
 	int nBytesWrote = 0;
-	while(readBytes(comInBuffer,1) > 0);
+	while(readBytes(comInBuffer,1) > 0){}
 	memset(comInBuffer, 0, sizeof(comInBuffer)); /* clear buffer contents */
 	char cr = CARRIAGE_RETURN;
-	char ready[4] = {0xE1,0xE00,0x3E};
+	char ready[4] = {0xE1,0x00,0x3E};
 
 	nBytesWrote = writeBytes(&cr,1);
 	if(!nBytesWrote)
