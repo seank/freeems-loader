@@ -160,29 +160,38 @@ void FreeEMS_Loader::fillParity()
 
 void FreeEMS_Loader::connect()
 {
-	serialComSettings settings;
 
-	char portName[100];
-	strcpy(portName, ui.comboDevice->currentText().toAscii().data());
-	settings.baudrate = ui.comboBaud->currentText().toUInt();
-	settings.databits = ui.comboDataBits->currentText().toUInt();
-	settings.hardwareHandshake = (uint)ui.chkHard->isChecked();
-	settings.parity = ui.comboParity->currentText().toUInt();
-	settings.port = portName;
-	settings.softwareHandshake = (uint)ui.chkSoft->isChecked();
-	settings.stop = ui.comboStopBits->currentText().toUInt();
-
-//	if(!connection->connected)
-//	{
-		//QString  *call = ;
-		connection->serialConnect(&settings);
-//	}
-	connection->checkSM();
-	//if(connection->smReady)
-	//{
-
-	//}
-	//std::cout<<testBuffer;
+	if(!connection->smReady)
+	{
+	  serialComSettings settings;
+	  char portName[100];
+	  strcpy(portName, ui.comboDevice->currentText().toAscii().data());
+	  settings.baudrate = ui.comboBaud->currentText().toUInt();
+	  settings.databits = ui.comboDataBits->currentText().toUInt();
+	  settings.hardwareHandshake = (uint)ui.chkHard->isChecked();
+	  settings.parity = ui.comboParity->currentText().toUInt();
+	  settings.port = portName;
+	  settings.softwareHandshake = (uint)ui.chkSoft->isChecked();
+	  settings.stop = ui.comboStopBits->currentText().toUInt();
+      if(!connection->fdConfigured)
+	    {
+		  //QString  *call = ;
+		  connection->serialConnect(&settings);
+	    }
+	  if(connection->fdConfigured)
+			connection->checkSM();
+	  if(connection->smReady)
+	   {
+		ui.pushConnect->setText("Disconnect");
+	   }
+	}
+	else
+	{
+		//disconnect and restore
+		connection->serialDisconnect();
+		ui.pushConnect->setText("Connect");
+		std::cout<<"Disconnected from serial device";
+	}
 
 }
 
