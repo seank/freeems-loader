@@ -210,19 +210,6 @@
      <property name="title">
       <string>Flash Type</string>
      </property>
-     <widget class="QRadioButton" name="radXEP">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>40</y>
-        <width>141</width>
-        <height>22</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>S12XEP(1000KB)</string>
-      </property>
-     </widget>
      <widget class="QRadioButton" name="radXDP">
       <property name="geometry">
        <rect>

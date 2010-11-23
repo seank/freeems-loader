@@ -206,7 +206,7 @@ void FreeEMS_Loader::initGUI()
 	setGUIState(NOTCONNECTED);
 	ui.progressBar->setValue(0);
 	ui.radXDP->setChecked(1);
-	ui.radXEP->setChecked(0);
+	ui.radXDP->setDisabled(1);
 }
 
 void FreeEMS_Loader::setGUIState(int state)
@@ -225,3 +225,5 @@ void FreeEMS_Loader::setGUIState(int state)
 	break;
 	}
 }
+
+
