@@ -28,6 +28,7 @@
 using namespace std;
 
 /* static vars  */
+static struct termios savedOptions;
 static int serial_fd; /* serial file descriptor*/
 //static int fdConfigured;
 static int connected;
@@ -48,10 +49,13 @@ void millisleep(int ms)
 
 FreeEMS_LoaderComms::FreeEMS_LoaderComms() {
 	// TODO Auto-generated constructor stub
+	tcgetattr(serial_fd, &savedOptions);
 }
 
 FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
 	// TODO Auto-generated destructor stub
+	tcsetattr(serial_fd, TCSANOW, &savedOptions);
+	close(serial_fd);
 }
 
 
@@ -73,7 +77,7 @@ int FreeEMS_LoaderComms::serialConnect(serialComSettings *settings) {
 		{
 			return -1;
 		}
-
+	millisleep(500);
 	if(!fdConfigured)
 	{
 		if(initPort(serial_fd, settings) < 0)
@@ -83,16 +87,16 @@ int FreeEMS_LoaderComms::serialConnect(serialComSettings *settings) {
 		}
 		else
 		{
+			millisleep(50);
 			fdConfigured = 1;
 		}
 	}
-
+	millisleep(500);
 	return 0;
 }
 
 int FreeEMS_LoaderComms::initPort(int fd, serialComSettings *settings)
 {
-		/* TODO SAVE OLD OPTIONS */
 		struct termios options;
 	 	speed_t _baud = 0;
 
@@ -344,6 +348,15 @@ int FreeEMS_LoaderComms::checkSM()
 	{
 		smReady = 0;
 		std::cout<<"Error detecting SM";
+		serialDisconnect();
 		return -4;
 	}
+}
+
+void FreeEMS_LoaderComms::serialDisconnect()
+{
+	close(serial_fd);
+	connected = 0;
+	fdConfigured = 0;
+	smReady = 0;
 }
