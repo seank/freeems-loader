@@ -20,7 +20,7 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 
 FreeEMS_Loader::~FreeEMS_Loader()
 {
-
+	delete connection;
 }
 
 int FreeEMS_Loader::fillDevice()
@@ -160,7 +160,6 @@ void FreeEMS_Loader::fillParity()
 
 void FreeEMS_Loader::connect()
 {
-
 	if(!connection->smReady)
 	{
 	  serialComSettings settings;
@@ -180,9 +179,12 @@ void FreeEMS_Loader::connect()
 	    }
 	  if(connection->fdConfigured)
 			connection->checkSM();
+			ui.progressBar->setValue(66);
 	  if(connection->smReady)
 	   {
+		ui.progressBar->setValue(100);
 		ui.pushConnect->setText("Disconnect");
+		setGUIState(CONNECTED);
 	   }
 	}
 	else
@@ -191,15 +193,35 @@ void FreeEMS_Loader::connect()
 		connection->serialDisconnect();
 		ui.pushConnect->setText("Connect");
 		std::cout<<"Disconnected from serial device";
+		setGUIState(NOTCONNECTED);
+		ui.progressBar->setValue(0);
 	}
 
 }
 
 void FreeEMS_Loader::initGUI()
 {
-	ui.pushLoad->setEnabled(0);
-	ui.pushRip->setEnabled(0);
-	ui.pushGo->setEnabled(0);
 	ui.chkVerify->setChecked(true);
 	ui.chkRip->setChecked(true);
+	setGUIState(NOTCONNECTED);
+	ui.progressBar->setValue(0);
+	ui.radXDP->setChecked(1);
+	ui.radXEP->setChecked(0);
+}
+
+void FreeEMS_Loader::setGUIState(int state)
+{
+	switch(state)
+	{
+	case NOTCONNECTED:
+		ui.pushLoad->setEnabled(0);
+		ui.pushRip->setEnabled(0);
+		ui.pushGo->setEnabled(0);
+	break;
+	case CONNECTED:
+		ui.pushLoad->setEnabled(1);
+		ui.pushRip->setEnabled(1);
+	default:
+	break;
+	}
 }

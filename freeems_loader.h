@@ -15,6 +15,8 @@
 #include <vector>
 #include <string>
 
+#define NOTCONNECTED	1
+#define CONNECTED		2
 
 class FreeEMS_Loader : public QWidget
 {
@@ -31,6 +33,7 @@ protected:
     void fillParity();
     void redirectCLI();
     static void outCallBack( const char* ptr, std::streamsize count, void* pTextBox );
+    void setGUIState(int state);
     void initGUI();
     int fillDevice();
 

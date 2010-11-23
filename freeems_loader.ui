@@ -198,6 +198,45 @@
       <string>Verify Load</string>
      </property>
     </widget>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>60</y>
+       <width>161</width>
+       <height>81</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Flash Type</string>
+     </property>
+     <widget class="QRadioButton" name="radXEP">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>40</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>S12XEP(1000KB)</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radXDP">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>20</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>S12XDP(512KB)</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
