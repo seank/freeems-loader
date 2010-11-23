@@ -22,8 +22,8 @@ public:
 //	int serial_fd; /* serial file descriptor*/
 	int fdConfigured;
 //	int connected;
-
 	int serialConnect(serialComSettings *settings);
+	void serialDisconnect();
 	int initPort(int fd, serialComSettings *settings);
 	int readBytes(char *buffer, int numBytes);
 	int checkSM();
