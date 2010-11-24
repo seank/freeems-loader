@@ -1,6 +1,9 @@
 #include "freeems_loader.h"
 #include "freeems_LoaderRedirector.h"
+#include "FreeEMS_LoaderComms.h"
 
+using namespace std;
+using namespace boost;
 
 //static int connected;
 
@@ -8,19 +11,26 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
     : QWidget(parent)
 {
 	ui.setupUi(this);
-	connection = new FreeEMS_LoaderComms;
 	fillDevice();
+	//connection = new FreeEMS_LoaderComms;
+	//connection::setTimeout(setTimeout(posix_time::seconds(5)));
+	serialConnection = new FreeEMS_LoaderComms;
+	//FreeEMS_LoaderComms serialConnection("/dev/ttyUSB0",115200);
+	//serialConnection.setTimeout(posix_time::seconds(5));
+
 	fillBaud();
 	fillDataBits();
 	fillStopBits();
 	fillParity();
 	redirectCLI();
 	initGUI();
+
 }
 
 FreeEMS_Loader::~FreeEMS_Loader()
 {
-	delete connection;
+	serialConnection->close();
+	delete serialConnection;
 }
 
 int FreeEMS_Loader::fillDevice()
@@ -136,6 +146,7 @@ void FreeEMS_Loader::fillStopBits()
 
 
 	ui.comboStopBits->addItem("1");
+	ui.comboStopBits->addItem("1.5");
     ui.comboStopBits->addItem("2");
 
 }
@@ -160,43 +171,16 @@ void FreeEMS_Loader::fillParity()
 
 void FreeEMS_Loader::connect()
 {
-	if(!connection->smReady)
+	if(!serialConnection->smReady)
 	{
-	  serialComSettings settings;
-	  char portName[100];
-	  strcpy(portName, ui.comboDevice->currentText().toAscii().data());
-	  settings.baudrate = ui.comboBaud->currentText().toUInt();
-	  settings.databits = ui.comboDataBits->currentText().toUInt();
-	  settings.hardwareHandshake = (uint)ui.chkHard->isChecked();
-	  settings.parity = ui.comboParity->currentText().toUInt();
-	  settings.port = portName;
-	  settings.softwareHandshake = (uint)ui.chkSoft->isChecked();
-	  settings.stop = ui.comboStopBits->currentText().toUInt();
-      if(!connection->fdConfigured)
-	    {
-		  //QString  *call = ;
-		  connection->serialConnect(&settings);
-	    }
-	  if(connection->fdConfigured)
-			connection->checkSM();
-			ui.progressBar->setValue(66);
-	  if(connection->smReady)
-	   {
-		ui.progressBar->setValue(100);
-		ui.pushConnect->setText("Disconnect");
-		setGUIState(CONNECTED);
-	   }
-	}
-	else
+	serialConnection->open(ui.comboDevice->currentText().toAscii().data(),ui.comboBaud->currentText().toUInt());
+	serialConnection->setSM();
+	serialConnection->smReady ?	setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
+	}else
 	{
-		//disconnect and restore
-		connection->serialDisconnect();
-		ui.pushConnect->setText("Connect");
-		std::cout<<"Disconnected from serial device";
-		setGUIState(NOTCONNECTED);
-		ui.progressBar->setValue(0);
+		serialConnection->close();
+		serialConnection->smReady ?	setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
 	}
-
 }
 
 void FreeEMS_Loader::initGUI()
@@ -217,10 +201,12 @@ void FreeEMS_Loader::setGUIState(int state)
 		ui.pushLoad->setEnabled(0);
 		ui.pushRip->setEnabled(0);
 		ui.pushGo->setEnabled(0);
+		ui.pushConnect->setText("Connect");
 	break;
 	case CONNECTED:
 		ui.pushLoad->setEnabled(1);
 		ui.pushRip->setEnabled(1);
+		ui.pushConnect->setText("Disconnect");
 	default:
 	break;
 	}

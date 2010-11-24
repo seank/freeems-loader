@@ -39,7 +39,8 @@ protected:
 
 private:
     Ui::FreeEMS_LoaderClass ui;
-    FreeEMS_LoaderComms *connection;
+    FreeEMS_LoaderComms *serialConnection;
+ //   TimeoutSerial *serial("/dev/ttyUSB0",115200);
  //   int connected;
 
 public slots:
