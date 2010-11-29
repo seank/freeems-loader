@@ -70,7 +70,6 @@ void FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
 
 void FreeEMS_LoaderComms::setSM()
 {
-
 	try{
 	  char carReturn = 0x0D;
 	  char values[4] = {0x00,0x00,0x00,0x00};
