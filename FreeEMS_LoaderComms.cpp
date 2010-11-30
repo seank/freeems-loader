@@ -71,11 +71,11 @@ void FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
 void FreeEMS_LoaderComms::setSM()
 {
 	try{
-	  char carReturn = 0x0D;
+	  char charReturn = 0x0D;
 	  char values[4] = {0x00,0x00,0x00,0x00};
 	  char ready[4] = {0xE1,0x00,0x3E, 0x00};
 
-	  write(&carReturn, 1);
+	  write(&charReturn, 1);
 	  read(values,3);
 	  if(!strcmp(values, ready))
 	     {
