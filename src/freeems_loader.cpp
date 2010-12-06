@@ -174,6 +174,7 @@ void FreeEMS_Loader::connect()
 	if(!serialConnection->smReady)
 	{
 	serialConnection->open(ui.comboDevice->currentText().toAscii().data(),ui.comboBaud->currentText().toUInt());
+	sleep(1); //some systems need a delay after a port config
 	serialConnection->setSM();
 	serialConnection->smReady ?	setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
 	}else
