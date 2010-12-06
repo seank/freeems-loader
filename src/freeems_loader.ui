@@ -140,7 +140,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -361,29 +361,6 @@
      </property>
     </widget>
    </widget>
-  </widget>
-  <widget class="QSpinBox" name="spinBox">
-   <property name="geometry">
-    <rect>
-     <x>730</x>
-     <y>470</y>
-     <width>50</width>
-     <height>25</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_8">
-   <property name="geometry">
-    <rect>
-     <x>650</x>
-     <y>470</y>
-     <width>71</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Char Delay</string>
-   </property>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
