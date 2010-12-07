@@ -29,4 +29,5 @@ FORMS += freeems_loader.ui \
 RESOURCES += resource-root.qrc \
     resource-root.qrc \
     resource-root.qrc
-LIBS += -lboost_system
+unix:LIBS += -lboost_system
+win32:INCLUDEPATH += $$quote(C:/boost/boost_1_45_0/)
