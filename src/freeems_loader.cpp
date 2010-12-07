@@ -30,7 +30,7 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 FreeEMS_Loader::~FreeEMS_Loader()
 {
 	serialConnection->close();
-	delete serialConnection;
+	//delete serialConnection;
 }
 
 int FreeEMS_Loader::fillDevice()
@@ -171,6 +171,7 @@ void FreeEMS_Loader::fillParity()
 
 void FreeEMS_Loader::connect()
 {
+        cout<<"qt slot fired";
 	if(!serialConnection->smReady)
 	{
 	serialConnection->open(ui.comboDevice->currentText().toAscii().data(),ui.comboBaud->currentText().toUInt());
