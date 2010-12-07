@@ -4,3 +4,6 @@
 /release/*
 /.project
 /.settings/*
+/Makefile
+/Makefile.Release
+/Makefile.Debug
