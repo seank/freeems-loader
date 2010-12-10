@@ -26,8 +26,10 @@ FORMS += freeems_loader.ui \
     freeems_loader.ui \
     freeems_loader.ui \
     freeems_loader.ui
-RESOURCES += resource-root.qrc \
-    resource-root.qrc \
-    resource-root.qrc
+RESOURCES += resource-root.qrc 
 unix:LIBS += -lboost_system
-win32:INCLUDEPATH += $$quote(C:/boost/boost_1_45_0/)
+win32:LIBS += -LC:/boost/lib \
+    -lboost_system-mgw44-mt-1_45 \
+    -Lc:/mingw/lib \
+    -lwsock32
+win32:INCLUDEPATH += $$quote(C:/boost/include/boost-1_45)
