@@ -1,6 +1,11 @@
 #include "freeems_loader.h"
 #include "freeems_LoaderRedirector.h"
 #include "FreeEMS_LoaderComms.h"
+#include "freeems_loader_types.h"
+#include "FreeEMS_LoaderParsing.h"
+#include "FreeEMS_LoaderSREC.h"
+#include "string.h"
+#include <new>
 
 using namespace std;
 using namespace boost;
@@ -171,9 +176,9 @@ void FreeEMS_Loader::fillParity()
 
 void FreeEMS_Loader::connect()
 {
-        cout<<"qt slot fired";
-	if(!serialConnection->smReady)
+       	if(!serialConnection->smReady)
 	{
+       	setFlashType();
 	serialConnection->open(ui.comboDevice->currentText().toAscii().data(),ui.comboBaud->currentText().toUInt());
 	sleep(1); //some systems need a delay after a port config
 	serialConnection->setSM();
@@ -185,14 +190,70 @@ void FreeEMS_Loader::connect()
 	}
 }
 
+void FreeEMS_Loader::rip()
+{
+  //cout<<flashModuleTable[0].name;
+  ripFileName = QFileDialog::getSaveFileName(
+          this,
+          tr("Save s19 as"),
+          QDir::currentPath(),
+          tr("s19 (*.s19)") );
+      if( ripFileName.isNull() )
+      {
+        cout<<"error opening file";
+            //<<name.toAscii();
+      }
+  /*
+   *
+    1  Lookup number of s19s records needed in the device and create s19 array
+    2. Lookup number of PPages in device
+    3. Loop though all pages getting all data
+
+  */
+  FreeEMS_LoaderSREC *recordArray;
+  //recordArray = new FreeEMS_LoaderSREC recordArray[10];
+
+  cout<<"number of s19 records needed"<<(int)FreeEMS_LoaderParsing::calcuateNumRecordsNeeded(flashModuleTable[flashTypeIndex].numFlashBytes, 0x14);
+
+
+
+  QFile * outFile = new QFile(ripFileName);
+  if( ! outFile->open(QIODevice::WriteOnly) )
+  {
+    QMessageBox::warning(NULL, "Error", "Unable to open: " + ripFileName.toAscii() , "OK");
+  }
+  else
+  {
+    QTextStream outStream(outFile);
+    outStream << "Write this text to the file\n";
+  }
+  delete outFile;
+}
+
+void FreeEMS_Loader::getFileName(QString name)
+{
+  cout<<" in getfile name";
+  name = QFileDialog::getSaveFileName(
+         this,
+         tr("Save s19 as"),
+         QDir::currentPath(),
+         tr("s19 (*.s19)") );
+     if( !name.isNull() )
+     {
+       //qDebug( filename.toAscii() );
+       cout<<"error opening file ";
+           //<<name.toAscii();
+     }
+   }
+
 void FreeEMS_Loader::initGUI()
 {
 	ui.chkVerify->setChecked(true);
 	ui.chkRip->setChecked(true);
 	setGUIState(NOTCONNECTED);
 	ui.progressBar->setValue(0);
-	ui.radXDP->setChecked(1);
-	ui.radXDP->setDisabled(1);
+	ui.radFlashType->setChecked(1);
+	ui.radFlashType->setDisabled(1);
 }
 
 void FreeEMS_Loader::setGUIState(int state)
@@ -214,4 +275,16 @@ void FreeEMS_Loader::setGUIState(int state)
 	}
 }
 
-
+void FreeEMS_Loader::setFlashType()
+{
+   int i;
+   for(i = 0; flashModuleTable[i].name; i++)
+     {
+         if(!strcmp(flashModuleTable[i].name, ui.radFlashType->text().toAscii().data() ))
+           {
+             flashTypeIndex = i;
+             cout<<"set flash type to"<<flashModuleTable[flashTypeIndex].name;
+             return;
+           }
+     }
+}

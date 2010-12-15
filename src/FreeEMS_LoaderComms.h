@@ -3,7 +3,7 @@
  *
  *  Created on: Oct 29, 2010
  *      Author: seank
- *  Heavily copied from Terraneo Federico
+ *  Serial IO section heavily copied from Terraneo Federico
  */
 
 #ifndef FREEEMS_LOADERCOMMS_H_
@@ -14,6 +14,10 @@
 #include <stdexcept>
 #include <boost/utility.hpp>
 #include <boost/asio.hpp>
+
+#include <string>
+#include <sstream>
+using namespace std;
 
 /**
  * Thrown if timeout occurs
@@ -54,6 +58,13 @@ public:
         boost::asio::serial_port_base::stop_bits opt_stop=
             boost::asio::serial_port_base::stop_bits(
                 boost::asio::serial_port_base::stop_bits::one));
+
+    /*
+     *  B7/DC/IDID — Returns the constant $DC (Device C=12) and the 2-byte
+     *  HCS12 device ID register. Please refer to selected device guides for device ID
+     *  register contents.
+     */
+    void returnFlashType(char *responce);
 
     /**
      * Opens a serial device.

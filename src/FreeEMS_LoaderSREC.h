@@ -16,8 +16,11 @@ public:
 	virtual ~FreeEMS_LoaderSREC();
 //	bool verifyFile(int *file);
 	int  fillRecord(char *input);
+	/*
+	 * verify a records crc data
+	 */
 	bool verifyRecord();
-	int	 getRecordAddress();
+	int  getRecordAddress();
 	char getNextByte();
 	char getRecordType();
 	char calculateCheckSum();
@@ -27,9 +30,11 @@ public:
 
 private:
 	char record[1024]; // should never exceede 515
+	char recordPayload[1024];
 	int  recordIndex;
+	char recordChkSum;
 	bool writeAccess;
-
+	bool recordStatus;
 };
 
 #endif /* FREEEMS_LOADERSREC_H_ */

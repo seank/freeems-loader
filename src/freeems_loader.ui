@@ -210,7 +210,7 @@
      <property name="title">
       <string>Flash Type</string>
      </property>
-     <widget class="QRadioButton" name="radXDP">
+     <widget class="QRadioButton" name="radFlashType">
       <property name="enabled">
        <bool>false</bool>
       </property>
@@ -223,7 +223,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>S12XDP(512KB)</string>
+       <string>S12XDP512</string>
       </property>
      </widget>
     </widget>
@@ -387,11 +387,29 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushRip</sender>
+   <signal>clicked()</signal>
+   <receiver>FreeEMS_LoaderClass</receiver>
+   <slot>rip()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>558</x>
+     <y>220</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>670</x>
+     <y>194</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>signal2()</signal>
   <slot>test()</slot>
   <slot>slot1()</slot>
   <slot>connect()</slot>
+  <slot>rip()</slot>
+  <slot>getFileName()</slot>
  </slots>
 </ui>

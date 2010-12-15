@@ -76,6 +76,7 @@ void FreeEMS_LoaderComms::setSM()
 	  char ready[4] = {0xE1,0x00,0x3E, 0x00};
 
 	  write(&charReturn, 1);
+	  sleep(1);
 	  read(values,3);
 	  if(!strcmp(values, ready))
 	     {
@@ -259,4 +260,13 @@ void FreeEMS_LoaderComms::readCompleted(const boost::system::error_code& error,
         result=resultSuccess;
         this->bytesTransferred=bytesTransferred;
     }
+}
+
+void
+FreeEMS_LoaderComms::returnFlashType(char *responce)
+{
+  char getIDCommand = 0xB7;
+  write(&getIDCommand,1);
+  read(responce, 4);
+  return;
 }
