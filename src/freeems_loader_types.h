@@ -5,6 +5,7 @@
 #define EVEN	2
 #define MARK	3
 #define SPACE	4
+#define MAXSNINTEENPAYLOAD      0x14
 
 //typedef struct  {
 //	char *port;

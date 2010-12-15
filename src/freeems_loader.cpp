@@ -192,6 +192,9 @@ void FreeEMS_Loader::connect()
 
 void FreeEMS_Loader::rip()
 {
+  int numRecordsNeeded =  FreeEMS_LoaderParsing::calcuateNumRecordsNeeded(
+                                      flashModuleTable[flashTypeIndex].numFlashBytes,
+                                      MAXSNINTEENPAYLOAD);
   //cout<<flashModuleTable[0].name;
   ripFileName = QFileDialog::getSaveFileName(
           this,
@@ -210,12 +213,9 @@ void FreeEMS_Loader::rip()
     3. Loop though all pages getting all data
 
   */
-  FreeEMS_LoaderSREC *recordArray;
-  //recordArray = new FreeEMS_LoaderSREC recordArray[10];
+  FreeEMS_LoaderSREC* recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
 
-  cout<<"number of s19 records needed"<<(int)FreeEMS_LoaderParsing::calcuateNumRecordsNeeded(flashModuleTable[flashTypeIndex].numFlashBytes, 0x14);
-
-
+  cout<<"number of s19 records needed"<<numRecordsNeeded;
 
   QFile * outFile = new QFile(ripFileName);
   if( ! outFile->open(QIODevice::WriteOnly) )
