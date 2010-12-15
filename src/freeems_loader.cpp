@@ -195,8 +195,7 @@ void FreeEMS_Loader::rip()
   int numRecordsNeeded =  FreeEMS_LoaderParsing::calcuateNumRecordsNeeded(
                                       flashModuleTable[flashTypeIndex].numFlashBytes,
                                       MAXSNINTEENPAYLOAD);
-  //cout<<flashModuleTable[0].name;
-  ripFileName = QFileDialog::getSaveFileName(
+    ripFileName = QFileDialog::getSaveFileName(
           this,
           tr("Save s19 as"),
           QDir::currentPath(),
@@ -204,20 +203,20 @@ void FreeEMS_Loader::rip()
       if( ripFileName.isNull() )
       {
         cout<<"error opening file";
-            //<<name.toAscii();
       }
-  /*
+  cout<<"using file "<<ripFileName.toAscii().data();
+      /*
    *
     1  Lookup number of s19s records needed in the device and create s19 array
     2. Lookup number of PPages in device
     3. Loop though all pages getting all data
 
   */
-  FreeEMS_LoaderSREC* recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
+  FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
 
   cout<<"number of s19 records needed"<<numRecordsNeeded;
 
-  QFile * outFile = new QFile(ripFileName);
+  QFile *outFile = new QFile(ripFileName);
   if( ! outFile->open(QIODevice::WriteOnly) )
   {
     QMessageBox::warning(NULL, "Error", "Unable to open: " + ripFileName.toAscii() , "OK");
@@ -228,6 +227,7 @@ void FreeEMS_Loader::rip()
     outStream << "Write this text to the file\n";
   }
   delete outFile;
+  delete[] recordArray;
 }
 
 void FreeEMS_Loader::getFileName(QString name)
