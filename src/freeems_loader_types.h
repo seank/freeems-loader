@@ -14,12 +14,16 @@
 #define FIXED_FLASH     0x0001
 #define EEPROM          0x0002
 #define PAGED_FLASH     0x0004
+#define PPAGE_REGISTER_ADDRESS  0x30
 
-struct dataRange{
+struct dataVector{
   char *association;
   unsigned int startAddress;
   unsigned int stopAddress;
+  unsigned int startPage;
+  unsigned int stopPage;
   unsigned int memType;
+  unsigned int pageRegister;
 };
 
 struct flashModuleInfo{
@@ -29,12 +33,14 @@ struct flashModuleInfo{
   int numFlashBytes;
 };
 
-const struct dataRange dataRangeInfo[]
+const struct dataVector dataVectorTable[]
 {
-    {"S12XDP512", 0x4000, 0x7FFF, FIXED_FLASH},
-    {"S12XDP512", 0x8000, 0xBFFF, PAGED_FLASH},
-    {"S12XDP512", 0xC000, 0xFFFF, FIXED_FLASH},
-    {0,0,0,0}
+    {"S12XDP512", 0xC000, 0xFFFF, 0xFF, 0xFF, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
+    {"S12XDP512", 0x8000, 0xBFFF, 0xFE, 0xFE, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
+    {"S12XDP512", 0x4000, 0x7FFF, 0xFD, 0xFD, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
+    {"S12XDP512", 0xC000, 0xFFFF, 0xFC, 0xDF, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
+    {"S12C64", 0xC000, 0xFFFF, 0xFC, 0xDF, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
+    {0,0,0,0,0}
 };
 
 const struct flashModuleInfo flashModuleTable[]
