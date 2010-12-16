@@ -205,13 +205,19 @@ void FreeEMS_Loader::rip()
         cout<<"error opening file";
       }
   cout<<"using file "<<ripFileName.toAscii().data();
-      /*
-   *
-    1  Lookup number of s19s records needed in the device and create s19 array
-    2. Lookup number of PPages in device
-    3. Loop though all pages getting all data
 
-  */
+  int i;
+  for(i = 0; dataVectorTable[i].association; i++)
+    {           /* if the vector is of interest process it */
+      if(!strcmp(dataVectorTable[i].association, ui.radFlashType->text().toAscii().data()))
+        {
+
+        }
+    }
+  char test[1024];
+  serialConnection->readBlock((unsigned short)8000, test, 256);
+  cout<<test;
+
   FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
 
   cout<<"number of s19 records needed"<<numRecordsNeeded;
@@ -225,6 +231,7 @@ void FreeEMS_Loader::rip()
   {
     QTextStream outStream(outFile);
     outStream << "Write this text to the file\n";
+    outStream <<test;
   }
   delete outFile;
   delete[] recordArray;

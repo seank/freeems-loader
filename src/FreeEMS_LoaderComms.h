@@ -66,6 +66,13 @@ public:
      */
     void returnFlashType(char *responce);
 
+    /*
+     * Read a block of memory starting at address specified.
+     * Block is read twice to check integrity.
+     * 256 bytes max
+     */
+    int readBlock(unsigned short startAddress, char *buffer, char readNumBytes);
+
     /**
      * Opens a serial device.
      * \param devname serial device name, example "/dev/ttyS0" or "COM1"

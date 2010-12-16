@@ -270,3 +270,25 @@ FreeEMS_LoaderComms::returnFlashType(char *responce)
   read(responce, 4);
   return;
 }
+
+int
+FreeEMS_LoaderComms::readBlock(unsigned short startAddress, char *buffer, char readNumBytes)
+{
+  char readBlockCommand = 0xa7;
+  char lowByte;
+  char highByte;
+
+  lowByte = startAddress & 0x00FF;
+  highByte = startAddress;
+  highByte >>= 8;
+
+  write(&readBlockCommand,1);
+  write(&highByte,1);
+  write(&lowByte,1);
+  write(&readNumBytes,1);
+
+  read(buffer, readNumBytes);
+
+  return (strlen(buffer) == (unsigned char)readNumBytes) ? -1:1;
+}
+
