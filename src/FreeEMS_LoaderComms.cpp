@@ -7,6 +7,7 @@
  */
 
 #include "FreeEMS_LoaderComms.h"
+#include "FreeEMS_LoaderParsing.h"
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -93,7 +94,15 @@ void FreeEMS_LoaderComms::setSM()
 
 void FreeEMS_LoaderComms::write(const char *data, size_t size)
 {
-	asio::write(port,asio::buffer(data,size));
+    int i;
+    printf("\n about to write char(s) ");
+    for(i = (int)size; i > 0; i--)
+      {
+        printf("-> %x", *(data + (i - 1)));
+      }
+    printf("\n to com port \n");
+
+    asio::write(port,asio::buffer(data,size));
 }
 
 void FreeEMS_LoaderComms::write(const std::vector<char>& data)
@@ -272,23 +281,58 @@ FreeEMS_LoaderComms::returnFlashType(char *responce)
 }
 
 int
-FreeEMS_LoaderComms::readBlock(unsigned short startAddress, char *buffer, char readNumBytes)
+FreeEMS_LoaderComms::readBlock(unsigned short startAddress, char *buffer, int readNumBytes)
 {
+  char bytesToRead = (char)readNumBytes + (SM_READY_CHAR_SIZE - 1);
+
   char readBlockCommand = 0xa7;
   char lowByte;
   char highByte;
 
   lowByte = startAddress & 0x00FF;
-  highByte = startAddress;
-  highByte >>= 8;
+  highByte = startAddress >> 8;
+
+  printf("\n debug %x, %x, %x, %x",readBlockCommand, highByte, lowByte, startAddress);
 
   write(&readBlockCommand,1);
   write(&highByte,1);
   write(&lowByte,1);
-  write(&readNumBytes,1);
+  write(&bytesToRead,1);
 
-  read(buffer, readNumBytes);
+  read(buffer, (readNumBytes + SM_READY_CHAR_SIZE));
+
+  //printf("\n debug %s",buffer);
+  bytesToRead = 20;
+
+  //while(bytesToRead > 0 )
+   // {
+   //   printf("\n %x",*buffer);
+   //   bytesToRead--;
+   //   buffer++;
+   // }
+  //TODO macro this
+  if(!verifyReturn(buffer, readNumBytes))
+    cout<<"error reading block: return string not revieved";
 
   return (strlen(buffer) == (unsigned char)readNumBytes) ? -1:1;
 }
+
+int
+FreeEMS_LoaderComms::verifyReturn(char *buffer, char size)
+{
+  buffer = buffer + (size - 2);
+
+  if(*buffer == 0x3E)
+    {
+     cout<<"correct";
+    }
+  else
+    {
+    cout<<"incorrect";
+    cout<<buffer;
+    }
+
+  return (buffer[size] == 0x3E) && (buffer[size-1] == 0x0) && (buffer[size-2] == 0xE0) ? 1:0;
+}
+
 

@@ -214,9 +214,10 @@ void FreeEMS_Loader::rip()
 
         }
     }
+
   char test[1024];
-  serialConnection->readBlock((unsigned short)8000, test, 256);
-  cout<<test;
+  //memset(test, 1024, 0);
+  serialConnection->readBlock(0x4000, test, 10);
 
   FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
 

@@ -14,9 +14,9 @@
 #include <stdexcept>
 #include <boost/utility.hpp>
 #include <boost/asio.hpp>
-
 #include <string>
 #include <sstream>
+
 using namespace std;
 
 /**
@@ -71,7 +71,12 @@ public:
      * Block is read twice to check integrity.
      * 256 bytes max
      */
-    int readBlock(unsigned short startAddress, char *buffer, char readNumBytes);
+    int readBlock(unsigned short startAddress, char *buffer, int readNumBytes);
+
+    /*
+     * Every command returns the ready SM sequence, if not there is a problem
+     */
+    int verifyReturn(char *buffer, char size);
 
     /**
      * Opens a serial device.

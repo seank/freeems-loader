@@ -8,6 +8,8 @@
 
 #define MAXSNINTEENPAYLOAD      0x14
 
+#define SM_READY_CHAR_SIZE      0x03
+
 #define FTX512K4        0x0001
 #define EETX4K          0x0002
 
