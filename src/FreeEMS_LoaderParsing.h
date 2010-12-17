@@ -15,6 +15,7 @@ public:
   virtual
   ~FreeEMS_LoaderParsing();
   void asciiPairToChars(char *ascii, char *eightBit);
+  static void intToHexAscii(int number, char* buffer, unsigned char numBitsToConvert);
   static int calcuateNumRecordsNeeded(int flashBytes, int bytesInRecord);
 };
 
