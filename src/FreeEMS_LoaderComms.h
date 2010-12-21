@@ -76,7 +76,7 @@ public:
     /*
      * Every command returns the ready SM sequence, if not there is a problem
      */
-    int verifyReturn(char *buffer, char size);
+    int verifyReturn(char *buffer, int size);
 
     /**
      * Opens a serial device.

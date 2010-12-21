@@ -283,56 +283,62 @@ FreeEMS_LoaderComms::returnFlashType(char *responce)
 int
 FreeEMS_LoaderComms::readBlock(unsigned short startAddress, char *buffer, int readNumBytes)
 {
-  char bytesToRead = (char)readNumBytes + (SM_READY_CHAR_SIZE - 1);
-
+  unsigned int numRetries = 3; //TODO global
+  bool memError = true;
+  char requestBytes = (char) readNumBytes - 1; // it reads one by default
+  readNumBytes += SM_READY_CHAR_SIZE; // the sm added the ready bytes after every command
+  char *parityBuffer = (char*)malloc(readNumBytes);
+  //char bytesToRead = (char)readNumBytes + SM_READY_CHAR_SIZE;
   char readBlockCommand = 0xa7;
   char lowByte;
   char highByte;
-
   lowByte = startAddress & 0x00FF;
   highByte = startAddress >> 8;
 
-  printf("\n debug %x, %x, %x, %x",readBlockCommand, highByte, lowByte, startAddress);
+ // printf("\n debug %x, %x, %x, %x",readBlockCommand, highByte, lowByte, startAddress);
 
-  write(&readBlockCommand,1);
-  write(&highByte,1);
-  write(&lowByte,1);
-  write(&bytesToRead,1);
-
-  read(buffer, (readNumBytes + SM_READY_CHAR_SIZE));
-
-  //printf("\n debug %s",buffer);
-  bytesToRead = 20;
-
-  //while(bytesToRead > 0 )
-   // {
-   //   printf("\n %x",*buffer);
-   //   bytesToRead--;
-   //   buffer++;
-   // }
-  //TODO macro this
-  if(!verifyReturn(buffer, readNumBytes))
-    cout<<"error reading block: return string not revieved";
-
-  return (strlen(buffer) == (unsigned char)readNumBytes) ? -1:1;
+  while(numRetries && (memError == true))
+    {
+      /* read into first buffer */
+      write(&readBlockCommand,1);
+      write(&highByte,1);
+      write(&lowByte,1);
+      write(&requestBytes,1);
+      read(buffer, readNumBytes);
+      /* read into second buffer */
+      write(&readBlockCommand,1);
+      write(&highByte,1);
+      write(&lowByte,1);
+      write(&requestBytes,1);
+      read(parityBuffer, readNumBytes);
+      memError = (bool) memcmp(buffer, parityBuffer, readNumBytes);
+      numRetries--;
+    }
+  free(parityBuffer);
+  if(memError == true)
+    cout<<"data error detected while reading block, tried three times";
+  return verifyReturn(buffer, readNumBytes) ? 1:-1;
 }
 
 int
-FreeEMS_LoaderComms::verifyReturn(char *buffer, char size)
+FreeEMS_LoaderComms::verifyReturn(char *buffer, int size)
 {
-  buffer = buffer + (size - 2);
-
-  if(*buffer == 0x3E)
+  buffer += (size - 1);
+  printf("\n buffer is %x", *buffer);
+  if((unsigned char)*buffer == 0x3E)
     {
-     cout<<"correct";
+     buffer--;
+     if((unsigned char)*buffer == 0x0)
+       {
+         buffer--;
+         if((unsigned char)*buffer == 0xe0)
+           {
+           return 1;
+           }
+       }
     }
-  else
-    {
-    cout<<"incorrect";
-    cout<<buffer;
-    }
-
-  return (buffer[size] == 0x3E) && (buffer[size-1] == 0x0) && (buffer[size-2] == 0xE0) ? 1:0;
+  cout<<"waring:return chars not found";
+  return -1;
 }
 
 
