@@ -219,7 +219,7 @@ void FreeEMS_Loader::rip()
   //memset(test, 1024, 0);
   serialConnection->readBlock(0x4000, test, 10);
 
-  FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
+  //FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
 
   cout<<"number of s19 records needed"<<numRecordsNeeded;
 
@@ -235,7 +235,7 @@ void FreeEMS_Loader::rip()
     outStream <<test;
   }
   delete outFile;
-  delete[] recordArray;
+  //delete[] recordArray;
 }
 
 void FreeEMS_Loader::getFileName(QString name)
