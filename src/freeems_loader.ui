@@ -365,6 +365,19 @@
     </widget>
    </widget>
   </widget>
+  <widget class="QPushButton" name="pushRip_2">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>170</y>
+     <width>101</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Debug</string>
+   </property>
+  </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
@@ -400,6 +413,22 @@
     <hint type="destinationlabel">
      <x>670</x>
      <y>194</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushRip_2</sender>
+   <signal>clicked()</signal>
+   <receiver>FreeEMS_LoaderClass</receiver>
+   <slot>rip()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>538</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>691</x>
+     <y>193</y>
     </hint>
    </hints>
   </connection>

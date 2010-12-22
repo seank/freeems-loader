@@ -188,14 +188,17 @@ void FreeEMS_Loader::connect()
 		serialConnection->close();
 		serialConnection->smReady ?	setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
 	}
-}
+ }
 
 void FreeEMS_Loader::rip()
 {
+  flashTypeIndex = 0;//TODO DELETE force type S12XDP512 for testing
+
   int numRecordsNeeded =  FreeEMS_LoaderParsing::calcuateNumRecordsNeeded(
                                       flashModuleTable[flashTypeIndex].numFlashBytes,
                                       MAXSNINTEENPAYLOAD);
-    ripFileName = QFileDialog::getSaveFileName(
+
+  ripFileName = QFileDialog::getSaveFileName(
           this,
           tr("Save s19 as"),
           QDir::currentPath(),
@@ -204,6 +207,7 @@ void FreeEMS_Loader::rip()
       {
         cout<<"error opening file";
       }
+
   cout<<"using file "<<ripFileName.toAscii().data();
 
   int i;
@@ -215,13 +219,20 @@ void FreeEMS_Loader::rip()
         }
     }
 
+
   char test[1024];
-  //memset(test, 1024, 0);
-  serialConnection->readBlock(0x4000, test, 10);
+  memset(test, 1024, 0);
+  //serialConnection->readBlock(0x4000, test, 10);
 
+  /* TEST CODE */
   //FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
+  FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC(S2);
+  recordArray->setRecordAddress(0xFFFFFF);
 
-  cout<<"number of s19 records needed"<<numRecordsNeeded;
+  recordArray->printRecord();
+  /* END TEST CODE */
+
+  //cout<<"number of s19 records needed"<<numRecordsNeeded;
 
   QFile *outFile = new QFile(ripFileName);
   if( ! outFile->open(QIODevice::WriteOnly) )
@@ -236,6 +247,7 @@ void FreeEMS_Loader::rip()
   }
   delete outFile;
   //delete[] recordArray;
+ // delete recordArray;
 }
 
 void FreeEMS_Loader::getFileName(QString name)

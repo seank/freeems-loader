@@ -9,12 +9,22 @@
 #define FREEEMS_LOADERSREC_H_
 
 #include <string>
+#include "FreeEMS_LoaderParsing.h"
+#include <stdio.h>
+#include <memory>
+#include <string.h>
+#include <iostream>
 
 using namespace std;
+
+#define START_OF_ADDRESS_OFFSET  0x03 //the first character of our address in hex ascii
+#define BITS_PER_BYTE           0x08 // bits in a byte
+#define CHECKSUM_BYTE           0x01 // checksum is 1 byte
 
 struct s19Info{
   int type;
   char *description;
+  char *s19ID; // type in ascii
   int addressBytes;
   bool dataSequence;
 };
@@ -34,26 +44,26 @@ enum s19ID{
 
 const struct s19Info s19Table[]
 {
-  {S0, "Block header", 2, true},
-  {S1, "Data sequence", 2, true},
-  {S2, "Data sequence", 3, true},
-  {S3, "Data sequence", 4, true},
-  {S5, "Record count", 2, false},
-  {S7, "End of block", 4, false},
-  {S8, "End of block", 3, false},
-  {S9, "End of block", 2, false},
-  {0,0,0,0}
+  {S0, "Block header", "S0", 2, true},
+  {S1, "Data sequence", "S1", 2, true},
+  {S2, "Data sequence", "S2", 3, true},
+  {S3, "Data sequence", "S3", 4, true},
+  {S5, "Record count", "S5", 2, false},
+  {S7, "End of block", "S7", false},
+  {S8, "End of block", "S8", 3, false},
+  {S9, "End of block", "S9", 2, false},
+  {0,0,0,0,0}
 };
 
 //enum BOOL {READONLY, READWRITE}
 
 class FreeEMS_LoaderSREC {
 public:
-	FreeEMS_LoaderSREC(unsigned char type);
-	FreeEMS_LoaderSREC(char *input, int numBytes, unsigned char type);
+	FreeEMS_LoaderSREC(int type);
+	FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress);
 	virtual ~FreeEMS_LoaderSREC();
 //	bool verifyFile(int *file);
-	int fillRecord(char *input, int numBytes, unsigned char type);
+	int fillRecord(char *input, int numBytes);
 	/*
 	 * calculate a records checksum and compre it to the stored value.
 	 */
@@ -61,6 +71,8 @@ public:
 	int  getRecordAddress();
 	char getNextByte();
 	char getRecordType();
+	void buildRecord();
+	void printRecord();
 
 	/*
 	  These characters when paired and interpreted as a hexadecimal value display
@@ -72,7 +84,8 @@ public:
 
 	int  putNextByte(char byte);
 	int  setRecordAddress(unsigned int address);
-	int  setRecordType(char *type);
+	int  setRecordType(int type);
+	int  setTypeIndex(int type);
 
 private:
 	string record;
@@ -84,6 +97,9 @@ private:
  	char recordChkSum;
 	bool writeAccess;
 	bool recordStatus;
+	int typeIndex;
+	bool addressIsSet;
+	bool typeIsSet;
 };
 
 #endif /* FREEEMS_LOADERSREC_H_ */
