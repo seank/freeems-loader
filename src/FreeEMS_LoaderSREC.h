@@ -94,15 +94,16 @@ public:
 	int  setRecordType(int type);
 	int  setTypeIndex(int type);
 	void setNumPairsInRecord();
+	void initVariables();
 
 private:
 	string record;
 	//char record[1024]; // should never exceede 515
 	char recordPayload[ONE_KB];
-	char recordAddress[ONE_KB];
-	char recordTypeId[TWO_BYTES];
-	int  bytesInAddress;
-	char recordPayloadPairCount[TWO_BYTES];
+	char recordAddressChars[ONE_KB];
+	char recordTypeIdChars[TWO_BYTES];
+	int  charsInAddress;
+	char recordPayloadPairCountChars[TWO_BYTES];
 	char checksum;
 	int recordIndex;
  	int recordPayloadBytes;

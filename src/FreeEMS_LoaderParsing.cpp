@@ -44,12 +44,10 @@ FreeEMS_LoaderParsing::intToHexAscii(int number, char* buffer, unsigned char num
     for( i = numBitsToConvert / 4, buffer += (i - 1); i > 0; i--, number >>= 4, buffer--)
       {
           charNumber = (number & 0x0F);
-          if(charNumber > 0 && charNumber < 10)
-            *buffer = charNumber  + '0';
-          if(charNumber > 10 && charNumber < 16)
+          if(charNumber >= 0 && charNumber < 10)
+            *buffer = charNumber + '0';
+          if(charNumber >= 10 && charNumber < 16)
             *buffer = charNumber + 'A' - 10;
-          if(charNumber == 0)
-            *buffer = '0';
        } //debug
   return;
 }
