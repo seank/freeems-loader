@@ -8,6 +8,12 @@
 #ifndef FREEEMS_LOADERPARSING_H_
 #define FREEEMS_LOADERPARSING_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+
+using namespace std;
+//using namespace boost;
+
 class FreeEMS_LoaderParsing
 {
 public:

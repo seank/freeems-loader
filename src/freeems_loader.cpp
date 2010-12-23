@@ -219,19 +219,20 @@ void FreeEMS_Loader::rip()
         }
     }
 
-
   char test[1024];
   memset(test, 1024, 0);
-  //serialConnection->readBlock(0x4000, test, 10);
-
+  serialConnection->readBlock(0x4000, test, 10);
   /* TEST CODE */
   //FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
   FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC(S2);
-  recordArray->setRecordAddress(0xFFFFFF);
+  recordArray->setRecordAddress(0xFFFEFE);
+  recordArray->putNextByte(0xAB);
+  recordArray->putNextByte(0xCD);
+  recordArray->setNumPairsInRecord();
+  recordArray->buildRecord();
 
   recordArray->printRecord();
   /* END TEST CODE */
-
   //cout<<"number of s19 records needed"<<numRecordsNeeded;
 
   QFile *outFile = new QFile(ripFileName);
@@ -242,8 +243,9 @@ void FreeEMS_Loader::rip()
   else
   {
     QTextStream outStream(outFile);
-    outStream << "Write this text to the file\n";
-    outStream <<test;
+    outStream << "About to write payload string\n";
+
+    outStream << "Done writing payload string\n";
   }
   delete outFile;
   //delete[] recordArray;

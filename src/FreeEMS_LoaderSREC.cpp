@@ -15,9 +15,8 @@
 */
 
 FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(int type) {
-   recordIndex = 0;
-   recordPayloadLength = 0;
-   setTypeIndex(type);
+  memset(recordPayload, 0, ONE_KB); //clear buffer
+  setTypeIndex(type);
 
 }
 
@@ -26,19 +25,17 @@ FreeEMS_LoaderSREC::~FreeEMS_LoaderSREC() {
 }
 
 FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress) {
-  recordIndex = 0;
-  recordPayloadLength = numBytes + CHECKSUM_BYTE;
+  memset(recordPayload, 0, ONE_KB); //clear buffer
   setTypeIndex(type);
   setRecordAddress(recordAddress);
-  fillRecord(input, recordPayloadLength);
-
+  //fillRecord(input, recordPayloadLength);
 }
 
 int
 FreeEMS_LoaderSREC::fillRecord(char *input, int numBytes)
 {
  int i;
- for(i = recordPayloadLength; i > 0; i--)
+ for(i = recordIndex; i > 0; i--)
    {
 
    }
@@ -47,6 +44,12 @@ FreeEMS_LoaderSREC::fillRecord(char *input, int numBytes)
 int
 FreeEMS_LoaderSREC::putNextByte(char byte) {
 
+  if(typeIsSet == false)
+    return -2;
+  FreeEMS_LoaderParsing::intToHexAscii((int)byte, (recordPayload + recordIndex), ONE_BYTE * BITS_PER_BYTE);
+  recordIndex++;
+  recordPayloadBytes++;
+  return 1;
 }
 
 int
@@ -58,7 +61,8 @@ FreeEMS_LoaderSREC::setTypeIndex(int type)
       if(type == s19Table[i].type)
         {
          typeIndex = type;
-         memcpy(recordPayload, s19Table[typeIndex].s19ID, 2);
+         memcpy(recordTypeId, s19Table[typeIndex].s19ID, TWO_BYTES);
+         typeIsSet = true;
          return 1;
         }
     }
@@ -68,32 +72,48 @@ FreeEMS_LoaderSREC::setTypeIndex(int type)
 int
 FreeEMS_LoaderSREC::setRecordAddress(unsigned int address)
 {
-  char *startOfAddress = recordPayload + START_OF_ADDRESS_OFFSET;
-  //TODO add type vs size constraint checking
   payloadAddress = address;
+  //recordPayloadLength += s19Table[typeIndex].addressBytes * TWO_BYTES;
+  FreeEMS_LoaderParsing::intToHexAscii(address, recordAddress, (s19Table[typeIndex].addressBytes) * BITS_PER_BYTE);
+  bytesInAddress = (s19Table[typeIndex].addressBytes) * ASCII_PAIR;
   addressIsSet = true;
-  FreeEMS_LoaderParsing::intToHexAscii(address, startOfAddress, (s19Table[typeIndex].addressBytes) * BITS_PER_BYTE);
-  //to convert an integer to an ASCII character
-
   return 0;
 }
 
 unsigned char
-FreeEMS_LoaderSREC::calculateCheckSum(char *payload){
+FreeEMS_LoaderSREC::calculateCheckSum(){
   int index;
   unsigned char checksum = 0;
-  for(index = 0; index < recordPayloadLength; index++)
+  for(index = 0; index < recordPayloadBytes; index++)
     {
-      checksum += (unsigned char) *(payload + index);
+      checksum += (unsigned char) *(recordPayload + index);
     }
-  return ~checksum;
+  for(index = 0; index < bytesInAddress; index++)
+    {
+      checksum += (unsigned char) *(recordAddress + index);
+    }
+  return ~checksum;  // compliment and return
 }
 
 void
 FreeEMS_LoaderSREC::buildRecord()
 {
- //memcpy(record, recordPayload, recordPayloadLength );
+
+  int i;
+  for(i =0; i > recordIndex; i++)
+    {
+      record += recordPayload[i];
+    }
+  cout<<record;
 }
+
+void
+FreeEMS_LoaderSREC::setNumPairsInRecord()
+{
+  int numCharPairs = recordIndex / 2;
+  FreeEMS_LoaderParsing::intToHexAscii(numCharPairs, recordPayload + TWO_BYTES, ONE_BYTE * BITS_PER_BYTE);
+}
+
 
 void
 FreeEMS_LoaderSREC::printRecord()

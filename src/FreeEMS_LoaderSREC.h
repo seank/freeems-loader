@@ -15,11 +15,18 @@
 #include <string.h>
 #include <iostream>
 
+
 using namespace std;
 
-#define START_OF_ADDRESS_OFFSET  0x03 //the first character of our address in hex ascii
+#define START_OF_ADDRESS_OFFSET  0x04 //the first character of our address in hex ascii
 #define BITS_PER_BYTE           0x08 // bits in a byte
 #define CHECKSUM_BYTE           0x01 // checksum is 1 byte
+#define TWO_BYTES               0x02 // two in hex
+#define ONE_BYTE                0x01 // one byte in hex
+#define TYPE_ID_BYTES           0x02 // num of bytes in type header
+#define ONE_KB                  0x0400 // one kilo byte
+#define CH_PAIR_COUNT_BYTE      0x01
+#define ASCII_PAIR              0x02
 
 struct s19Info{
   int type;
@@ -80,19 +87,25 @@ public:
 	  represented by the pairs of characters making up the count, the address, and
 	  the data fields.
 	*/
-	unsigned char calculateCheckSum(char *payload);
+	unsigned char calculateCheckSum();
 
 	int  putNextByte(char byte);
 	int  setRecordAddress(unsigned int address);
 	int  setRecordType(int type);
 	int  setTypeIndex(int type);
+	void setNumPairsInRecord();
 
 private:
 	string record;
 	//char record[1024]; // should never exceede 515
-	char recordPayload[1024];
-	int recordPayloadLength;
- 	int recordIndex;
+	char recordPayload[ONE_KB];
+	char recordAddress[ONE_KB];
+	char recordTypeId[TWO_BYTES];
+	int  bytesInAddress;
+	char recordPayloadPairCount[TWO_BYTES];
+	char checksum;
+	int recordIndex;
+ 	int recordPayloadBytes;
  	unsigned int payloadAddress;
  	char recordChkSum;
 	bool writeAccess;
