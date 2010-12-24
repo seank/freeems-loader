@@ -3,7 +3,7 @@ Welcome to FreeEMS-Loader!
 ##########################  LINUX USERS #################################
 To build and run this application please run the following commands:
 
-1. "apt-get update && apt-get install libboost-dev libboost-system-dev"
+1. "apt-get update && apt-get install libboost-dev libboost-system-dev qt4-qmake libqt4-dev"
 
 2. Simply type "qmake && make all" and hit enter!
 
