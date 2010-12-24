@@ -31,6 +31,7 @@ FreeEMS_LoaderSREC::initVariables()
   memset(recordTypeIdChars, 0, sizeof(recordTypeIdChars));
   memset(recordAddressChars, 0, sizeof(recordAddressChars));
   memset(recordPayloadPairCountChars, 0, sizeof(recordPayloadPairCountChars));
+  memset(recordCheckSumChars, 0, sizeof(recordCheckSumChars));
 
   recordIndex = 0;
   charsInAddress = 0;
@@ -107,10 +108,12 @@ FreeEMS_LoaderSREC::calculateCheckSum(){
   unsigned char checksum = 0;
   for(index = 0; index < recordPayloadBytes; index++)
     {
+      // TODO covert CH_PAIR to char value
       checksum += (unsigned char) *(recordPayload + index);
     }
   for(index = 0; index < charsInAddress; index++)
     {
+      // TODO covert CH_PAIR to char value
       checksum += (unsigned char) *(recordAddressChars + index);
     }
   return ~checksum;  // compliment and return
@@ -119,6 +122,8 @@ FreeEMS_LoaderSREC::calculateCheckSum(){
 void
 FreeEMS_LoaderSREC::buildRecord()
 {
+  calculateCheckSum();
+  FreeEMS_LoaderParsing::intToHexAscii((int)calculateCheckSum(), recordCheckSumChars, TWO_BYTES * BITS_PER_BYTE);
   int i;
   for(i =0; i > recordIndex; i++)
     {

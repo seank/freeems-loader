@@ -226,8 +226,8 @@ void FreeEMS_Loader::rip()
   //FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
   FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC(S2);
   recordArray->setRecordAddress(0xFFFEFE);
-  recordArray->putNextByte(0xCD);
-  recordArray->putNextByte(0xAB);
+  recordArray->putNextByte(0x01);
+  recordArray->putNextByte(0x02);
   recordArray->setNumPairsInRecord();
   recordArray->buildRecord();
 

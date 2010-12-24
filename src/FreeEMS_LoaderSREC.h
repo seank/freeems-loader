@@ -98,20 +98,25 @@ public:
 
 private:
 	string record;
-	//char record[1024]; // should never exceede 515
+
 	char recordPayload[ONE_KB];
 	char recordAddressChars[ONE_KB];
 	char recordTypeIdChars[TWO_BYTES];
-	int  charsInAddress;
 	char recordPayloadPairCountChars[TWO_BYTES];
+	char recordCheckSumChars[TWO_BYTES];
+
+	char recordChkSum;
 	char checksum;
+
+	int charsInAddress;
 	int recordIndex;
  	int recordPayloadBytes;
+ 	int typeIndex;
+
  	unsigned int payloadAddress;
- 	char recordChkSum;
+
 	bool writeAccess;
 	bool recordStatus;
-	int typeIndex;
 	bool addressIsSet;
 	bool typeIsSet;
 };

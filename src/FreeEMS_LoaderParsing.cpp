@@ -24,10 +24,31 @@ FreeEMS_LoaderParsing::~FreeEMS_LoaderParsing()
   // TODO Auto-generated destructor stub
 }
 
-void
-FreeEMS_LoaderParsing::asciiPairToChars(char *ascii, char *eightBit)
+unsigned char
+FreeEMS_LoaderParsing::asciiPairToChar(char *ascii_pair)
 {
-
+  int i;
+  unsigned char byte = 0;
+  char pair_char = 0;
+  for(i = 0; i < 2; i++)
+    {
+      pair_char = ascii_pair[i];
+      if(pair_char >= 0 && pair_char < 10)
+          {
+          byte += pair_char - '0';
+          }
+        else if(pair_char >= 'A' && pair_char <= 'F' )
+          {
+            byte += pair_char - 'A';
+          }
+        else
+          {
+            cout<<"error converting ascii hiNibble: out of range";
+          }
+      if(i == 0)
+        byte <<= 4;
+    }
+  return byte;
 }
 
 int
