@@ -71,14 +71,21 @@ void FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
 
 void FreeEMS_LoaderComms::setSM()
 {
+  //std::vector<char> readyChars;
+  //readyChars.push_back(0xE1, 0x00);
+  //readyChars.push_back(0x00);
+  //readyChars.push_back(0x00);
+
 	try{
-	  char charReturn = 0x0D;
+	  char charReturn = (unsigned char)0x0D;
 	  char values[4] = {0x00,0x00,0x00,0x00};
-	  char ready[4] = {0xE1,0x00,0x3E, 0x00};
+	  char ready[4] = {(char)0xE1,(char)0x00,(char)0x3E,(char) 0x00};
+	  //std::vector<char> readyChars(ready, ready + sizeof(ready) / sizeof(unsigned char));
 
 	  write(&charReturn, 1);
 	  sleep(1);
 	  read(values,3);
+	  sleep(1);
 	  if(!strcmp(values, ready))
 	     {
 	     	smReady = 1;
@@ -155,6 +162,11 @@ void FreeEMS_LoaderComms::read(char *data, size_t size)
                 port.cancel();
                 throw(boost::system::system_error(boost::system::error_code(),
                         "Error while reading"));
+            default:
+                timer.cancel();
+                port.cancel();
+                throw(boost::system::system_error(boost::system::error_code(),
+                        "Error while reading"));
             //if resultInProgress remain in the loop
         }
     }
@@ -209,6 +221,11 @@ std::string FreeEMS_LoaderComms::readStringUntil(const std::string& delim)
                 port.cancel();
                 throw(timeout_exception("Timeout expired"));
             case resultError:
+                timer.cancel();
+                port.cancel();
+                throw(boost::system::system_error(boost::system::error_code(),
+                        "Error while reading"));
+            default:
                 timer.cancel();
                 port.cancel();
                 throw(boost::system::system_error(boost::system::error_code(),

@@ -40,13 +40,15 @@ FreeEMS_LoaderSREC::initVariables()
   payloadAddress = 0;
   typeIndex = 0;
 
-  writeAccess;
-  recordStatus;
-  addressIsSet;
-  typeIsSet;
+  writeAccess = true;
+  recordStatus = false;
+  addressIsSet = false;
+  typeIsSet = false;
 }
 
 FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress) {
+  input++;
+  numBytes++;
   initVariables();
   setTypeIndex(type);
   setRecordAddress(recordAddress);
@@ -56,11 +58,14 @@ FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsi
 int
 FreeEMS_LoaderSREC::fillRecord(char *input, int numBytes)
 {
+  input++;
+  numBytes++;
  int i;
  for(i = recordIndex; i > 0; i--)
    {
 
    }
+ return 0;
 }
 
 int

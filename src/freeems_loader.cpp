@@ -61,6 +61,8 @@ void FreeEMS_Loader::redirectCLI()
 {
 	StdRedirector<char>* coutRedirector = new StdRedirector <char>(std::cout, outCallBack, ui.textOutput);
 	//StdRedirector<char>* perrorRedirector = new StdRedirector <char>(&perror, outCallBack, ui.textOutput);
+	int compileWarning = (int)coutRedirector;
+	  compileWarning++;
 	std::cout <<"CLI output redirected";
 }
 
@@ -194,9 +196,10 @@ void FreeEMS_Loader::rip()
 {
   flashTypeIndex = 0;//TODO DELETE force type S12XDP512 for testing
 
-  int numRecordsNeeded =  FreeEMS_LoaderParsing::calcuateNumRecordsNeeded(
-                                      flashModuleTable[flashTypeIndex].numFlashBytes,
-                                      MAXSNINTEENPAYLOAD);
+  //int numRecordsNeeded =  FreeEMS_LoaderParsing::calcuateNumRecordsNeeded(
+   //                                   flashModuleTable[flashTypeIndex].numFlashBytes,
+    //                                  MAXSNINTEENPAYLOAD);
+
 
   ripFileName = QFileDialog::getSaveFileName(
           this,

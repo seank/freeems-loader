@@ -1,5 +1,6 @@
 TEMPLATE = app
 TARGET = FreeEMS_Loader
+QMAKE_CXXFLAGS += -std=c++0x -Wall -Werror
 CONFIG += qt \
     warn_on \
     release \

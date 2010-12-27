@@ -30,8 +30,8 @@ using namespace std;
 
 struct s19Info{
   int type;
-  char *description;
-  char *s19ID; // type in ascii
+  const char *description;
+  const char *s19ID; // type in ascii
   int addressBytes;
   bool dataSequence;
 };
@@ -56,10 +56,10 @@ const struct s19Info s19Table[]
   {S2, "Data sequence", "S2", 3, true},
   {S3, "Data sequence", "S3", 4, true},
   {S5, "Record count", "S5", 2, false},
-  {S7, "End of block", "S7", false},
+  {S7, "End of block", "S7", 0, false},
   {S8, "End of block", "S8", 3, false},
   {S9, "End of block", "S9", 2, false},
-  {0,0,0,0,0}
+  {0,0,0,0, false}
 };
 
 //enum BOOL {READONLY, READWRITE}

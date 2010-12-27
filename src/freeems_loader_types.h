@@ -19,7 +19,7 @@
 #define PPAGE_REGISTER_ADDRESS  0x30
 
 struct dataVector{
-  char *association;
+  const char *association;
   unsigned int startAddress;
   unsigned int stopAddress;
   unsigned int startPage;
@@ -29,7 +29,7 @@ struct dataVector{
 };
 
 struct flashModuleInfo{
-  char *name;
+  const char *name;
   unsigned int flashModule;
   unsigned int EEPROMModule;
   int numFlashBytes;
@@ -42,7 +42,7 @@ const struct dataVector dataVectorTable[]
     {"S12XDP512", 0x4000, 0x7FFF, 0xFD, 0xFD, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
     {"S12XDP512", 0xC000, 0xFFFF, 0xFC, 0xDF, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
     {"S12C64", 0xC000, 0xFFFF, 0xFC, 0xDF, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
-    {0,0,0,0,0}
+    {0,0,0,0,0,0,0}
 };
 
 const struct flashModuleInfo flashModuleTable[]
