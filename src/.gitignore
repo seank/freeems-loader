@@ -4,6 +4,7 @@
 /release/*
 /.project
 /.settings/*
-/Makefile
-/Makefile.Release
-/Makefile.Debug
+/Makefile*
+/qrc_resource-root.cpp
+/moc_freeems_loader.cpp
+/*.o
