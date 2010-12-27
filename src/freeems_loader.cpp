@@ -224,7 +224,7 @@ void FreeEMS_Loader::rip()
 
   char test[1024];
   memset(test, 1024, 0);
-  serialConnection->readBlock(0x4000, test, 10);
+  //serialConnection->readBlock(0x4000, test, 10);
   /* TEST CODE */
   //FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
   FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC(S2);

@@ -71,32 +71,26 @@ void FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
 
 void FreeEMS_LoaderComms::setSM()
 {
-  //std::vector<char> readyChars;
-  //readyChars.push_back(0xE1, 0x00);
-  //readyChars.push_back(0x00);
-  //readyChars.push_back(0x00);
-
-	try{
-	  char charReturn = (unsigned char)0x0D;
-	  char values[4] = {0x00,0x00,0x00,0x00};
-	  char ready[4] = {(char)0xE1,(char)0x00,(char)0x3E,(char) 0x00};
-	  //std::vector<char> readyChars(ready, ready + sizeof(ready) / sizeof(unsigned char));
-
-	  write(&charReturn, 1);
-	  sleep(1);
-	  read(values,3);
-	  sleep(1);
-	  if(!strcmp(values, ready))
-	     {
-	     	smReady = 1;
-	     }else
-	     {
-	     	smReady = 0;
-	     }
-    } catch(boost::system::system_error& e)
-	    {
-	      cout<<"Error: "<<e.what()<<endl;
+  char charReturn = (unsigned char)0x0D;
+  char values[4] = {0x00,0x00,0x00,0x00};
+  char ready[4] = {(char)0xE1,(char)0x00,(char)0x3E,(char) 0x00};
+  try{
+      write(&charReturn, 1);
+      sleep(1);
+      read(values,3);
+      sleep(1);
+      if(!strcmp(values, ready))
+        {
+          smReady = 1;
+	 }else
+	   {
+	     smReady = 0;
 	    }
+      }
+  catch(boost::system::system_error& e)
+   {
+    cout<<"Error: "<<e.what()<<endl;
+   }
 }
 
 void FreeEMS_LoaderComms::write(const char *data, size_t size)

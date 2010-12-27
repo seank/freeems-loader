@@ -7,7 +7,6 @@
 #define SPACE	4
 
 #define MAXSNINTEENPAYLOAD      0x14
-
 #define SM_READY_CHAR_SIZE      0x03
 
 #define FTX512K4        0x0001

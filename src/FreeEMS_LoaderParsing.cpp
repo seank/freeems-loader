@@ -30,10 +30,10 @@ FreeEMS_LoaderParsing::asciiPairToChar(char *ascii_pair)
   int i;
   unsigned char byte = 0;
   char pair_char = 0;
-  for(i = 0; i < 2; i++)
+  for(i = 0; i <= 2; i++) // loop twice
     {
       pair_char = ascii_pair[i];
-      if(pair_char >= 0 && pair_char < 10)
+      if(pair_char >= '0' && pair_char <= '9')
           {
           byte += pair_char - '0';
           }
@@ -45,7 +45,7 @@ FreeEMS_LoaderParsing::asciiPairToChar(char *ascii_pair)
           {
             cout<<"error converting ascii hiNibble: out of range";
           }
-      if(i == 0)
+      if(i == 0) // right shift the first pair
         byte <<= 4;
     }
   return byte;

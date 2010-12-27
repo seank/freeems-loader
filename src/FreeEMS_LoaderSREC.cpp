@@ -110,16 +110,16 @@ FreeEMS_LoaderSREC::setRecordAddress(unsigned int address)
 unsigned char
 FreeEMS_LoaderSREC::calculateCheckSum(){
   int index;
-  unsigned char checksum = 0;
-  for(index = 0; index < recordPayloadBytes; index++)
+  char checksum = 0;
+  for(index = 0; index < (recordPayloadBytes * ASCII_PAIR); index += 2)
     {
       // TODO covert CH_PAIR to char value
-      checksum += (unsigned char) *(recordPayload + index);
+      checksum += (char) FreeEMS_LoaderParsing::asciiPairToChar(&recordPayload[index]);
     }
-  for(index = 0; index < charsInAddress; index++)
+  for(index = 0; index < (charsInAddress * ASCII_PAIR); index += 2)
     {
       // TODO covert CH_PAIR to char value
-      checksum += (unsigned char) *(recordAddressChars + index);
+      checksum += (char) FreeEMS_LoaderParsing::asciiPairToChar(&recordAddressChars[index]);
     }
   return ~checksum;  // compliment and return
 }
