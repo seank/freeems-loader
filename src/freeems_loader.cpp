@@ -1,11 +1,12 @@
 #include "freeems_loader.h"
 #include "freeems_LoaderRedirector.h"
 #include "FreeEMS_LoaderComms.h"
-#include "freeems_loader_types.h"
 #include "FreeEMS_LoaderParsing.h"
 #include "FreeEMS_LoaderSREC.h"
 #include "string.h"
 #include <new>
+
+#include "freeems_loader_types.h"
 
 using namespace std;
 using namespace boost;

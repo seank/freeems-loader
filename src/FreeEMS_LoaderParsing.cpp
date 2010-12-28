@@ -6,11 +6,12 @@
  */
 
 #include "FreeEMS_LoaderParsing.h"
-#include "freeems_loader_types.h"
 #include <string>
 #include <algorithm>
 #include <iostream>
 #include "stdio.h"
+
+//#include "freeems_loader_types.cpp"
 
 using namespace std;
 

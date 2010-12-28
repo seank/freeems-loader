@@ -9,7 +9,7 @@
 #ifndef FREEEMS_LOADERCOMMS_H_
 #define FREEEMS_LOADERCOMMS_H_
 
-#include "freeems_loader_types.h"
+//#include "freeems_loader_types.h"
 
 #include <stdexcept>
 #include <boost/utility.hpp>
@@ -17,7 +17,7 @@
 #include <string>
 #include <sstream>
 
-using namespace std;
+#define SM_READY_CHAR_SIZE      0x03
 
 /**
  * Thrown if timeout occurs

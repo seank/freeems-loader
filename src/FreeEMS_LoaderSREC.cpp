@@ -6,6 +6,7 @@
  */
 
 #include "FreeEMS_LoaderSREC.h"
+#include "freeems_loader_types.h"
 
 /*
 	+-------------------//------------------//-----------------------------+

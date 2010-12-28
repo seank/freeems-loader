@@ -1,6 +1,7 @@
 TEMPLATE = app
 TARGET = FreeEMS_Loader
-QMAKE_CXXFLAGS += -std=c++0x -Wall -Werror
+QMAKE_CXXFLAGS += -Wall \
+    -Werror
 CONFIG += qt \
     warn_on \
     release \
@@ -16,7 +17,6 @@ HEADERS += FreeEMS_LoaderParsing.h \
     FreeEMS_LoaderSREC.h \
     freeems_LoaderRedirector.h \
     freeems_loader.h \
-    freeems_loader_types.h \
     FreeEMS_LoaderSREC.h \
     freeems_LoaderRedirector.h \
     freeems_loader_types.h \
@@ -24,7 +24,8 @@ HEADERS += FreeEMS_LoaderParsing.h \
     freeems_loader.h \
     freeems_loader.h \
     freeems_loader.h
-SOURCES += FreeEMS_LoaderParsing.cpp \
+SOURCES += freeems_loader_types.cpp \
+    FreeEMS_LoaderParsing.cpp \
     FreeEMS_LoaderSREC.cpp \
     FreeEMS_LoaderComms.cpp \
     freeems_loader.cpp \

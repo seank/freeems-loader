@@ -15,7 +15,6 @@
 #include <string.h>
 #include <iostream>
 
-
 using namespace std;
 
 #define START_OF_ADDRESS_OFFSET  0x04 //the first character of our address in hex ascii
@@ -27,40 +26,6 @@ using namespace std;
 #define ONE_KB                  0x0400 // one kilo byte
 #define CH_PAIR_COUNT_BYTE      0x01
 #define ASCII_PAIR              0x02
-
-struct s19Info{
-  int type;
-  const char *description;
-  const char *s19ID; // type in ascii
-  int addressBytes;
-  bool dataSequence;
-};
-
-enum s19ID{
-  S0,
-  S1, // The type of record field is 'S1' (0x5331)
-  S2, // The type of record field is 'S2' (0x5332)
-  S3, // The type of record field is 'S3' (0x5333)
-  S4,
-  S5, // The type of record field is 'S5' (0x5335)
-  S6,
-  S7, // The type of record field is 'S7' (0x5337)
-  S8, // The type of record field is 'S8' (0x5338)
-  S9  // The type of record field is 'S9' (0x5339)
-};
-
-const struct s19Info s19Table[]
-{
-  {S0, "Block header", "S0", 2, true},
-  {S1, "Data sequence", "S1", 2, true},
-  {S2, "Data sequence", "S2", 3, true},
-  {S3, "Data sequence", "S3", 4, true},
-  {S5, "Record count", "S5", 2, false},
-  {S7, "End of block", "S7", 0, false},
-  {S8, "End of block", "S8", 3, false},
-  {S9, "End of block", "S9", 2, false},
-  {0,0,0,0, false}
-};
 
 //enum BOOL {READONLY, READWRITE}
 
