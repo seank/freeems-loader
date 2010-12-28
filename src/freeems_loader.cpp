@@ -200,7 +200,6 @@ void FreeEMS_Loader::rip()
    //                                   flashModuleTable[flashTypeIndex].numFlashBytes,
     //                                  MAXSNINTEENPAYLOAD);
 
-
   ripFileName = QFileDialog::getSaveFileName(
           this,
           tr("Save s19 as"),
@@ -224,14 +223,14 @@ void FreeEMS_Loader::rip()
 
   char test[1024];
   memset(test, 1024, 0);
+  //take = take;
   //serialConnection->readBlock(0x4000, test, 10);
   /* TEST CODE */
   //FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
   FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC(S2);
-  recordArray->setRecordAddress(0xFFFEFE);
-  recordArray->putNextByte(0x01);
-  recordArray->putNextByte(0x02);
-  recordArray->setNumPairsInRecord();
+  recordArray->setRecordAddress(0xFBB360); //csum should be DD
+  //recordArray->putNextByte(0xAA);
+  //recordArray->setNumPairsInRecord();
   recordArray->buildRecord();
 
   recordArray->printRecord();

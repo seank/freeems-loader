@@ -35,10 +35,10 @@ FreeEMS_LoaderSREC::initVariables()
 
   recordIndex = 0;
   charsInAddress = 0;
-  checksum = 0;
   recordPayloadBytes = 0;
   payloadAddress = 0;
   typeIndex = 0;
+  numHexValues = 0;
 
   writeAccess = true;
   recordStatus = false;
@@ -107,28 +107,31 @@ FreeEMS_LoaderSREC::setRecordAddress(unsigned int address)
   return 0;
 }
 
-unsigned char
+void
 FreeEMS_LoaderSREC::calculateCheckSum(){
   int index;
-  char checksum = 0;
+  //unsigned  int checksum = payloadAddress;
+  recordChkSum = 0;
   for(index = 0; index < (recordPayloadBytes * ASCII_PAIR); index += 2)
     {
-      // TODO covert CH_PAIR to char value
-      checksum += (char) FreeEMS_LoaderParsing::asciiPairToChar(&recordPayload[index]);
+      recordChkSum += FreeEMS_LoaderParsing::asciiPairToChar(&recordPayload[index]);// add all payload bytes
     }
-  for(index = 0; index < (charsInAddress * ASCII_PAIR); index += 2)
+  for(index = 0; index < (charsInAddress); index += 2)
     {
-      // TODO covert CH_PAIR to char value
-      checksum += (char) FreeEMS_LoaderParsing::asciiPairToChar(&recordAddressChars[index]);
+      recordChkSum += FreeEMS_LoaderParsing::asciiPairToChar(&recordAddressChars[index]);// add all address bytes
     }
-  return ~checksum;  // compliment and return
+  recordChkSum += numHexValues; // add char count to checksum
+  recordChkSum = ~(recordChkSum & 0x00ff);
+  return ;
 }
 
 void
 FreeEMS_LoaderSREC::buildRecord()
 {
+  setNumPairsInRecord();
   calculateCheckSum();
-  FreeEMS_LoaderParsing::intToHexAscii((int)calculateCheckSum(), recordCheckSumChars, TWO_BYTES * BITS_PER_BYTE);
+  FreeEMS_LoaderParsing::intToHexAscii((int)recordChkSum, &recordCheckSumChars[0], 1 * BITS_PER_BYTE);
+
   int i;
   for(i =0; i > recordIndex; i++)
     {
@@ -140,8 +143,8 @@ FreeEMS_LoaderSREC::buildRecord()
 void
 FreeEMS_LoaderSREC::setNumPairsInRecord()
 {
-  int numCharPairs = (recordPayloadBytes * 2) + charsInAddress;
-  FreeEMS_LoaderParsing::intToHexAscii(numCharPairs, recordPayloadPairCountChars, ONE_BYTE * BITS_PER_BYTE);
+  numHexValues = recordPayloadBytes + (charsInAddress / 2 ) + CH_PAIR_COUNT_BYTE;
+  FreeEMS_LoaderParsing::intToHexAscii(numHexValues, &recordPayloadPairCountChars[0], ONE_BYTE * BITS_PER_BYTE);
 }
 
 

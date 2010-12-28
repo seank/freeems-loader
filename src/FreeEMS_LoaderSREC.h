@@ -87,7 +87,7 @@ public:
 	  represented by the pairs of characters making up the count, the address, and
 	  the data fields.
 	*/
-	unsigned char calculateCheckSum();
+	void calculateCheckSum();
 
 	int  putNextByte(char byte);
 	int  setRecordAddress(unsigned int address);
@@ -105,13 +105,14 @@ private:
 	char recordPayloadPairCountChars[TWO_BYTES];
 	char recordCheckSumChars[TWO_BYTES];
 
-	char recordChkSum;
-	char checksum;
+	unsigned char recordChkSum;
+	//char checksum;
 
 	int charsInAddress;
 	int recordIndex;
  	int recordPayloadBytes;
  	int typeIndex;
+ 	int numHexValues;
 
  	unsigned int payloadAddress;
 

@@ -30,16 +30,16 @@ FreeEMS_LoaderParsing::asciiPairToChar(char *ascii_pair)
   int i;
   unsigned char byte = 0;
   char pair_char = 0;
-  for(i = 0; i <= 2; i++) // loop twice
+  for(i = 0; i < 2; i++) // loop twice
     {
       pair_char = ascii_pair[i];
       if(pair_char >= '0' && pair_char <= '9')
           {
-          byte += pair_char - '0';
+          byte |= pair_char - '0';
           }
         else if(pair_char >= 'A' && pair_char <= 'F' )
           {
-            byte += pair_char - 'A';
+            byte |= (pair_char - 'A') + 10;
           }
         else
           {
