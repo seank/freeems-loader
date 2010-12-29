@@ -35,8 +35,9 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 
 FreeEMS_Loader::~FreeEMS_Loader()
 {
-	serialConnection->close();
-	//delete serialConnection;
+  serialConnection->close();
+  //delete serialConnection;
+  //delete coutRedirector;
 }
 
 int FreeEMS_Loader::fillDevice()
@@ -60,11 +61,12 @@ int FreeEMS_Loader::fillDevice()
 
 void FreeEMS_Loader::redirectCLI()
 {
-	StdRedirector<char>* coutRedirector = new StdRedirector <char>(std::cout, outCallBack, ui.textOutput);
-	//StdRedirector<char>* perrorRedirector = new StdRedirector <char>(&perror, outCallBack, ui.textOutput);
-	int compileWarning = (int)coutRedirector;
-	  compileWarning++;
-	std::cout <<"CLI output redirected";
+  StdRedirector<char>* coutRedirector = new StdRedirector <char>(std::cout, outCallBack, ui.textOutput);
+  //StdRedirector<char>* perrorRedirector = new StdRedirector <char>(&perror, outCallBack, ui.textOutput);
+  coutRedirector->compileWarning();
+  //int *compileWarning = &coutRedirector;
+  //compileWarning++;
+  std::cout <<"CLI output redirected";
 }
 
 void FreeEMS_Loader::outCallBack( const char* ptr, std::streamsize count, void* pTextBox )

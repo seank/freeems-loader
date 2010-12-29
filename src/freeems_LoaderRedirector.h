@@ -63,6 +63,12 @@ template< class Elem = char, class Tr = std::char_traits< Elem > >
       return Tr::not_eof( v );
     }
 
+    void compileWarning()
+    {
+      int i = 0;
+      i++;
+    }
+
  protected:
     std::basic_ostream<Elem, Tr>& m_Stream;
     std::streambuf*               m_pBuf;
