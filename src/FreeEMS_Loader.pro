@@ -35,7 +35,9 @@ FORMS += freeems_loader.ui \
     freeems_loader.ui \
     freeems_loader.ui
 RESOURCES += resource-root.qrc
-unix:LIBS += -lboost_system
+unix:LIBS += -lboost_system \
+    -L/opt/local/lib
+unix:INCLUDEPATH += /opt/local/include/
 win32:LIBS += -LC:/boost/lib \
     -lboost_system-mgw44-mt-1_45 \
     -Lc:/mingw/lib \

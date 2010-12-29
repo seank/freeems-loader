@@ -1,4 +1,5 @@
 /FreeEMS_Loader
+/FreeEMS_Loader.app/*
 /ui_freeems_loader.h
 /debug/*
 /release/*
