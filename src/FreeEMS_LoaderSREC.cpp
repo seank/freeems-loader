@@ -134,10 +134,33 @@ FreeEMS_LoaderSREC::buildRecord()
   FreeEMS_LoaderParsing::intToHexAscii((int)recordChkSum, &recordCheckSumChars[0], 1 * BITS_PER_BYTE);
 
   int i;
-  for(i =0; i > recordIndex; i++)
+  // write record ID
+  for(i =0; i < TWO_BYTES; i++)
+      {
+        record += recordTypeIdChars[i];
+      }
+   // write record pair count
+  for(i =0; i < TWO_BYTES; i++)
+      {
+       record += recordPayloadPairCountChars[i];
+      }
+   // write record address
+  for(i =0; i < charsInAddress; i++)
+    {
+      record += recordAddressChars[i];
+    }
+  // write record payload
+  for(i =0; i < recordPayloadBytes; i++)
     {
       record += recordPayload[i];
     }
+  // write record checksum
+  for(i =0; i < TWO_BYTES; i++)
+    {
+     record += recordCheckSumChars[i];
+    }
+
+  cout<<"record built";
   cout<<record;
 }
 

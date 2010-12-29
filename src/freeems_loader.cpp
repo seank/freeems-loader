@@ -232,8 +232,22 @@ void FreeEMS_Loader::rip()
   //FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
   FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC(S2);
   recordArray->setRecordAddress(0xFBB360); //csum should be DD
-  //recordArray->putNextByte(0xAA);
-  //recordArray->setNumPairsInRecord();
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
+  recordArray->putNextByte(0x00);
   recordArray->buildRecord();
 
   recordArray->printRecord();
