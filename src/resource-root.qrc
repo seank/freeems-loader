@@ -1,3 +1,5 @@
-<RCC>
-  <qresource prefix="*.png"/>
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource prefix="/images">
+  	<file alias="logo.png">images/FreeEMS_Picture_5.png</file>
+  </qresource>
 </RCC>
