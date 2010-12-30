@@ -6,6 +6,7 @@ To build and run this application please run the following commands:
 1. "apt-get update && apt-get install libboost-dev libboost-system-dev qt4-qmake libqt4-dev"
 
 2. Simply type "qmake && make all" and hit enter!
+2a. For Fedora users type "qmake-qt4 && make all"
 
 3. To execute your freshly built loader type "./FreeEMS_Loader"
 
@@ -22,7 +23,7 @@ Install MinGW
 
 	3. Add c:\mingw\bin to your PATH enviornment variable.
 
-		
+
 
 
 
@@ -32,7 +33,7 @@ Install QTLibs
 
 		http://get.qt.nokia.com/qt/source/qt-win-opensource-4.7.1-mingw.exe
 
-	2. Run installer and install to 
+	2. Run installer and install to
 
 
 
@@ -45,7 +46,7 @@ Install/Build Boost C++
 	2. from your extracted boost directory(c:\boost\boost_1_45_0\) run the following commands
 
 		"bootstrap"
-		"bjam --build-dir=boost-build --toolset=gcc --build-type=complete stage release"  Take a nap.... 
+		"bjam --build-dir=boost-build --toolset=gcc --build-type=complete stage release"  Take a nap....
 		"bjam --build-dir=boost-build --toolset=gcc install"
 
  Simply type "qmake && make all" and hit enter!
