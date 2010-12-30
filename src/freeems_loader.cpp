@@ -5,13 +5,7 @@
 #include "FreeEMS_LoaderSREC.h"
 #include "string.h"
 #include <new>
-
 #include "freeems_loader_types.h"
-
-using namespace std;
-using namespace boost;
-
-//static int connected;
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
     : QWidget(parent)
@@ -23,14 +17,12 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 	serialConnection = new FreeEMS_LoaderComms;
 	//FreeEMS_LoaderComms serialConnection("/dev/ttyUSB0",115200);
 	//serialConnection.setTimeout(posix_time::seconds(5));
-
 	fillBaud();
 	fillDataBits();
 	fillStopBits();
 	fillParity();
 	redirectCLI();
 	initGUI();
-
 }
 
 FreeEMS_Loader::~FreeEMS_Loader()
@@ -153,56 +145,49 @@ void FreeEMS_Loader::fillBaud()
 
 void FreeEMS_Loader::fillStopBits()
 {
-
-
-	ui.comboStopBits->addItem("1");
-	ui.comboStopBits->addItem("1.5");
+    ui.comboStopBits->addItem("1");
+    ui.comboStopBits->addItem("1.5");
     ui.comboStopBits->addItem("2");
 
 }
 
 void FreeEMS_Loader::fillDataBits()
 {
-	ui.comboDataBits->addItem("5");
-    ui.comboDataBits->addItem("6");
-    ui.comboDataBits->addItem("7");
-    ui.comboDataBits->addItem("8");
-    ui.comboDataBits->setCurrentIndex(ui.comboDataBits->count()-1);
+  ui.comboDataBits->addItem("5");
+  ui.comboDataBits->addItem("6");
+  ui.comboDataBits->addItem("7");
+  ui.comboDataBits->addItem("8");
+  ui.comboDataBits->setCurrentIndex(ui.comboDataBits->count()-1);
 }
 
 void FreeEMS_Loader::fillParity()
 {
-	ui.comboParity->addItem("NONE");
-	ui.comboParity->addItem("ODD");
-	ui.comboParity->addItem("EVEN");
-	ui.comboParity->addItem("MARK");
-	ui.comboParity->addItem("SPACE");
+  ui.comboParity->addItem("NONE");
+  ui.comboParity->addItem("ODD");
+  ui.comboParity->addItem("EVEN");
+  ui.comboParity->addItem("MARK");
+  ui.comboParity->addItem("SPACE");
 }
 
 void FreeEMS_Loader::connect()
 {
-       	if(!serialConnection->smReady)
-	{
-       	setFlashType();
-	serialConnection->open(ui.comboDevice->currentText().toAscii().data(),ui.comboBaud->currentText().toUInt());
-	sleep(1); //some systems need a delay after a port config
-	serialConnection->setSM();
-	serialConnection->smReady ?	setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
-	}else
-	{
-		serialConnection->close();
-		serialConnection->smReady ?	setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
+  if(!serialConnection->isReady())
+    {
+      //setFlashType();
+      serialConnection->open(ui.comboDevice->currentText().toAscii().data(),ui.comboBaud->currentText().toUInt());
+      sleep(1); //some systems need a delay after a port config
+      serialConnection->setSM();
+      serialConnection->setFlashType(ui.radFlashType->text().toAscii().data());
+      serialConnection->isReady() ? setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
+    }else
+      {
+        serialConnection->close();
+        serialConnection->isReady() ? setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
 	}
  }
 
 void FreeEMS_Loader::rip()
 {
-  flashTypeIndex = 0;//TODO DELETE force type S12XDP512 for testing
-
-  //int numRecordsNeeded =  FreeEMS_LoaderParsing::calcuateNumRecordsNeeded(
-   //                                   flashModuleTable[flashTypeIndex].numFlashBytes,
-    //                                  MAXSNINTEENPAYLOAD);
-
   ripFileName = QFileDialog::getSaveFileName(
           this,
           tr("Save s19 as"),
@@ -214,61 +199,7 @@ void FreeEMS_Loader::rip()
       }
 
   cout<<"using file "<<ripFileName.toAscii().data();
-
-  int i;
-  for(i = 0; dataVectorTable[i].association; i++)
-    {           /* if the vector is of interest process it */
-      if(!strcmp(dataVectorTable[i].association, ui.radFlashType->text().toAscii().data()))
-        {
-
-        }
-    }
-
-  char test[1024];
-  memset(test, 1024, 0);
-  //take = take;
-  //serialConnection->readBlock(0x4000, test, 10);
-  /* TEST CODE */
-  //FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC[numRecordsNeeded];
-  FreeEMS_LoaderSREC *recordArray = new FreeEMS_LoaderSREC(S2);
-  recordArray->setRecordAddress(0xFBB360); //csum should be DD
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->putNextByte(0x00);
-  recordArray->buildRecord();
-
-  recordArray->printRecord();
-  /* END TEST CODE */
-  //cout<<"number of s19 records needed"<<numRecordsNeeded;
-
-  QFile *outFile = new QFile(ripFileName);
-  if( ! outFile->open(QIODevice::WriteOnly) )
-  {
-    QMessageBox::warning(NULL, "Error", "Unable to open: " + ripFileName.toAscii() , "OK");
-  }
-  else
-  {
-    QTextStream outStream(outFile);
-    outStream << "About to write payload string\n";
-
-    outStream << "Done writing payload string\n";
-  }
-  delete outFile;
-  //delete[] recordArray;
- // delete recordArray;
+  //serialConnection->ripDevice();
 }
 
 void FreeEMS_Loader::getFileName(QString name)
@@ -316,16 +247,4 @@ void FreeEMS_Loader::setGUIState(int state)
 	}
 }
 
-void FreeEMS_Loader::setFlashType()
-{
-   int i;
-   for(i = 0; flashModuleTable[i].name; i++)
-     {
-         if(!strcmp(flashModuleTable[i].name, ui.radFlashType->text().toAscii().data() ))
-           {
-             flashTypeIndex = i;
-             cout<<"set flash type to"<<flashModuleTable[flashTypeIndex].name;
-             return;
-           }
-     }
-}
+

@@ -57,6 +57,7 @@ struct s19Info{
 extern const struct dataVector_tag dataVectorTable[];
 extern const struct flashModuleInfo_tag flashModuleTable[];
 extern const struct s19Info s19Table[];
+extern const int numDataVectorTableEntries;
 
 
 #endif

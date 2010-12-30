@@ -12,12 +12,15 @@
 #include <algorithm>
 #include <iostream>
 #include <boost/bind.hpp>
+#include <freeems_loader_types.h>
+#include "FreeEMS_LoaderSREC.h"
+#include <fstream>
 
 using namespace std;
 using namespace boost;
 
 FreeEMS_LoaderComms::FreeEMS_LoaderComms(): io(), port(io), timer(io),
-        timeout(posix_time::seconds(1))
+        timeout(posix_time::seconds(1)), flashTypeIndex(0), fDeviceIsSet(false), smIsReady(false)
 {
 
 }
@@ -49,24 +52,86 @@ void FreeEMS_LoaderComms::open(const std::string& devname, unsigned int baud_rat
 
 bool FreeEMS_LoaderComms::isReady() const
 {
-    return smReady;
+  return smIsReady ? true:false ;
 }
 
 bool FreeEMS_LoaderComms::isOpen() const
 {
-    return port.is_open();
+  return port.is_open();
 }
 
 void FreeEMS_LoaderComms::close()
 {
     if(isOpen()==false) return;
     port.close();
-    smReady = 0;
+    smIsReady = false;
 }
 
 void FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
 {
     timeout=t;
+}
+
+void FreeEMS_LoaderComms::ripDevice(char *outFileName)
+{
+  int i;
+  unsigned int firstAddress;
+  unsigned int lastAddress;
+  //unsigned int bytesPerRecord = 16; //TODO make configurable, same as default hcs12mem tool
+  unsigned int bytesInRange;
+
+  outFileName++; //TODO delete
+  //boost::filesystem::path filePath(outFileName);
+
+  //boost::fstream outFile(outFileName);
+  FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
+
+  if(smIsReady)
+    {
+      //calculate total bytes in device
+        for(i = 0; i < numDataVectorTableEntries; i++)
+          {
+            if(!strcmp(flashModuleTable[flashTypeIndex].name, dataVectorTable[i].association))
+                {
+                  //TODO loop though pages
+                  firstAddress = dataVectorTable[i].startAddress;
+                  lastAddress = dataVectorTable[i].stopAddress;
+                  bytesInRange = lastAddress - firstAddress;
+
+                  s19Record->setRecordAddress(firstAddress);
+                  while(bytesInRange)
+                    {
+                      //char byte = this->re
+                      //s19Record->putNextByte();
+                    }
+                  cout<<"match found";
+                }
+          }
+    }
+  else
+    {
+      cout<<"error SM not ready";
+    }
+  //calculate number of bytes in device
+  //allocate number of s19 records needed based on bytes per record
+  //
+  delete s19Record;
+  //delete outFile;
+}
+
+void FreeEMS_LoaderComms::setFlashType(char *commonName)
+{
+   int i;
+   for(i = 0; flashModuleTable[i].name; i++)
+     {
+         if(!strcmp(flashModuleTable[i].name, commonName))
+           {
+             flashTypeIndex = i;
+             cout<<"set flash type to"<<commonName;
+             return;
+           }
+     }
+
 }
 
 void FreeEMS_LoaderComms::setSM()
@@ -81,10 +146,10 @@ void FreeEMS_LoaderComms::setSM()
       sleep(1);
       if(!strcmp(values, ready))
         {
-          smReady = 1;
+          smIsReady = true;
 	 }else
 	   {
-	     smReady = 0;
+	     smIsReady = false;
 	    }
       }
   catch(boost::system::system_error& e)
@@ -116,6 +181,7 @@ void FreeEMS_LoaderComms::writeString(const std::string& s)
     asio::write(port,asio::buffer(s.c_str(),s.size()));
 }
 
+//TODO add parity "double read" option
 void FreeEMS_LoaderComms::read(char *data, size_t size)
 {
     if(readData.size()>0)//If there is some data from a previous read

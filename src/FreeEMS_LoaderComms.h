@@ -3,7 +3,7 @@
  *
  *  Created on: Oct 29, 2010
  *      Author: seank
- *  Serial IO section heavily copied from Terraneo Federico
+ *  serial asio wrappers heavily copied from Terraneo Federico
  */
 
 #ifndef FREEEMS_LOADERCOMMS_H_
@@ -60,11 +60,20 @@ public:
                 boost::asio::serial_port_base::stop_bits::one));
 
     /*
+         *  B7/DC/IDID — Returns the constant $DC (Device C=12) and the 2-byte
+         *  HCS12 device ID register. Please refer to selected device guides for device ID
+         *  register contents.
+         */
+    void ripDevice(char *filename);
+    /*
      *  B7/DC/IDID — Returns the constant $DC (Device C=12) and the 2-byte
      *  HCS12 device ID register. Please refer to selected device guides for device ID
      *  register contents.
      */
     void returnFlashType(char *responce);
+
+
+    void setFlashType(char *commonName);
 
     /*
      * Read a block of memory starting at address specified.
@@ -190,7 +199,6 @@ public:
      */
     std::string readStringUntil(const std::string& delim="\n");
 
-    bool smReady;
     void setSM();
 
     ~FreeEMS_LoaderComms();
@@ -259,6 +267,10 @@ private:
     enum ReadResult result;  ///< Used by read with timeout
     size_t bytesTransferred; ///< Used by async read callback
     ReadSetupParameters setupParameters; ///< Global because used in the OSX fix
+
+    int flashTypeIndex;
+    bool fDeviceIsSet;
+    bool smIsReady;
 };
 
 #endif /* FREEEMS_LOADERCOMMS_H_ */
