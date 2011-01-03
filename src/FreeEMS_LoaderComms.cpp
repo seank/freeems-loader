@@ -74,10 +74,16 @@ void FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
 
 void FreeEMS_LoaderComms::ripDevice(char *outFileName)
 {
+  cout<<"in ripDevice";
   int i;
+  unsigned int numSectors;
+  unsigned int address;
+  unsigned int PPageIndex;
+  unsigned int nPages;
+
   unsigned int firstAddress;
   unsigned int lastAddress;
-  //unsigned int bytesPerRecord = 16; //TODO make configurable, same as default hcs12mem tool
+  unsigned int bytesPerRecord = 16; //TODO make configurable, same as default hcs12mem tool
   unsigned int bytesInRange;
 
   outFileName++; //TODO delete
@@ -92,19 +98,28 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
         for(i = 0; i < numDataVectorTableEntries; i++)
           {
             if(!strcmp(flashModuleTable[flashTypeIndex].name, dataVectorTable[i].association))
-                {
-                  //TODO loop though pages
-                  firstAddress = dataVectorTable[i].startAddress;
-                  lastAddress = dataVectorTable[i].stopAddress;
-                  bytesInRange = lastAddress - firstAddress;
-
-                  s19Record->setRecordAddress(firstAddress);
-                  while(bytesInRange)
-                    {
-                      //char byte = this->re
-                      //s19Record->putNextByte();
+              {
+                nPages =  dataVectorTable[i].stopPage - dataVectorTable[i].startPage;
+                nPages++; //there is always 1 page to rip
+                for(PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--)
+                  {
+                    //TODO loop though pages
+                    firstAddress = dataVectorTable[i].startAddress;
+                    lastAddress = dataVectorTable[i].stopAddress;
+                    bytesInRange = lastAddress - firstAddress;
+                    s19Record->setRecordAddress(firstAddress);
+                    numSectors = (lastAddress - firstAddress) / bytesPerRecord;
+                    //TODO add error for invalid range or improper modulus
+                    cout<<"start address"<<firstAddress;
+                    cout<<"end address"<<lastAddress;
+                    cout<<"PPage"<<dataVectorTable[i].startPage + PPageIndex;
+                    for(address = firstAddress; numSectors; address += bytesPerRecord, numSectors--)
+                      {
+                        //char byte = this->re
+                        //  cout<<"about to rip address"<<address;
+                      }
+                    cout<<"match found";
                     }
-                  cout<<"match found";
                 }
           }
     }
@@ -112,7 +127,7 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
     {
       cout<<"error SM not ready";
     }
-  //calculate number of bytes in device
+//calculate number of bytes in device
   //allocate number of s19 records needed based on bytes per record
   //
   delete s19Record;

@@ -8,10 +8,11 @@
 #include "freeems_loader_types.h"
 
 const struct dataVector_tag dataVectorTable[] = {
-    {"S12XDP512", 0xC000, 0xFFFF, 0xFF, 0xFF, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
-    {"S12XDP512", 0x8000, 0xBFFF, 0xFE, 0xFE, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
+    {"S12XDP512", 0xC000, 0xFFFF, 0xE0, 0xFC, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
     {"S12XDP512", 0x4000, 0x7FFF, 0xFD, 0xFD, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
-    {"S12XDP512", 0xC000, 0xFFFF, 0xFC, 0xDF, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
+    {"S12XDP512", 0x8000, 0xBFFF, 0xFE, 0xFE, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
+    {"S12XDP512", 0xC000, 0xFFFF, 0xFF, 0xFF, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
+    //{"S12XDP512", 0xC000, 0xFFFF, 0xFC, 0xDF, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},//TODO impliment EEPROM
     {"S12C64"   , 0xC000, 0xFFFF, 0xFC, 0xDF, PAGED_FLASH, PPAGE_REGISTER_ADDRESS},
     {        "0",      0,      0,    0,    0,           0,                      0}
 };
@@ -35,3 +36,4 @@ const struct s19Info s19Table[] = {
 };
 
 const int numDataVectorTableEntries = sizeof(dataVectorTable) / sizeof(struct dataVector_tag);
+const unsigned char PPageRegister = 0x30;

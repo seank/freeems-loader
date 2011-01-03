@@ -199,7 +199,7 @@ void FreeEMS_Loader::rip()
       }
 
   cout<<"using file "<<ripFileName.toAscii().data();
-  //serialConnection->ripDevice();
+  serialConnection->ripDevice(ripFileName.toAscii().data());
 }
 
 void FreeEMS_Loader::getFileName(QString name)
