@@ -91,6 +91,8 @@ public:
      */
     int verifyReturn(char *buffer, int size);
 
+    int verifyReturn();
+
     /**
      * Opens a serial device.
      * \param devname serial device name, example "/dev/ttyS0" or "COM1"
