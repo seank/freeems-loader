@@ -77,6 +77,8 @@ public:
 
     void SMSetPPage(char PPage);
 
+    void SMRequestByteBlock(unsigned int address, char plusBytes);
+
     void SMReadChars(const char *data, size_t size);
 
     /*

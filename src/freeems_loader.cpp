@@ -19,11 +19,7 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 {
 	ui.setupUi(this);
 	fillDevice();
-	//connection = new FreeEMS_LoaderComms;
-	//connection::setTimeout(setTimeout(posix_time::seconds(5)));
 	serialConnection = new FreeEMS_LoaderComms;
-	//FreeEMS_LoaderComms serialConnection("/dev/ttyUSB0",115200);
-	//serialConnection.setTimeout(posix_time::seconds(5));
 	fillBaud();
 	fillDataBits();
 	fillStopBits();
@@ -183,7 +179,7 @@ void FreeEMS_Loader::connect()
       //setFlashType();
       serialConnection->open(ui.comboDevice->currentText().toAscii().data(),ui.comboBaud->currentText().toUInt());
       //sleep(1); //some systems need a delay after a port config
-      serialConnection->setTimeout(boost::posix_time::seconds(55)); //TODO make configable
+      serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
       serialConnection->setSM();
       serialConnection->setFlashType(ui.radFlashType->text().toAscii().data());
       serialConnection->isReady() ? setGUIState(CONNECTED):setGUIState(NOTCONNECTED);

@@ -103,8 +103,7 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
                 nPages++; //there is always 1 page to rip
                 for(PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--)
                   {
-                    //write(&PPageRegister,1);
-                    SMSetPPage(PPageIndex);
+                    SMSetPPage(PPageIndex); //set Ppage register
 
                     firstAddress = dataVectorTable[i].startAddress;
                     lastAddress = dataVectorTable[i].stopAddress;
@@ -117,10 +116,13 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
                     cout<<"PPage"<<dataVectorTable[i].startPage + PPageIndex;
                     for(address = firstAddress; numSectors; address += bytesPerRecord, numSectors--)
                       {
-                        //char byte = this->re
-                        //  cout<<"about to rip address"<<address;
+                        //char temp[512];
+                        //Read Block
+                        //readBlock((unsigned short)address, &temp, ((bytesPerRecord - 1)));
+                              //SMRequestByteBlock(address, (bytesPerRecord - 1)); // read plus num bytes from adress
+                        //Build Record
+                        //Write Record
                       }
-                    cout<<"match found";
                     }
                 }
           }
@@ -160,7 +162,7 @@ void FreeEMS_LoaderComms::SMSetPPage(char PPage)
   asio::write(port,asio::buffer(&Zero,ONE_BYTE));
   asio::write(port,asio::buffer(&PPageRegister,ONE_BYTE));
   asio::write(port,asio::buffer(&page,ONE_BYTE));
-  verifyReturn();
+  //verifyReturn();
 }
 
 void FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size)
@@ -405,41 +407,14 @@ FreeEMS_LoaderComms::returnFlashType(char *responce)
 int
 FreeEMS_LoaderComms::readBlock(unsigned short startAddress, char *buffer, int readNumBytes)
 {
-  unsigned int numRetries = 3; //TODO global
-  bool memError = true;
-  char requestBytes = (char) readNumBytes - 1; // it reads one by default
-  readNumBytes += SM_READY_CHAR_SIZE; // the sm added the ready bytes after every command
-  char *parityBuffer = (char*)malloc(readNumBytes);
-  //char bytesToRead = (char)readNumBytes + SM_READY_CHAR_SIZE;
-  char readBlockCommand = 0xa7;
-  char lowByte;
-  char highByte;
-  lowByte = startAddress & 0x00FF;
-  highByte = startAddress >> 8;
-
- // printf("\n debug %x, %x, %x, %x",readBlockCommand, highByte, lowByte, startAddress);
-
-  while(numRetries && (memError == true))
-    {
-      /* read into first buffer */
-      write(&readBlockCommand,1);
-      write(&highByte,1);
-      write(&lowByte,1);
-      write(&requestBytes,1);
-      read(buffer, readNumBytes);
-      /* read into second buffer */
-      write(&readBlockCommand,1);
-      write(&highByte,1);
-      write(&lowByte,1);
-      write(&requestBytes,1);
-      read(parityBuffer, readNumBytes);
-      memError = (bool) memcmp(buffer, parityBuffer, readNumBytes);
-      numRetries--;
-    }
-  free(parityBuffer);
-  if(memError == true)
-    cout<<"data error detected while reading block, tried three times";
-  return verifyReturn(buffer, readNumBytes) ? 1:-1;
+  char rxBuffer[512] = {0};
+  SMRequestByteBlock(startAddress, (readNumBytes - 1));
+  //read serial
+  //verify return
+  //copy data to pointer passed by function
+  rxBuffer[0] = 'a';
+  buffer++;
+  return 1;
 }
 
 int
@@ -467,22 +442,28 @@ int
 FreeEMS_LoaderComms::verifyReturn()
 {
   char serialIn[100] = {0};
-
   read(serialIn, 3); //TODO maybe do a search for within the 100 ch buffer
-
-  printf("\n buffer is %s", serialIn);
-    if((unsigned char)serialIn[2] == 0x3E)
-      {
-       if((unsigned char)serialIn[1] == 0x0)
-         {
-           if((unsigned char)serialIn[0] == 0xe0)
-             {
-             return 1;
-             }
-         }
-      }
-    cout<<"waring:return chars not found";
-    return -1;
+  if((unsigned char)serialIn[2] == 0x3E)
+    {
+     if((unsigned char)serialIn[1] == 0x0)
+       {
+         if((unsigned char)serialIn[0] == 0xe0)
+           {
+           return 1;
+           }
+       }
+    }
+  cout<<"waring:return chars not found";
+  return -1;
 }
 
-
+void FreeEMS_LoaderComms::SMRequestByteBlock(unsigned int address, char plusBytes)
+{
+  char highByte = (address & 0xFF00) >> 8;
+  char lowByte = address & 0x00FF;
+  char bytesRequested = plusBytes;
+  asio::write(port,asio::buffer(&SMReadBlock,ONE_BYTE));
+  asio::write(port,asio::buffer(&highByte,ONE_BYTE));
+  asio::write(port,asio::buffer(&lowByte,ONE_BYTE));
+  asio::write(port,asio::buffer(&bytesRequested,ONE_BYTE));
+}
