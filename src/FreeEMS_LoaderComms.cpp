@@ -103,8 +103,8 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
                 nPages++; //there is always 1 page to rip
                 for(PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--)
                   {
-
                     //write(&PPageRegister,1);
+                    SMSetPPage(PPageIndex);
 
                     firstAddress = dataVectorTable[i].startAddress;
                     lastAddress = dataVectorTable[i].stopAddress;
@@ -154,10 +154,13 @@ void FreeEMS_LoaderComms::setFlashType(char *commonName)
 void FreeEMS_LoaderComms::SMSetPPage(char PPage)
 {
   char page = PPage;
+  cout<<"writing to ppage register"<<PPage;
+
   asio::write(port,asio::buffer(&SMWriteByte,ONE_BYTE));
   asio::write(port,asio::buffer(&Zero,ONE_BYTE));
   asio::write(port,asio::buffer(&PPageRegister,ONE_BYTE));
   asio::write(port,asio::buffer(&page,ONE_BYTE));
+  verifyReturn();
 }
 
 void FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size)
@@ -181,9 +184,9 @@ void FreeEMS_LoaderComms::setSM()
   char ready[4] = {(char)0xE1,(char)0x00,(char)0x3E,(char) 0x00};
   try{
       write(&charReturn, 1);
-      sleep(1);
+      //sleep(1);
       read(values,3);
-      sleep(1);
+      //sleep(1);
       if(!strcmp(values, ready))
         {
           smIsReady = true;
@@ -262,6 +265,8 @@ void FreeEMS_LoaderComms::read(char *data, size_t size)
                 port.cancel();
                 throw(boost::system::system_error(boost::system::error_code(),
                         "Error while reading"));
+            case resultInProgress:
+                continue;
             default:
                 timer.cancel();
                 port.cancel();
@@ -456,6 +461,28 @@ FreeEMS_LoaderComms::verifyReturn(char *buffer, int size)
     }
   cout<<"waring:return chars not found";
   return -1;
+}
+
+int
+FreeEMS_LoaderComms::verifyReturn()
+{
+  char serialIn[100] = {0};
+
+  read(serialIn, 3); //TODO maybe do a search for within the 100 ch buffer
+
+  printf("\n buffer is %s", serialIn);
+    if((unsigned char)serialIn[2] == 0x3E)
+      {
+       if((unsigned char)serialIn[1] == 0x0)
+         {
+           if((unsigned char)serialIn[0] == 0xe0)
+             {
+             return 1;
+             }
+         }
+      }
+    cout<<"waring:return chars not found";
+    return -1;
 }
 
 
