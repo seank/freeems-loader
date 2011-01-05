@@ -47,6 +47,7 @@ protected:
     void getFileName(QString name);
     void setFlashType();
 
+
 private:
     Ui::FreeEMS_LoaderClass ui;
 
@@ -63,6 +64,7 @@ private:
 public slots:
 	void connect();
 	void rip();
+	void test();
 };
 
 #endif // FREEEMS_LOADER_H

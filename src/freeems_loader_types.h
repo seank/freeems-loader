@@ -58,6 +58,11 @@ extern const struct dataVector_tag dataVectorTable[];
 extern const struct flashModuleInfo_tag flashModuleTable[];
 extern const struct s19Info s19Table[];
 extern const int numDataVectorTableEntries;
+extern const unsigned char PPageRegister;
+extern const unsigned char Zero;
+extern const unsigned char SMReadByte;
+extern const unsigned char SMWriteByte;
+
 
 
 #endif

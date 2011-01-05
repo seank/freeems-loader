@@ -7,6 +7,13 @@
 #include <new>
 #include "freeems_loader_types.h"
 
+#include <string>
+#include <algorithm>
+#include <iostream>
+
+//using namespace std;
+//using namespace boost;
+
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
     : QWidget(parent)
 {
@@ -175,7 +182,8 @@ void FreeEMS_Loader::connect()
     {
       //setFlashType();
       serialConnection->open(ui.comboDevice->currentText().toAscii().data(),ui.comboBaud->currentText().toUInt());
-      sleep(1); //some systems need a delay after a port config
+      //sleep(1); //some systems need a delay after a port config
+      serialConnection->setTimeout(boost::posix_time::seconds(55)); //TODO make configable
       serialConnection->setSM();
       serialConnection->setFlashType(ui.radFlashType->text().toAscii().data());
       serialConnection->isReady() ? setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
@@ -245,6 +253,11 @@ void FreeEMS_Loader::setGUIState(int state)
 	default:
 	break;
 	}
+}
+
+void FreeEMS_Loader::test()
+{
+  serialConnection->setSM();
 }
 
 
