@@ -103,7 +103,9 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
                 nPages++; //there is always 1 page to rip
                 for(PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--)
                   {
-                    //TODO loop though pages
+
+                    //write(&PPageRegister,1);
+
                     firstAddress = dataVectorTable[i].startAddress;
                     lastAddress = dataVectorTable[i].stopAddress;
                     bytesInRange = lastAddress - firstAddress;
@@ -148,6 +150,29 @@ void FreeEMS_LoaderComms::setFlashType(char *commonName)
      }
 
 }
+
+void FreeEMS_LoaderComms::SMSetPPage(char PPage)
+{
+  char page = PPage;
+  asio::write(port,asio::buffer(&SMWriteByte,ONE_BYTE));
+  asio::write(port,asio::buffer(&Zero,ONE_BYTE));
+  asio::write(port,asio::buffer(&PPageRegister,ONE_BYTE));
+  asio::write(port,asio::buffer(&page,ONE_BYTE));
+}
+
+void FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size)
+{
+    int i;
+    printf("\n about to write char(s) ");
+    for(i = (int)size; i > 0; i--)
+      {
+        printf("-> %x", *(data + (i - 1)));
+      }
+    printf("\n to com port \n");
+
+    asio::write(port,asio::buffer(data,size));
+}
+
 
 void FreeEMS_LoaderComms::setSM()
 {

@@ -75,6 +75,10 @@ public:
 
     void setFlashType(char *commonName);
 
+    void SMSetPPage(char PPage);
+
+    void SMReadChars(const char *data, size_t size);
+
     /*
      * Read a block of memory starting at address specified.
      * Block is read twice to check integrity.
