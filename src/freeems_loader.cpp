@@ -192,7 +192,7 @@ void FreeEMS_Loader::connect()
 
 void FreeEMS_Loader::rip()
 {
-  ripFileName = QFileDialog::getSaveFileName(
+/*  ripFileName = QFileDialog::getSaveFileName(
           this,
           tr("Save s19 as"),
           QDir::currentPath(),
@@ -203,6 +203,7 @@ void FreeEMS_Loader::rip()
       }
 
   cout<<"using file "<<ripFileName.toAscii().data();
+*/
   serialConnection->ripDevice(ripFileName.toAscii().data());
 }
 

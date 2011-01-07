@@ -14,8 +14,9 @@
 #include <memory>
 #include <string.h>
 #include <iostream>
+#include <vector>
 
-using namespace std;
+//using namespace std;
 
 #define START_OF_ADDRESS_OFFSET  0x04 //the first character of our address in hex ascii
 #define BITS_PER_BYTE           0x08 // bits in a byte
@@ -35,7 +36,7 @@ public:
 	FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress);
 	virtual ~FreeEMS_LoaderSREC();
 //	bool verifyFile(int *file);
-	int fillRecord(char *input, int numBytes);
+	int fillRecord(std::vector<char> binaryChars, int numBytes);
 	/*
 	 * calculate a records checksum and compre it to the stored value.
 	 */

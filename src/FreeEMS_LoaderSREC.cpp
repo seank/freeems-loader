@@ -57,14 +57,13 @@ FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsi
 }
 
 int
-FreeEMS_LoaderSREC::fillRecord(char *input, int numBytes)
+FreeEMS_LoaderSREC::fillRecord(std::vector<char> binaryChars, int numBytes)
 {
-  input++;
-  numBytes++;
- int i;
- for(i = recordIndex; i > 0; i--)
-   {
 
+ int i;
+ for(i = numBytes; i > 0; i--)
+   {
+     putNextByte((char)binaryChars.at(i));
    }
  return 0;
 }

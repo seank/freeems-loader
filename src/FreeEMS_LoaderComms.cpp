@@ -15,6 +15,7 @@
 #include <freeems_loader_types.h>
 #include "FreeEMS_LoaderSREC.h"
 #include <fstream>
+#include <ostream>
 
 using namespace std;
 using namespace boost;
@@ -83,11 +84,21 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
 
   unsigned int firstAddress;
   unsigned int lastAddress;
-  unsigned int bytesPerRecord = 16; //TODO make configurable, same as default hcs12mem tool
+  unsigned int bytesPerRecord = 16; //read 16 bytes TODO make configurable, same as default hcs12mem tool
   unsigned int bytesInRange;
 
-  outFileName++; //TODO delete
-  //boost::filesystem::path filePath(outFileName);
+  outFileName++;
+  //filesystem::path filePath(outFileName);
+  // io::stream_buffer<io::file_sink> buf("log.txt");
+  //    std::ostream out(&buf);
+
+  std::vector<char> rxBuffer(bytesPerRecord);
+
+  //boost::filesystem::bf::path p(“first.cpp”);
+  //if(filePath::exists(p))
+  //  std::cout< <<" exists.\n";
+  //  else
+  //    std::cout<<<" does not exist.\n";
 
   //boost::fstream outFile(outFileName);
   FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
@@ -114,14 +125,16 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
                     cout<<"start address"<<firstAddress;
                     cout<<"end address"<<lastAddress;
                     cout<<"PPage"<<dataVectorTable[i].startPage + PPageIndex;
+                    rxBuffer.clear();
                     for(address = firstAddress; numSectors; address += bytesPerRecord, numSectors--)
                       {
-                        //char temp[512];
                         //Read Block
-                        //readBlock((unsigned short)address, &temp, ((bytesPerRecord - 1)));
-                              //SMRequestByteBlock(address, (bytesPerRecord - 1)); // read plus num bytes from adress
+                        SMReadByteBlock((unsigned short)address, bytesPerRecord, rxBuffer);
+                        //cout<<"read block";
                         //Build Record
+
                         //Write Record
+
                       }
                     }
                 }
@@ -156,13 +169,15 @@ void FreeEMS_LoaderComms::setFlashType(char *commonName)
 void FreeEMS_LoaderComms::SMSetPPage(char PPage)
 {
   char page = PPage;
+  std::vector<char> SMReturnString(3);
   cout<<"writing to ppage register"<<PPage;
-
   asio::write(port,asio::buffer(&SMWriteByte,ONE_BYTE));
   asio::write(port,asio::buffer(&Zero,ONE_BYTE));
   asio::write(port,asio::buffer(&PPageRegister,ONE_BYTE));
   asio::write(port,asio::buffer(&page,ONE_BYTE));
-  //verifyReturn();
+  SMReturnString = read(3);
+  if(verifyReturn(SMReturnString) < 0)
+    cout<<"cannot verify return string after setting ppage";
 }
 
 void FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size)
@@ -404,18 +419,16 @@ FreeEMS_LoaderComms::returnFlashType(char *responce)
   return;
 }
 
-int
-FreeEMS_LoaderComms::readBlock(unsigned short startAddress, char *buffer, int readNumBytes)
-{
-  char rxBuffer[512] = {0};
-  SMRequestByteBlock(startAddress, (readNumBytes - 1));
-  //read serial
-  //verify return
+//std::vector<char>
+//FreeEMS_LoaderComms::readBlock(unsigned short startAddress, int readNumBytes)
+//{
+//  std::vector<char> buffer(readNumBytes);
+//  SMRequestByteBlock(startAddress, (readNumBytes - 1));
+//  buffer = read(readNumBytes); // read from device
+//  verifyReturn(buffer);//verify return
   //copy data to pointer passed by function
-  rxBuffer[0] = 'a';
-  buffer++;
-  return 1;
-}
+//  return buffer;
+//}
 
 int
 FreeEMS_LoaderComms::verifyReturn(char *buffer, int size)
@@ -439,6 +452,22 @@ FreeEMS_LoaderComms::verifyReturn(char *buffer, int size)
 }
 
 int
+FreeEMS_LoaderComms::verifyReturn(std::vector<char> &vec)
+{
+  int length;
+  length = vec.size();
+  length--; //align to zero
+  if(vec.at(length) == (char)0x3E && vec.at(length - 1) == (char)0x0 && vec.at(length - 2) == (char)0xE0)
+   {
+     vec.pop_back(); //clip return values from data payload
+     vec.pop_back();
+     vec.pop_back();
+     return 1;
+   }
+  return -1;
+}
+
+int
 FreeEMS_LoaderComms::verifyReturn()
 {
   char serialIn[100] = {0};
@@ -457,13 +486,22 @@ FreeEMS_LoaderComms::verifyReturn()
   return -1;
 }
 
-void FreeEMS_LoaderComms::SMRequestByteBlock(unsigned int address, char plusBytes)
+void
+FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
+                                          std::vector<char> &vec)
 {
+  std::vector<char> buffer(plusBytes + 3 );
   char highByte = (address & 0xFF00) >> 8;
   char lowByte = address & 0x00FF;
-  char bytesRequested = plusBytes;
+  char bytesRequested = plusBytes - 1;
   asio::write(port,asio::buffer(&SMReadBlock,ONE_BYTE));
   asio::write(port,asio::buffer(&highByte,ONE_BYTE));
   asio::write(port,asio::buffer(&lowByte,ONE_BYTE));
   asio::write(port,asio::buffer(&bytesRequested,ONE_BYTE));
+
+  buffer = read(plusBytes + 3);
+  if(verifyReturn(buffer) < 0)
+    cout<<"error validating return from SMRequestByteBlock";
+  vec =  buffer;
+  return;
 }

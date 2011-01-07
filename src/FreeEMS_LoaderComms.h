@@ -77,7 +77,7 @@ public:
 
     void SMSetPPage(char PPage);
 
-    void SMRequestByteBlock(unsigned int address, char plusBytes);
+    void SMReadByteBlock(unsigned int address, char plusBytes, std::vector<char> &vec);
 
     void SMReadChars(const char *data, size_t size);
 
@@ -86,12 +86,14 @@ public:
      * Block is read twice to check integrity.
      * 256 bytes max
      */
-    int readBlock(unsigned short startAddress, char *buffer, int readNumBytes);
+    //std::vector<char> readBlock(unsigned short startAddress, int readNumBytes);
 
     /*
      * Every command returns the ready SM sequence, if not there is a problem
      */
     int verifyReturn(char *buffer, int size);
+
+    int verifyReturn(std::vector<char> &vec);
 
     int verifyReturn();
 
