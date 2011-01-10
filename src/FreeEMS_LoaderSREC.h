@@ -15,6 +15,7 @@
 #include <string.h>
 #include <iostream>
 #include <vector>
+#include <string>
 
 //using namespace std;
 
@@ -36,7 +37,7 @@ public:
 	FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress);
 	virtual ~FreeEMS_LoaderSREC();
 //	bool verifyFile(int *file);
-	int fillRecord(std::vector<char> binaryChars, int numBytes);
+	int fillRecord(std::vector<char> binaryChars);
 	/*
 	 * calculate a records checksum and compre it to the stored value.
 	 */
@@ -46,6 +47,7 @@ public:
 	char getRecordType();
 	void buildRecord();
 	void printRecord();
+	std::string retRecordString();
 
 	/*
 	  These characters when paired and interpreted as a hexadecimal value display
@@ -61,6 +63,9 @@ public:
 	int  setTypeIndex(int type);
 	void setNumPairsInRecord();
 	void initVariables();
+	int  retRecordSize();
+
+	bool recordIsNull;
 
 private:
 	string record;
@@ -86,6 +91,7 @@ private:
 	bool recordStatus;
 	bool addressIsSet;
 	bool typeIsSet;
+
 };
 
 #endif /* FREEEMS_LOADERSREC_H_ */

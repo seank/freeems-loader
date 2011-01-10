@@ -28,11 +28,13 @@ FreeEMS_LoaderSREC::~FreeEMS_LoaderSREC() {
 void
 FreeEMS_LoaderSREC::initVariables()
 {
-  memset(recordPayload, 0, sizeof(recordPayload)); //clear buffer
+  memset(recordPayload, 0, sizeof(recordPayload)); //clear buffers
   memset(recordTypeIdChars, 0, sizeof(recordTypeIdChars));
   memset(recordAddressChars, 0, sizeof(recordAddressChars));
   memset(recordPayloadPairCountChars, 0, sizeof(recordPayloadPairCountChars));
   memset(recordCheckSumChars, 0, sizeof(recordCheckSumChars));
+
+  record.clear();
 
   recordIndex = 0;
   charsInAddress = 0;
@@ -45,6 +47,7 @@ FreeEMS_LoaderSREC::initVariables()
   recordStatus = false;
   addressIsSet = false;
   typeIsSet = false;
+  recordIsNull = true;
 }
 
 FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress) {
@@ -57,11 +60,10 @@ FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsi
 }
 
 int
-FreeEMS_LoaderSREC::fillRecord(std::vector<char> binaryChars, int numBytes)
+FreeEMS_LoaderSREC::fillRecord(std::vector<char> binaryChars)
 {
-
- int i;
- for(i = numBytes; i > 0; i--)
+ int i, j;
+ for(j = binaryChars.size(), i = 0; i < j; i++)
    {
      putNextByte((char)binaryChars.at(i));
    }
@@ -70,7 +72,8 @@ FreeEMS_LoaderSREC::fillRecord(std::vector<char> binaryChars, int numBytes)
 
 int
 FreeEMS_LoaderSREC::putNextByte(char byte) {
-
+  if(byte != 0x00)
+    recordIsNull = false;
   if(typeIsSet == false)
     return -2;
   FreeEMS_LoaderParsing::intToHexAscii((int)byte, (recordPayload + recordIndex), ONE_BYTE * BITS_PER_BYTE);
@@ -176,4 +179,17 @@ FreeEMS_LoaderSREC::printRecord()
 {
   cout<<"printing string ascii";
   cout<<record;
+}
+
+std::string
+FreeEMS_LoaderSREC::retRecordString()
+{
+  std::string str(record);
+  return str;
+}
+
+int
+FreeEMS_LoaderSREC::retRecordSize()
+{
+  return record.size();
 }

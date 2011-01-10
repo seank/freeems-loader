@@ -86,13 +86,20 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
   unsigned int lastAddress;
   unsigned int bytesPerRecord = 16; //read 16 bytes TODO make configurable, same as default hcs12mem tool
   unsigned int bytesInRange;
+  unsigned int pagedAddress = 0;
 
-  outFileName++;
+  //outFileName++;
   //filesystem::path filePath(outFileName);
   // io::stream_buffer<io::file_sink> buf("log.txt");
   //    std::ostream out(&buf);
 
   std::vector<char> rxBuffer(bytesPerRecord);
+
+  ofstream outFile(outFileName, ios::out | ios::binary);
+  //ofstream myfile;
+    //myfile.open (outFileName);
+    //myfile << "Writing this to a file.\n";
+
 
   //boost::filesystem::bf::path p(“first.cpp”);
   //if(filePath::exists(p))
@@ -129,13 +136,22 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
                     for(address = firstAddress; numSectors; address += bytesPerRecord, numSectors--)
                       {
                         //Read Block
+                        pagedAddress = PPageIndex;
+                        pagedAddress <<= 8;
+                        pagedAddress += address;
+
                         SMReadByteBlock((unsigned short)address, bytesPerRecord, rxBuffer);
-                        //cout<<"read block";
-                        //Build Record
-
-                        //Write Record
-
-                      }
+                        s19Record->initVariables();  // clear record
+                        s19Record->setTypeIndex(S2);
+                        s19Record->setRecordAddress(pagedAddress);
+                        s19Record->fillRecord(rxBuffer);
+                        s19Record->buildRecord();
+                        if(s19Record->recordIsNull == false)
+                          {
+                            outFile.write(s19Record->retRecordString().c_str(), s19Record->retRecordSize());
+                            outFile.write("\n",1);
+                          }
+                        }
                     }
                 }
           }
@@ -148,6 +164,7 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
   //allocate number of s19 records needed based on bytes per record
   //
   delete s19Record;
+  outFile.close();
   //delete outFile;
 }
 
