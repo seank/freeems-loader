@@ -209,6 +209,10 @@ public:
      */
     std::string readStringUntil(const std::string& delim="\n");
 
+    void erasePage(char PPage);
+
+    void eraseDevice();
+
     void setSM();
 
     ~FreeEMS_LoaderComms();

@@ -112,9 +112,9 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
                     s19Record->setRecordAddress(firstAddress);
                     numSectors = (lastAddress - firstAddress) / bytesPerRecord + 1;
                     //TODO add error for invalid range or improper modulus
-                    cout<<"start address"<<firstAddress;
-                    cout<<"end address"<<lastAddress;
-                    cout<<"PPage"<<dataVectorTable[i].startPage + PPageIndex;
+                    //cout<<"start address"<<firstAddress;
+                    //cout<<"end address"<<lastAddress;
+                    //cout<<"PPage"<<dataVectorTable[i].startPage + PPageIndex;
                     rxBuffer.clear();
                     for(address = firstAddress; numSectors; address += bytesPerRecord, numSectors--)
                       {
@@ -220,14 +220,6 @@ void FreeEMS_LoaderComms::setSM()
 
 void FreeEMS_LoaderComms::write(const char *data, size_t size)
 {
-    int i;
-    printf("\n about to write char(s) ");
-    for(i = (int)size; i > 0; i--)
-      {
-        printf("-> %x", *(data + (i - 1)));
-      }
-    printf("\n to com port \n");
-
     asio::write(port,asio::buffer(data,size));
 }
 
@@ -419,17 +411,6 @@ FreeEMS_LoaderComms::returnFlashType(char *responce)
   return;
 }
 
-//std::vector<char>
-//FreeEMS_LoaderComms::readBlock(unsigned short startAddress, int readNumBytes)
-//{
-//  std::vector<char> buffer(readNumBytes);
-//  SMRequestByteBlock(startAddress, (readNumBytes - 1));
-//  buffer = read(readNumBytes); // read from device
-//  verifyReturn(buffer);//verify return
-  //copy data to pointer passed by function
-//  return buffer;
-//}
-
 int
 FreeEMS_LoaderComms::verifyReturn(char *buffer, int size)
 {
@@ -504,4 +485,43 @@ FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
     cout<<"error validating return from SMRequestByteBlock";
   vec =  buffer;
   return;
+}
+
+void
+FreeEMS_LoaderComms::erasePage(char PPage)
+{
+  SMSetPPage(PPage);
+  asio::write(port,asio::buffer(&SMErasePage,ONE_BYTE));
+  if(verifyReturn() > 0)
+    cout<<"Error validating SMErasePage";
+}
+
+void
+FreeEMS_LoaderComms::eraseDevice()
+{
+  int i;
+  int nPages;
+  char PPageIndex;
+
+  if(smIsReady)
+     {
+       //calculate total bytes in device
+         for(i = 0; i < numDataVectorTableEntries; i++)
+           {
+             if(!strcmp(flashModuleTable[flashTypeIndex].name, dataVectorTable[i].association))
+               {
+                 nPages =  dataVectorTable[i].stopPage - dataVectorTable[i].startPage + 1;
+                 for(PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--)
+                   {
+                     SMSetPPage(PPageIndex); //set Ppage register
+                     erasePage(PPageIndex);
+                     cout<<"erased page"<<PPageIndex;
+                   }
+                 }
+           }
+     }
+   else
+     {
+       cout<<"error SM not ready";
+     }
 }

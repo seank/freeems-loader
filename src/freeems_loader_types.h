@@ -63,6 +63,7 @@ extern const unsigned char Zero;
 extern const unsigned char SMReadByte;
 extern const unsigned char SMWriteByte;
 extern const unsigned char SMReadBlock;
+extern const unsigned char SMErasePage;
 
 
 

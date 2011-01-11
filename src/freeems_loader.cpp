@@ -260,4 +260,7 @@ void FreeEMS_Loader::test()
   serialConnection->setSM();
 }
 
-
+void FreeEMS_Loader::eraseFlash()
+{
+  serialConnection->eraseDevice();
+}

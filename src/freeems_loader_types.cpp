@@ -105,3 +105,8 @@ const unsigned char SMWriteBlock = 0xA8; // — Write_Block A8/AAAA/NN/WB(AAAA) 
                                         // an error code is transmitted before a new prompt is issued. See Intelligent Writes for
                                         // details. Although this command can be executed while a user program is running, it is
                                         // not recommended because it could slow down operation of the user program.
+
+const unsigned char SMErasePage = 0xB8; // — Erase one page of FLASH memory selected by the current PPAGE
+                                        // register. $E6 error code will be returned if the command does not complete
+                                        // successfully. PPAGE must be preloaded with desired page to erase.
+

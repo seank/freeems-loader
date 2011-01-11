@@ -432,6 +432,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushLoad</sender>
+   <signal>clicked()</signal>
+   <receiver>FreeEMS_LoaderClass</receiver>
+   <slot>eraseFlash()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>368</x>
+     <y>221</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>431</x>
+     <y>166</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>signal2()</signal>
@@ -441,5 +457,7 @@
   <slot>rip()</slot>
   <slot>getFileName()</slot>
   <slot>slot2()</slot>
+  <slot>slot4()</slot>
+  <slot>eraseFlash()</slot>
  </slots>
 </ui>

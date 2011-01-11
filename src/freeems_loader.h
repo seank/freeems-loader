@@ -64,6 +64,7 @@ private:
 public slots:
 	void connect();
 	void rip();
+	void eraseFlash();
 	void test();
 };
 
