@@ -75,7 +75,6 @@ void FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
 
 void FreeEMS_LoaderComms::ripDevice(char *outFileName)
 {
-  cout<<"in ripDevice";
   int i;
   unsigned int numSectors;
   unsigned int address;
@@ -88,26 +87,10 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
   unsigned int bytesInRange;
   unsigned int pagedAddress = 0;
 
-  //outFileName++;
-  //filesystem::path filePath(outFileName);
-  // io::stream_buffer<io::file_sink> buf("log.txt");
-  //    std::ostream out(&buf);
-
   std::vector<char> rxBuffer(bytesPerRecord);
 
   ofstream outFile(outFileName, ios::out | ios::binary);
-  //ofstream myfile;
-    //myfile.open (outFileName);
-    //myfile << "Writing this to a file.\n";
 
-
-  //boost::filesystem::bf::path p(“first.cpp”);
-  //if(filePath::exists(p))
-  //  std::cout< <<" exists.\n";
-  //  else
-  //    std::cout<<<" does not exist.\n";
-
-  //boost::fstream outFile(outFileName);
   FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
 
   if(smIsReady)
@@ -127,7 +110,7 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
                     lastAddress = dataVectorTable[i].stopAddress;
                     bytesInRange = lastAddress - firstAddress;
                     s19Record->setRecordAddress(firstAddress);
-                    numSectors = (lastAddress - firstAddress) / bytesPerRecord;
+                    numSectors = (lastAddress - firstAddress) / bytesPerRecord + 1;
                     //TODO add error for invalid range or improper modulus
                     cout<<"start address"<<firstAddress;
                     cout<<"end address"<<lastAddress;
@@ -137,7 +120,7 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
                       {
                         //Read Block
                         pagedAddress = PPageIndex;
-                        pagedAddress <<= 8;
+                        pagedAddress <<= 16;
                         pagedAddress += address;
 
                         SMReadByteBlock((unsigned short)address, bytesPerRecord, rxBuffer);
