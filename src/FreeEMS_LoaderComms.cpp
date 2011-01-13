@@ -170,7 +170,7 @@ void FreeEMS_LoaderComms::SMSetPPage(char PPage)
 {
   char page = PPage;
   std::vector<char> SMReturnString(3);
-  cout<<"writing to ppage register"<<PPage;
+  //cout<<"writing to ppage register"<<PPage;
   asio::write(port,asio::buffer(&SMWriteByte,ONE_BYTE));
   asio::write(port,asio::buffer(&Zero,ONE_BYTE));
   asio::write(port,asio::buffer(&PPageRegister,ONE_BYTE));
