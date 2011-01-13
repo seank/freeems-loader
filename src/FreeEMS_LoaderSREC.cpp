@@ -159,9 +159,6 @@ FreeEMS_LoaderSREC::buildRecord()
     {
      record += recordCheckSumChars[i];
     }
-
-  cout<<"record built";
-  cout<<record;
 }
 
 void
