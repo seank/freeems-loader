@@ -2,7 +2,7 @@
 #define FREEEMS_LOADER_H
 
 #include <QtGui/QWidget>
-//#include <QtGui>
+#include <QtGui>
 #include <QTextStream>
 #include <QFile>
 #include <QCoreApplication>
@@ -33,6 +33,20 @@ class FreeEMS_Loader : public QWidget
 public:
     FreeEMS_Loader(QWidget *parent = 0);
     ~FreeEMS_Loader();
+
+    virtual bool notify(QObject *rec, QEvent *ev)
+       {
+           qDebug() << "MyApplication::notify";
+           try {
+               return QApplication::instance()->notify(rec, ev);
+               //return QApplication::notify(rec, ev);
+           }
+           catch( ... ) {
+               qDebug() << "Unknown Exception: Terminating!";
+               exit(0);
+           }
+           return false;
+       }
 
 protected:
     void fillBaud();

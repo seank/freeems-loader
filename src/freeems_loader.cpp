@@ -181,7 +181,7 @@ void FreeEMS_Loader::connect()
       //sleep(1); //some systems need a delay after a port config
       serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
       serialConnection->setSM();
-      serialConnection->setFlashType(ui.radFlashType->text().toAscii().data());
+      serialConnection->setFlashType(defFlashType);
       serialConnection->isReady() ? setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
     }else
       {
@@ -232,8 +232,8 @@ void FreeEMS_Loader::initGUI()
 	ui.chkRip->setChecked(true);
 	setGUIState(NOTCONNECTED);
 	ui.progressBar->setValue(0);
-	ui.radFlashType->setChecked(1);
-	ui.radFlashType->setDisabled(1);
+//	ui.radFlashType->setChecked(1);
+//	ui.radFlashType->setDisabled(1);
 }
 
 void FreeEMS_Loader::setGUIState(int state)
@@ -243,13 +243,15 @@ void FreeEMS_Loader::setGUIState(int state)
 	case NOTCONNECTED:
 		ui.pushLoad->setEnabled(0);
 		ui.pushRip->setEnabled(0);
-		ui.pushGo->setEnabled(0);
+		//ui.pushGo->setEnabled(0);
 		ui.pushConnect->setText("Connect");
+		ui.pushErase->setEnabled(0);
 	break;
 	case CONNECTED:
 		ui.pushLoad->setEnabled(1);
 		ui.pushRip->setEnabled(1);
 		ui.pushConnect->setText("Disconnect");
+		ui.pushErase->setEnabled(1);
 	default:
 	break;
 	}

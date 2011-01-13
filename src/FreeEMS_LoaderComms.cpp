@@ -10,7 +10,7 @@
 #include "FreeEMS_LoaderParsing.h"
 #include <string>
 #include <algorithm>
-#include <iostream>
+//#include <iostream>
 #include <boost/bind.hpp>
 #include <freeems_loader_types.h>
 #include "FreeEMS_LoaderSREC.h"
@@ -151,7 +151,7 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
   //delete outFile;
 }
 
-void FreeEMS_LoaderComms::setFlashType(char *commonName)
+void FreeEMS_LoaderComms::setFlashType(const char *commonName)
 {
    int i;
    for(i = 0; flashModuleTable[i].name; i++)
@@ -268,7 +268,8 @@ void FreeEMS_LoaderComms::read(char *data, size_t size)
                 return;
             case resultTimeoutExpired:
                 port.cancel();
-                throw(timeout_exception("Timeout expired"));
+                //throw(timeout_exception("Timeout expired"));
+                cout<<"Timeout expired";
             case resultError:
                 timer.cancel();
                 port.cancel();
@@ -279,8 +280,9 @@ void FreeEMS_LoaderComms::read(char *data, size_t size)
             default:
                 timer.cancel();
                 port.cancel();
-                throw(boost::system::system_error(boost::system::error_code(),
-                        "Error while reading"));
+                //throw(boost::system::system_error(boost::system::error_code(),
+                //        "Error while reading"));
+                cout<<"Error while reading";
             //if resultInProgress remain in the loop
         }
     }
@@ -493,7 +495,7 @@ FreeEMS_LoaderComms::erasePage(char PPage)
   SMSetPPage(PPage);
   asio::write(port,asio::buffer(&SMErasePage,ONE_BYTE));
   if(verifyReturn() > 0)
-    cout<<"Error validating SMErasePage";
+    cout<<"Error validating SMErasePage confirmation, page may already be erased";
 }
 
 void

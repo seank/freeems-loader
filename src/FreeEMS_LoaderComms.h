@@ -16,6 +16,7 @@
 #include <boost/asio.hpp>
 #include <string>
 #include <sstream>
+#include <iostream>
 
 #define SM_READY_CHAR_SIZE      0x03
 
@@ -26,6 +27,7 @@ class timeout_exception: public std::runtime_error
 {
 public:
     timeout_exception(const std::string& arg): runtime_error(arg) {}
+   // timeout_exception(const std::string& arg)  std::cout<<arg {}
 };
 
 /**
@@ -73,7 +75,7 @@ public:
     void returnFlashType(char *responce);
 
 
-    void setFlashType(char *commonName);
+    void setFlashType(const char *commonName);
 
     void SMSetPPage(char PPage);
 
