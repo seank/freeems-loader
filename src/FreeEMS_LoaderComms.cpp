@@ -8,7 +8,6 @@
 
 #include "FreeEMS_LoaderComms.h"
 #include "FreeEMS_LoaderParsing.h"
-#include <string>
 #include <algorithm>
 //#include <iostream>
 #include <boost/bind.hpp>
@@ -168,6 +167,7 @@ void FreeEMS_LoaderComms::setFlashType(const char *commonName)
 
 void FreeEMS_LoaderComms::SMSetPPage(char PPage)
 {
+  bool isSuccessful = false;
   char page = PPage;
   std::vector<char> SMReturnString(3);
   //cout<<"writing to ppage register"<<PPage;
@@ -176,8 +176,11 @@ void FreeEMS_LoaderComms::SMSetPPage(char PPage)
   asio::write(port,asio::buffer(&PPageRegister,ONE_BYTE));
   asio::write(port,asio::buffer(&page,ONE_BYTE));
   SMReturnString = read(3);
-  if(verifyReturn(SMReturnString) < 0)
-    cout<<"cannot verify return string after setting ppage";
+  isSuccessful = verifyReturn(SMReturnString);
+  if(isSuccessful == false)
+    {
+      cout<<"cannot verify return string after setting ppage";
+    }
 }
 
 void FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size)
@@ -434,7 +437,7 @@ FreeEMS_LoaderComms::verifyReturn(char *buffer, int size)
   return -1;
 }
 
-int
+bool
 FreeEMS_LoaderComms::verifyReturn(std::vector<char> &vec)
 {
   int length;
@@ -445,9 +448,9 @@ FreeEMS_LoaderComms::verifyReturn(std::vector<char> &vec)
      vec.pop_back(); //clip return values from data payload
      vec.pop_back();
      vec.pop_back();
-     return 1;
+     return true;
    }
-  return -1;
+  return false;
 }
 
 int
@@ -494,7 +497,7 @@ FreeEMS_LoaderComms::erasePage(char PPage)
 {
   SMSetPPage(PPage);
   asio::write(port,asio::buffer(&SMErasePage,ONE_BYTE));
-  if(verifyReturn() > 0)
+  if(verifyReturn() == false)// TODO put signal here
     cout<<"Error validating SMErasePage confirmation, page may already be erased";
 }
 
@@ -504,6 +507,7 @@ FreeEMS_LoaderComms::eraseDevice()
   int i;
   int nPages;
   char PPageIndex;
+  string message;
 
   if(smIsReady)
      {
@@ -516,8 +520,9 @@ FreeEMS_LoaderComms::eraseDevice()
                  for(PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--)
                    {
                      SMSetPPage(PPageIndex); //set Ppage register
-                     erasePage(PPageIndex);
-                     cout<<"erased page"<<PPageIndex;
+                     erasePage(PPageIndex); // TODO put signal here
+                     message = "Erased Page";
+                     //emit outputString(4);//cout<<"erased page"<<PPageIndex;
                    }
                  }
            }
@@ -527,3 +532,26 @@ FreeEMS_LoaderComms::eraseDevice()
        cout<<"error SM not ready";
      }
 }
+
+void
+FreeEMS_LoaderComms::testMessage()
+{
+  printf("\n test message");
+  printf("\n test message again");
+}
+
+void
+loadDevice(char *filename)
+{
+  filename++;
+}
+
+void FreeEMS_LoaderComms::setThreadAction(int action)
+{
+  threadAction = action;
+}
+
+//void FreeEMS_LoaderComms::outputString(string text)
+//{
+//  emit text;
+//}

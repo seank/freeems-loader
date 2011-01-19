@@ -459,6 +459,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushLoad</sender>
+   <signal>released()</signal>
+   <receiver>FreeEMS_LoaderClass</receiver>
+   <slot>load()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>413</x>
+     <y>168</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>signal2()</signal>
@@ -470,5 +486,6 @@
   <slot>slot2()</slot>
   <slot>slot4()</slot>
   <slot>eraseFlash()</slot>
+  <slot>load()</slot>
  </slots>
 </ui>

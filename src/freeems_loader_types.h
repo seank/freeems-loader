@@ -16,6 +16,8 @@
 #define PAGED_FLASH     0x0004
 #define PPAGE_REGISTER_ADDRESS  0x30
 
+enum actions{EXECUTE_ERASE, RIP_THREAD};
+
 enum s19ID{
   S0,
   S1, // The type of record field is 'S1' (0x5331)

@@ -13,6 +13,7 @@
 
 #include "ui_freeems_loader.h"
 #include "FreeEMS_LoaderComms.h"
+#include "FreeEMS_LoaderThreads.h"
 #include "qdebug.h"
 #include "stdio.h"
 #include <iostream>
@@ -23,8 +24,10 @@
 #include <vector>
 #include <string>
 
+using namespace std;
+
 #define NOTCONNECTED	1
-#define CONNECTED		2
+#define CONNECTED	2
 
 class FreeEMS_Loader : public QWidget
 {
@@ -48,6 +51,9 @@ public:
            return false;
        }
 
+
+    void test2();
+
 protected:
     void fillBaud();
     void fillStopBits();
@@ -66,6 +72,7 @@ private:
     Ui::FreeEMS_LoaderClass ui;
 
     FreeEMS_LoaderComms *serialConnection;
+    FreeEMS_LoaderThreads *heapThreads;
 
     QString ripFileName;
     QString inFileName;
@@ -80,6 +87,8 @@ public slots:
 	void rip();
 	void eraseFlash();
 	void test();
+	void load();
+	void writeText(string text);
 };
 
 #endif // FREEEMS_LOADER_H

@@ -20,6 +20,7 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 	ui.setupUi(this);
 	fillDevice();
 	serialConnection = new FreeEMS_LoaderComms;
+	heapThreads = new FreeEMS_LoaderThreads(serialConnection);
 	fillBaud();
 	fillDataBits();
 	fillStopBits();
@@ -230,6 +231,7 @@ void FreeEMS_Loader::initGUI()
 {
 	ui.chkVerify->setChecked(true);
 	ui.chkRip->setChecked(true);
+	ui.chkErase->setChecked(true);
 	setGUIState(NOTCONNECTED);
 	ui.progressBar->setValue(0);
 //	ui.radFlashType->setChecked(1);
@@ -259,10 +261,38 @@ void FreeEMS_Loader::setGUIState(int state)
 
 void FreeEMS_Loader::test()
 {
-  serialConnection->setSM();
+  //serialConnection->setSM();
+  //FreeEMS_LoaderThreads test(serialConnection, EXECUTE_ERASE);
+  //test.run(serialConnection);
+  //test.start();
+  heapThreads->start();
+  //heapThreads->wait();
+  //test.wait();
+}
+
+void FreeEMS_Loader::test2()
+{
+
 }
 
 void FreeEMS_Loader::eraseFlash()
 {
+  //FreeEMS_LoaderThreads th(serialConnection, EXECUTE_ERASE);
+  //th.start();
+  //th.wait();
+  //cout<<"waiting";
+}
+
+void
+FreeEMS_Loader::load()
+{
+  //serialConnection->ripDevice();
   serialConnection->eraseDevice();
+  //serialConnection->loadDevice();
+}
+
+void
+FreeEMS_Loader::writeText(string text)
+{
+  cout<<text;
 }

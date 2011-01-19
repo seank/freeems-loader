@@ -17,6 +17,9 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <QObject>
+
+using namespace std;
 
 #define SM_READY_CHAR_SIZE      0x03
 
@@ -24,6 +27,7 @@
  * Thrown if timeout occurs
  */
 class timeout_exception: public std::runtime_error
+
 {
 public:
     timeout_exception(const std::string& arg): runtime_error(arg) {}
@@ -34,7 +38,9 @@ public:
  * Serial port class, with timeout on read operations.
  */
 class FreeEMS_LoaderComms: private boost::noncopyable
+
 {
+
 public:
     FreeEMS_LoaderComms();
      /**
@@ -67,6 +73,11 @@ public:
          *  register contents.
          */
     void ripDevice(char *filename);
+
+    void loadDevice(char *filename);
+
+    void setThreadAction(int action);
+
     /*
      *  B7/DC/IDID — Returns the constant $DC (Device C=12) and the 2-byte
      *  HCS12 device ID register. Please refer to selected device guides for device ID
@@ -83,6 +94,8 @@ public:
 
     void SMReadChars(const char *data, size_t size);
 
+    void testMessage();
+
     /*
      * Read a block of memory starting at address specified.
      * Block is read twice to check integrity.
@@ -95,7 +108,7 @@ public:
      */
     int verifyReturn(char *buffer, int size);
 
-    int verifyReturn(std::vector<char> &vec);
+    bool verifyReturn(std::vector<char> &vec);
 
     int verifyReturn();
 
@@ -219,6 +232,9 @@ public:
 
     ~FreeEMS_LoaderComms();
 
+signals:
+    void outputString(int num);
+
 private:
 
     /**
@@ -285,6 +301,7 @@ private:
     ReadSetupParameters setupParameters; ///< Global because used in the OSX fix
 
     int flashTypeIndex;
+    int threadAction;
     bool fDeviceIsSet;
     bool smIsReady;
 };

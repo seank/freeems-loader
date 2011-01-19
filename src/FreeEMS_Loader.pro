@@ -12,7 +12,8 @@ QT += core \
     xmlpatterns \
     network \
     opengl
-HEADERS += FreeEMS_LoaderParsing.h \
+HEADERS += FreeEMS_LoaderThreads.h \
+    FreeEMS_LoaderParsing.h \
     FreeEMS_LoaderComms.h \
     FreeEMS_LoaderSREC.h \
     freeems_LoaderRedirector.h \
@@ -24,7 +25,8 @@ HEADERS += FreeEMS_LoaderParsing.h \
     freeems_loader.h \
     freeems_loader.h \
     freeems_loader.h
-SOURCES += freeems_loader_types.cpp \
+SOURCES += FreeEMS_LoaderThreads.cpp \
+    freeems_loader_types.cpp \
     FreeEMS_LoaderParsing.cpp \
     FreeEMS_LoaderSREC.cpp \
     FreeEMS_LoaderComms.cpp \
