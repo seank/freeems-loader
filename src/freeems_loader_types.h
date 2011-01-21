@@ -16,7 +16,7 @@
 #define PAGED_FLASH     0x0004
 #define PPAGE_REGISTER_ADDRESS  0x30
 
-enum actions{EXECUTE_ERASE, RIP_THREAD};
+enum action{NONE, EXECUTE_ERASE, EXECUTE_RIP};
 
 enum s19ID{
   S0,

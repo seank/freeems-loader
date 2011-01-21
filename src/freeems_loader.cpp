@@ -29,17 +29,15 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 	redirectCLI();
 	initGUI();
 
-	ui.progressBar->setMinimum(0);
-	ui.progressBar->setMaximum(44);
-
+	//TODO move to a seperate function
 	QObject::connect( heapThreads, SIGNAL( WOInfo(string) ),
-	               this, SLOT( writeText(string) ) );
-
+	                                       this, SLOT( writeText(string) ) );
 	QObject::connect( serialConnection, SIGNAL( WOInfo(string) ),
-	                       this, SLOT( writeText(string) ) );
-
+	                                       this, SLOT( writeText(string) ) );
 	QObject::connect( serialConnection, SIGNAL( udProgress(int) ),
-	                               this, SLOT( updateProgress(int) ) );
+	                                       this, SLOT( updateProgress(int) ) );
+	QObject::connect( serialConnection, SIGNAL( configureProgress(int, int) ),
+	                                       this, SLOT( configureProgress(int, int) ) );
 }
 
 FreeEMS_Loader::~FreeEMS_Loader()
@@ -216,12 +214,16 @@ void FreeEMS_Loader::rip()
       {
         cout<<"error opening file";
       }
-//  while(this->ge)
+
+      serialConnection->setRipFilename(ripFileName);
+      heapThreads->setAction(EXECUTE_RIP);
+      heapThreads->start();
+      //  while(this->ge)
 //  cout<<"using file "<<ripFileName.toAscii().data();
 //  char test[20] = "512.s19";
 //  serialConnection->ripDevice(test);
-  serialConnection->ripDevice(ripFileName.toAscii().data());
-  ui.chkRip->setEnabled(1);
+  //serialConnection->ripDevice(ripFileName.toAscii().data());
+  //ui.chkRip->setEnabled(1);
 }
 
 void FreeEMS_Loader::getFileName(QString name)
@@ -243,33 +245,33 @@ void FreeEMS_Loader::getFileName(QString name)
 void FreeEMS_Loader::initGUI()
 {
   ui.chkVerify->setChecked(true);
-	ui.chkRip->setChecked(true);
-	ui.chkErase->setChecked(true);
-	setGUIState(NOTCONNECTED);
-	ui.progressBar->setValue(0);
+  ui.chkRip->setChecked(true);
+  ui.chkErase->setChecked(true);
+  setGUIState(NOTCONNECTED);
+  ui.progressBar->setValue(0);
 //	ui.radFlashType->setChecked(1);
 //	ui.radFlashType->setDisabled(1);
 }
 
 void FreeEMS_Loader::setGUIState(int state)
 {
-	switch(state)
-	{
-	case NOTCONNECTED:
-		ui.pushLoad->setEnabled(0);
-		ui.pushRip->setEnabled(0);
-		//ui.pushGo->setEnabled(0);
-		ui.pushConnect->setText("Connect");
-		ui.pushErase->setEnabled(0);
-	break;
-	case CONNECTED:
-		ui.pushLoad->setEnabled(1);
-		ui.pushRip->setEnabled(1);
-		ui.pushConnect->setText("Disconnect");
-		ui.pushErase->setEnabled(1);
-	default:
-	break;
-	}
+  switch(state)
+  {
+   case NOTCONNECTED:
+    ui.pushLoad->setEnabled(0);
+    ui.pushRip->setEnabled(0);
+    //ui.pushGo->setEnabled(0);
+    ui.pushConnect->setText("Connect");
+    ui.pushErase->setEnabled(0);
+    break;
+   case CONNECTED:
+     ui.pushLoad->setEnabled(1);
+     ui.pushRip->setEnabled(1);
+     ui.pushConnect->setText("Disconnect");
+     ui.pushErase->setEnabled(1);
+   default:
+     break;
+  }
 }
 
 void FreeEMS_Loader::test()
@@ -286,21 +288,23 @@ void FreeEMS_Loader::test()
 void FreeEMS_Loader::eraseFlash()
 {
   //serialConnection->ripDevice();
-   serialConnection->eraseDevice();
-   //serialConnection->loadDevice();
+  heapThreads->setAction(EXECUTE_ERASE);
+  heapThreads->start();
 }
 
 void
 FreeEMS_Loader::load()
 {
+  heapThreads->setAction(EXECUTE_ERASE);
+  heapThreads->start();
   //serialConnection->ripDevice();
   //serialConnection->eraseDevice();
   //serialConnection->loadDevice();
   //FreeEMS_LoaderThreads th(serialConnection, EXECUTE_ERASE);
-   //th.start();
-   //th.wait();
-  heapThreads->start();
-   //cout<<"waiting";
+  //th.start();
+  //th.wait();
+  //heapThreads->start();
+  //cout<<"waiting";
 }
 
 void

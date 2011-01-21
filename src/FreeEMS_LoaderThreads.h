@@ -13,21 +13,24 @@
 #include "FreeEMS_LoaderComms.h"
 #include "freeems_loader_types.h"
 
+using namespace std;
+
 class FreeEMS_LoaderThreads : public QThread
 {
   Q_OBJECT
 public:
   FreeEMS_LoaderThreads(FreeEMS_LoaderComms *connection);
-  virtual void run();
+  void run();
   virtual ~FreeEMS_LoaderThreads();
 
   FreeEMS_LoaderComms *threadedConnection;
+  void setAction(int action);
 
 private:
-  int action;
+  int threadAction;
 
 signals:
-  void WOInfo(std::string text);
+  void WOInfo(string text);
 };
 
 #endif /* FREEEMS_LOADERTHREADS_H_ */

@@ -72,14 +72,16 @@ void FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
     timeout=t;
 }
 
-void FreeEMS_LoaderComms::ripDevice(char *outFileName)
+void FreeEMS_LoaderComms::ripDevice()
 {
   int i;
+  int totalBytes = 0;
+  int totalBytesTX = 0;
+
   unsigned int numSectors;
   unsigned int address;
   unsigned int PPageIndex;
   unsigned int nPages;
-
   unsigned int firstAddress;
   unsigned int lastAddress;
   unsigned int bytesPerRecord = 16; //read 16 bytes TODO make configurable, same as default hcs12mem tool
@@ -88,19 +90,22 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
 
   std::vector<char> rxBuffer(bytesPerRecord);
 
-  ofstream outFile(outFileName, ios::out | ios::binary);
+  ofstream outFile(ripFilename.toAscii(), ios::out | ios::binary);
 
   FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
 
+  totalBytes = getDeviceByteCount();
+  emit configureProgress(0, totalBytes);
+
   if(smIsReady)
     {
-      //calculate total bytes in device
         for(i = 0; i < numDataVectorTableEntries; i++)
           {
             if(!strcmp(flashModuleTable[flashTypeIndex].name, dataVectorTable[i].association))
               {
                 nPages =  dataVectorTable[i].stopPage - dataVectorTable[i].startPage;
                 nPages++; //there is always 1 page to rip
+
                 for(PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--)
                   {
                     SMSetPPage(PPageIndex); //set Ppage register
@@ -111,23 +116,22 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
                     s19Record->setRecordAddress(firstAddress);
                     numSectors = (lastAddress - firstAddress) / bytesPerRecord + 1;
                     //TODO add error for invalid range or improper modulus
-                    //cout<<"start address"<<firstAddress;
-                    //cout<<"end address"<<lastAddress;
-                    //cout<<"PPage"<<dataVectorTable[i].startPage + PPageIndex;
                     rxBuffer.clear();
-                    for(address = firstAddress; numSectors; address += bytesPerRecord, numSectors--)
+                    for(address = firstAddress; numSectors; address += bytesPerRecord, numSectors--,
+                     totalBytesTX += bytesPerRecord)
                       {
                         //Read Block
                         pagedAddress = PPageIndex;
                         pagedAddress <<= 16;
                         pagedAddress += address;
-
                         SMReadByteBlock((unsigned short)address, bytesPerRecord, rxBuffer);
                         s19Record->initVariables();  // clear record
                         s19Record->setTypeIndex(S2);
                         s19Record->setRecordAddress(pagedAddress);
                         s19Record->fillRecord(rxBuffer);
                         s19Record->buildRecord();
+                        //Update Progress Bar
+                        emit udProgress(totalBytesTX);
                         if(s19Record->recordIsNull == false)
                           {
                             outFile.write(s19Record->retRecordString().c_str(), s19Record->retRecordSize());
@@ -137,6 +141,7 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
                     }
                 }
           }
+        emit udProgress(totalBytes);
     }
   else
     {
@@ -147,7 +152,6 @@ void FreeEMS_LoaderComms::ripDevice(char *outFileName)
   //
   delete s19Record;
   outFile.close();
-  //delete outFile;
 }
 
 void FreeEMS_LoaderComms::setFlashType(const char *commonName)
@@ -158,7 +162,8 @@ void FreeEMS_LoaderComms::setFlashType(const char *commonName)
          if(!strcmp(flashModuleTable[i].name, commonName))
            {
              flashTypeIndex = i;
-             cout<<"set flash type to"<<commonName;
+             cout<<"set flash type to "<<commonName; //TODO MAKE THREAD SAFE
+             fDeviceIsSet = true;
              return;
            }
      }
@@ -516,12 +521,13 @@ FreeEMS_LoaderComms::eraseDevice()
              if(!strcmp(flashModuleTable[flashTypeIndex].name, dataVectorTable[i].association))
                {
                  nPages =  dataVectorTable[i].stopPage - dataVectorTable[i].startPage + 1;
+                 emit configureProgress((unsigned char)dataVectorTable[i].startPage, (unsigned char)dataVectorTable[i].stopPage);
                  for(PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--)
                    {
                      SMSetPPage(PPageIndex); //set Ppage register
                      erasePage(PPageIndex); // TODO put signal here
-                     emit WOInfo("Erased Page");
-                     emit udProgress(nPages);
+                     //emit WOInfo("Erased Page");
+                     emit udProgress((unsigned char)PPageIndex);
                    }
                  }
            }
@@ -541,4 +547,33 @@ loadDevice(char *filename)
 void FreeEMS_LoaderComms::setThreadAction(int action)
 {
   threadAction = action;
+}
+
+void FreeEMS_LoaderComms::setRipFilename(QString name)
+{
+  ripFilename = name;
+}
+
+int
+FreeEMS_LoaderComms::getDeviceByteCount()
+{
+  int totalBytes = 0;
+  int i;
+  if(fDeviceIsSet == true)
+    {
+      for(i = 0; i < numDataVectorTableEntries; i++)
+        {
+          if(!strcmp(flashModuleTable[flashTypeIndex].name, dataVectorTable[i].association))
+            {
+              totalBytes += (dataVectorTable[i].stopPage - dataVectorTable[i].startPage)
+                              * (dataVectorTable[i].stopAddress - dataVectorTable[i].startAddress) ;
+            }
+        }
+      return totalBytes;
+    }
+  else
+    {
+      emit WOInfo("Cannot get byte count, no device set");
+        return 0;
+    }
 }

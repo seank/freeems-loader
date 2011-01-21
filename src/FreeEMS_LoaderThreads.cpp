@@ -11,7 +11,7 @@ FreeEMS_LoaderThreads::FreeEMS_LoaderThreads(FreeEMS_LoaderComms *connection)
 {
   // TODO Auto-generated constructor stub
   threadedConnection = connection;
-  action = EXECUTE_ERASE;
+  threadAction = NONE;
 }
 
 FreeEMS_LoaderThreads::~FreeEMS_LoaderThreads()
@@ -22,16 +22,26 @@ FreeEMS_LoaderThreads::~FreeEMS_LoaderThreads()
 void
 FreeEMS_LoaderThreads::run()
 {
-
-  emit WOInfo("CONSTANT STRING");
-  switch (action)
+  switch (threadAction)
   {
-  case EXECUTE_ERASE: threadedConnection->eraseDevice();
+  case EXECUTE_ERASE:
+    emit WOInfo("Executing erase");
+    threadedConnection->eraseDevice();
     break;
-  //case RIP_THREAD: threadedConnection->ripDevice();
-  //  break;
+  case EXECUTE_RIP:
+    emit WOInfo("Executing rip");
+    threadedConnection->ripDevice();
+    break;
+  case NONE: emit WOInfo("Action for thread not set!");
+    break;
   default:
     break;
   }
   //exec();
+}
+
+void
+FreeEMS_LoaderThreads::setAction(int action)
+{
+  threadAction = action;
 }

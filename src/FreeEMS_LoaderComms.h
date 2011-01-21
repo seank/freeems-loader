@@ -70,11 +70,15 @@ public:
          *  HCS12 device ID register. Please refer to selected device guides for device ID
          *  register contents.
          */
-    void ripDevice(char *filename);
+    void ripDevice();
 
     void loadDevice(char *filename);
 
     void setThreadAction(int action);
+
+    void setRipFilename(QString name);
+
+    int  getDeviceByteCount();
 
     /*
      *  B7/DC/IDID — Returns the constant $DC (Device C=12) and the 2-byte
@@ -231,6 +235,7 @@ public:
 signals:
       void WOInfo(string text);
       void udProgress(int percent);
+      void configureProgress(int min, int max);
 
 private:
 
@@ -296,6 +301,9 @@ private:
     enum ReadResult result;  ///< Used by read with timeout
     size_t bytesTransferred; ///< Used by async read callback
     ReadSetupParameters setupParameters; ///< Global because used in the OSX fix
+
+    QString ripFilename;
+    QString loadFilename;
 
     int flashTypeIndex;
     int threadAction;
