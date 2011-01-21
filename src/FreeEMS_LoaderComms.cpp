@@ -507,7 +507,6 @@ FreeEMS_LoaderComms::eraseDevice()
   int i;
   int nPages;
   char PPageIndex;
-  string message;
 
   if(smIsReady)
      {
@@ -521,8 +520,8 @@ FreeEMS_LoaderComms::eraseDevice()
                    {
                      SMSetPPage(PPageIndex); //set Ppage register
                      erasePage(PPageIndex); // TODO put signal here
-                     message = "Erased Page";
-                     //emit outputString(4);//cout<<"erased page"<<PPageIndex;
+                     emit WOInfo("Erased Page");
+                     emit udProgress(nPages);
                    }
                  }
            }
@@ -531,13 +530,6 @@ FreeEMS_LoaderComms::eraseDevice()
      {
        cout<<"error SM not ready";
      }
-}
-
-void
-FreeEMS_LoaderComms::testMessage()
-{
-  printf("\n test message");
-  printf("\n test message again");
 }
 
 void
@@ -550,8 +542,3 @@ void FreeEMS_LoaderComms::setThreadAction(int action)
 {
   threadAction = action;
 }
-
-//void FreeEMS_LoaderComms::outputString(string text)
-//{
-//  emit text;
-//}

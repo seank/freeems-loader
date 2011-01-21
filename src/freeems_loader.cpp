@@ -19,6 +19,7 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 {
 	ui.setupUi(this);
 	fillDevice();
+	qRegisterMetaType<string>("string");
 	serialConnection = new FreeEMS_LoaderComms;
 	heapThreads = new FreeEMS_LoaderThreads(serialConnection);
 	fillBaud();
@@ -27,6 +28,18 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 	fillParity();
 	redirectCLI();
 	initGUI();
+
+	ui.progressBar->setMinimum(0);
+	ui.progressBar->setMaximum(44);
+
+	QObject::connect( heapThreads, SIGNAL( WOInfo(string) ),
+	               this, SLOT( writeText(string) ) );
+
+	QObject::connect( serialConnection, SIGNAL( WOInfo(string) ),
+	                       this, SLOT( writeText(string) ) );
+
+	QObject::connect( serialConnection, SIGNAL( udProgress(int) ),
+	                               this, SLOT( updateProgress(int) ) );
 }
 
 FreeEMS_Loader::~FreeEMS_Loader()
@@ -229,7 +242,7 @@ void FreeEMS_Loader::getFileName(QString name)
 
 void FreeEMS_Loader::initGUI()
 {
-	ui.chkVerify->setChecked(true);
+  ui.chkVerify->setChecked(true);
 	ui.chkRip->setChecked(true);
 	ui.chkErase->setChecked(true);
 	setGUIState(NOTCONNECTED);
@@ -265,34 +278,47 @@ void FreeEMS_Loader::test()
   //FreeEMS_LoaderThreads test(serialConnection, EXECUTE_ERASE);
   //test.run(serialConnection);
   //test.start();
-  heapThreads->start();
+  //heapThreads->start();
   //heapThreads->wait();
   //test.wait();
 }
 
-void FreeEMS_Loader::test2()
-{
-
-}
-
 void FreeEMS_Loader::eraseFlash()
 {
-  //FreeEMS_LoaderThreads th(serialConnection, EXECUTE_ERASE);
-  //th.start();
-  //th.wait();
-  //cout<<"waiting";
+  //serialConnection->ripDevice();
+   serialConnection->eraseDevice();
+   //serialConnection->loadDevice();
 }
 
 void
 FreeEMS_Loader::load()
 {
   //serialConnection->ripDevice();
-  serialConnection->eraseDevice();
+  //serialConnection->eraseDevice();
   //serialConnection->loadDevice();
+  //FreeEMS_LoaderThreads th(serialConnection, EXECUTE_ERASE);
+   //th.start();
+   //th.wait();
+  heapThreads->start();
+   //cout<<"waiting";
 }
 
 void
-FreeEMS_Loader::writeText(string text)
+FreeEMS_Loader::writeText(string message)
 {
-  cout<<text;
+   cout<<message;
+}
+
+void
+FreeEMS_Loader::updateProgress(int percent)
+{
+  //cout<<"updating progress bar "<<percent;
+  ui.progressBar->setValue(percent);
+}
+
+void
+FreeEMS_Loader::configureProgress(int min, int max)
+{
+  ui.progressBar->setMinimum(min);
+  ui.progressBar->setMaximum(max);
 }

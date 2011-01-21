@@ -19,8 +19,11 @@ FreeEMS_LoaderThreads::~FreeEMS_LoaderThreads()
   // TODO Auto-generated destructor stub
 }
 
-void FreeEMS_LoaderThreads::run()
- {
+void
+FreeEMS_LoaderThreads::run()
+{
+
+  emit WOInfo("CONSTANT STRING");
   switch (action)
   {
   case EXECUTE_ERASE: threadedConnection->eraseDevice();
@@ -30,6 +33,5 @@ void FreeEMS_LoaderThreads::run()
   default:
     break;
   }
-
   //exec();
- }
+}

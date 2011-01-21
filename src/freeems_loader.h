@@ -10,6 +10,7 @@
 #include <QStringList>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QObject>
 
 #include "ui_freeems_loader.h"
 #include "FreeEMS_LoaderComms.h"
@@ -51,9 +52,6 @@ public:
            return false;
        }
 
-
-    void test2();
-
 protected:
     void fillBaud();
     void fillStopBits();
@@ -88,7 +86,9 @@ public slots:
 	void eraseFlash();
 	void test();
 	void load();
-	void writeText(string text);
+	void writeText(string message);
+	void updateProgress(int percent);
+	void configureProgress(int min, int max);
 };
 
 #endif // FREEEMS_LOADER_H

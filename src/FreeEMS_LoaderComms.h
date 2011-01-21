@@ -9,19 +9,18 @@
 #ifndef FREEEMS_LOADERCOMMS_H_
 #define FREEEMS_LOADERCOMMS_H_
 
-//#include "freeems_loader_types.h"
-
 #include <stdexcept>
 #include <boost/utility.hpp>
 #include <boost/asio.hpp>
 #include <string>
 #include <sstream>
 #include <iostream>
+
 #include <QObject>
 
-using namespace std;
-
 #define SM_READY_CHAR_SIZE      0x03
+
+using namespace std;
 
 /**
  * Thrown if timeout occurs
@@ -37,10 +36,9 @@ public:
 /**
  * Serial port class, with timeout on read operations.
  */
-class FreeEMS_LoaderComms: private boost::noncopyable
-
+class FreeEMS_LoaderComms:  public QObject ,private boost::noncopyable
 {
-
+  Q_OBJECT
 public:
     FreeEMS_LoaderComms();
      /**
@@ -93,8 +91,6 @@ public:
     void SMReadByteBlock(unsigned int address, char plusBytes, std::vector<char> &vec);
 
     void SMReadChars(const char *data, size_t size);
-
-    void testMessage();
 
     /*
      * Read a block of memory starting at address specified.
@@ -233,7 +229,8 @@ public:
     ~FreeEMS_LoaderComms();
 
 signals:
-    void outputString(int num);
+      void WOInfo(string text);
+      void udProgress(int percent);
 
 private:
 
