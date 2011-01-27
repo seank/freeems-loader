@@ -73,7 +73,7 @@ private:
     FreeEMS_LoaderThreads *heapThreads;
 
     QString ripFileName;
-    QString inFileName;
+    QString loadFileName;
 
     int flashTypeIndex;
 

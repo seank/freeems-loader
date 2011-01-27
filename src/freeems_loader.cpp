@@ -283,9 +283,11 @@ void FreeEMS_Loader::test()
   //heapThreads->start();
   //heapThreads->wait();
   //test.wait();
+  //serialConnection->setLoadFilename();
 }
 
-void FreeEMS_Loader::eraseFlash()
+void
+FreeEMS_Loader::eraseFlash()
 {
   //serialConnection->ripDevice();
   heapThreads->setAction(EXECUTE_ERASE);
@@ -295,16 +297,24 @@ void FreeEMS_Loader::eraseFlash()
 void
 FreeEMS_Loader::load()
 {
-  heapThreads->setAction(EXECUTE_ERASE);
+  loadFileName = QFileDialog::getOpenFileName(
+            this,
+            tr("Save s19 as"),
+            QDir::currentPath(),
+            tr("s19 (*.s19)") );
+        if( loadFileName.isNull() )
+        {
+          cout<<"error opening file";
+        }
+
+  ripFileName = loadFileName;
+  ripFileName += ".saved";
+
+  serialConnection->setLoadFilename(loadFileName);
+  serialConnection->setRipFilename(ripFileName);
+
+  heapThreads->setAction(EXECUTE_RIP_ERASE_LOAD);
   heapThreads->start();
-  //serialConnection->ripDevice();
-  //serialConnection->eraseDevice();
-  //serialConnection->loadDevice();
-  //FreeEMS_LoaderThreads th(serialConnection, EXECUTE_ERASE);
-  //th.start();
-  //th.wait();
-  //heapThreads->start();
-  //cout<<"waiting";
 }
 
 void

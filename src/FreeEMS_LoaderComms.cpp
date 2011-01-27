@@ -12,7 +12,6 @@
 //#include <iostream>
 #include <boost/bind.hpp>
 #include <freeems_loader_types.h>
-#include "FreeEMS_LoaderSREC.h"
 #include <fstream>
 #include <ostream>
 
@@ -70,6 +69,27 @@ void FreeEMS_LoaderComms::close()
 void FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
 {
     timeout=t;
+}
+
+void
+FreeEMS_LoaderComms::loadDevice()
+{
+  std::vector<std::string> recordArray;
+  std::string line;
+
+  //ofstream outFile(loadFilename.toAscii(), ios::in | ios::binary);
+  ifstream ifs(loadFilename.toAscii());
+  if(ifs.fail())
+    {
+      //TODO EMIT ERROR
+      return;
+    }
+
+  while(getline(ifs, line))
+      {
+        recordArray.push_back(line);
+      }
+  return;
 }
 
 void FreeEMS_LoaderComms::ripDevice()
@@ -552,6 +572,11 @@ void FreeEMS_LoaderComms::setThreadAction(int action)
 void FreeEMS_LoaderComms::setRipFilename(QString name)
 {
   ripFilename = name;
+}
+
+void FreeEMS_LoaderComms::setLoadFilename(QString name)
+{
+  loadFilename = name;
 }
 
 int

@@ -15,6 +15,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include "FreeEMS_LoaderSREC.h"
 
 #include <QObject>
 
@@ -72,11 +73,13 @@ public:
          */
     void ripDevice();
 
-    void loadDevice(char *filename);
+    void loadDevice();
 
     void setThreadAction(int action);
 
     void setRipFilename(QString name);
+
+    void setLoadFilename(QString name);
 
     int  getDeviceByteCount();
 
@@ -301,6 +304,9 @@ private:
     enum ReadResult result;  ///< Used by read with timeout
     size_t bytesTransferred; ///< Used by async read callback
     ReadSetupParameters setupParameters; ///< Global because used in the OSX fix
+
+    std::vector<FreeEMS_LoaderSREC> s19SetOne;
+    std::vector<FreeEMS_LoaderSREC> s19SetTwo;
 
     QString ripFilename;
     QString loadFilename;
