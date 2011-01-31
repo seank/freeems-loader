@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 
 using namespace std;
 //using namespace boost;
@@ -21,6 +22,8 @@ public:
   virtual
   ~FreeEMS_LoaderParsing();
   static unsigned char asciiPairToChar(char *ascii_pair);
+  static unsigned char asciiPairToChar(const char *ascii_pair);
+  void asciiPairToArray(string* inString, unsigned char* destBuffer, int numChars);
   static void intToHexAscii(int number, char* buffer, unsigned char numBitsToConvert);
   static int calcuateNumRecordsNeeded(int flashBytes, int bytesInRecord);
 };

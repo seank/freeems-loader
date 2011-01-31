@@ -308,13 +308,14 @@ FreeEMS_Loader::load()
         }
 
   ripFileName = loadFileName;
-  ripFileName += ".saved";
+  ripFileName += ".saved"; //TODO also append with date-time
 
   serialConnection->setLoadFilename(loadFileName);
   serialConnection->setRipFilename(ripFileName);
 
-  heapThreads->setAction(EXECUTE_RIP_ERASE_LOAD);
-  heapThreads->start();
+  heapThreads->setAction(EXECUTE_LOAD);
+  //heapThreads->start();
+  serialConnection->loadDevice();
 }
 
 void

@@ -20,6 +20,7 @@
 #include <QObject>
 
 #define SM_READY_CHAR_SIZE      0x03
+#define ONE_TWENTY_EIGHT_K_RECORDS     128000  //enough records to hold 4MB at 16bytes each
 
 using namespace std;
 
@@ -74,6 +75,14 @@ public:
     void ripDevice();
 
     void loadDevice();
+
+    void init();
+
+    void clearSets();
+
+    void generateRecords(vector<string>* lineArray);
+
+    bool lineIsLoadable(string* line);
 
     void setThreadAction(int action);
 
@@ -305,8 +314,8 @@ private:
     size_t bytesTransferred; ///< Used by async read callback
     ReadSetupParameters setupParameters; ///< Global because used in the OSX fix
 
-    std::vector<FreeEMS_LoaderSREC> s19SetOne;
-    std::vector<FreeEMS_LoaderSREC> s19SetTwo;
+    FreeEMS_LoaderSREC *s19SetOne;
+    FreeEMS_LoaderSREC *s19SetTwo;
 
     QString ripFilename;
     QString loadFilename;

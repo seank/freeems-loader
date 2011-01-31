@@ -52,6 +52,34 @@ FreeEMS_LoaderParsing::asciiPairToChar(char *ascii_pair)
   return byte;
 }
 
+unsigned char //TODO CLEANUP AND REMOVE THIS DUPLICATE
+FreeEMS_LoaderParsing::asciiPairToChar(const char *ascii_pair)
+{
+  int i;
+  unsigned char byte = 0;
+  char pair_char = 0;
+  for(i = 0; i < 2; i++) // loop twice
+    {
+      pair_char = ascii_pair[i];
+      if(pair_char >= '0' && pair_char <= '9')
+          {
+          byte |= pair_char - '0';
+          }
+        else if(pair_char >= 'A' && pair_char <= 'F' )
+          {
+            byte |= (pair_char - 'A') + 10;
+          }
+        else
+          {
+            cout<<"error converting ascii hiNibble: out of range";
+          }
+      if(i == 0) // right shift the first pair
+        byte <<= 4;
+    }
+  return byte;
+}
+
+
 int
 FreeEMS_LoaderParsing::calcuateNumRecordsNeeded(int flashBytes, int bytesInRecord)
 {
@@ -72,4 +100,14 @@ FreeEMS_LoaderParsing::intToHexAscii(int number, char* buffer, unsigned char num
             *buffer = charNumber + 'A' - 10;
        } //debug
   return;
+}
+
+void
+FreeEMS_LoaderParsing::asciiPairToArray(string* inString, unsigned char* destBuffer, int numChars)
+{
+  int i, j;
+  for(i = 0, j = 0; i < numChars ; i += 2, j++)
+    {
+      *(destBuffer + j) =  asciiPairToChar((inString->c_str() + 1));
+    }
 }

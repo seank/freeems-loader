@@ -21,7 +21,7 @@ using namespace boost;
 FreeEMS_LoaderComms::FreeEMS_LoaderComms(): io(), port(io), timer(io),
         timeout(posix_time::seconds(1)), flashTypeIndex(0), fDeviceIsSet(false), smIsReady(false)
 {
-
+  init();
 }
 
 FreeEMS_LoaderComms::FreeEMS_LoaderComms(const std::string& devname, unsigned int baud_rate,
@@ -31,7 +31,8 @@ FreeEMS_LoaderComms::FreeEMS_LoaderComms(const std::string& devname, unsigned in
         asio::serial_port_base::stop_bits opt_stop)
         : io(), port(io), timer(io), timeout(posix_time::seconds(1))
 {
-    open(devname,baud_rate,opt_parity,opt_csize,opt_flow,opt_stop);
+  open(devname,baud_rate,opt_parity,opt_csize,opt_flow,opt_stop);
+  init();
 }
 
 void FreeEMS_LoaderComms::open(const std::string& devname, unsigned int baud_rate,
@@ -49,24 +50,49 @@ void FreeEMS_LoaderComms::open(const std::string& devname, unsigned int baud_rat
     port.set_option(opt_stop);
 }
 
-bool FreeEMS_LoaderComms::isReady() const
+bool
+FreeEMS_LoaderComms::isReady() const
 {
   return smIsReady ? true:false ;
 }
 
-bool FreeEMS_LoaderComms::isOpen() const
+bool
+FreeEMS_LoaderComms::isOpen() const
 {
   return port.is_open();
 }
 
-void FreeEMS_LoaderComms::close()
+void
+FreeEMS_LoaderComms::init()
+{
+  s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
+  s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
+  clearSets();
+
+}
+
+void
+FreeEMS_LoaderComms::clearSets()
+{
+  unsigned int i;
+
+  for(i = 0; i < ONE_TWENTY_EIGHT_K_RECORDS; i++)
+    {
+      s19SetOne[i].initVariables();
+      s19SetTwo[i].initVariables();
+    }
+}
+
+void
+FreeEMS_LoaderComms::close()
 {
     if(isOpen()==false) return;
     port.close();
     smIsReady = false;
 }
 
-void FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
+void
+FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
 {
     timeout=t;
 }
@@ -74,10 +100,11 @@ void FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
 void
 FreeEMS_LoaderComms::loadDevice()
 {
-  std::vector<std::string> recordArray;
-  std::string line;
+  vector<string> lineArray;
+  string line;
 
-  //ofstream outFile(loadFilename.toAscii(), ios::in | ios::binary);
+  int i;
+
   ifstream ifs(loadFilename.toAscii());
   if(ifs.fail())
     {
@@ -86,13 +113,18 @@ FreeEMS_LoaderComms::loadDevice()
     }
 
   while(getline(ifs, line))
-      {
-        recordArray.push_back(line);
-      }
+    {
+      i = 0;
+      lineArray.push_back(line);
+    }
+
+  generateRecords(&lineArray);
+
   return;
 }
 
-void FreeEMS_LoaderComms::ripDevice()
+void
+FreeEMS_LoaderComms::ripDevice()
 {
   int i;
   int totalBytes = 0;
@@ -187,7 +219,6 @@ void FreeEMS_LoaderComms::setFlashType(const char *commonName)
              return;
            }
      }
-
 }
 
 void FreeEMS_LoaderComms::SMSetPPage(char PPage)
@@ -564,17 +595,20 @@ loadDevice(char *filename)
   filename++;
 }
 
-void FreeEMS_LoaderComms::setThreadAction(int action)
+void
+FreeEMS_LoaderComms::setThreadAction(int action)
 {
   threadAction = action;
 }
 
-void FreeEMS_LoaderComms::setRipFilename(QString name)
+void
+FreeEMS_LoaderComms::setRipFilename(QString name)
 {
   ripFilename = name;
 }
 
-void FreeEMS_LoaderComms::setLoadFilename(QString name)
+void
+FreeEMS_LoaderComms::setLoadFilename(QString name)
 {
   loadFilename = name;
 }
@@ -601,4 +635,30 @@ FreeEMS_LoaderComms::getDeviceByteCount()
       emit WOInfo("Cannot get byte count, no device set");
         return 0;
     }
+}
+
+void
+FreeEMS_LoaderComms::generateRecords(vector<string>* lineArray)
+{
+  unsigned int i, j;
+  string line;
+
+  for(i = 0, j = 0; i < lineArray->size(); i++)
+    {
+      line = lineArray->at(i);
+      if(lineIsLoadable(&line))
+        {
+          emit WOInfo("Line Is Loadable");
+          s19SetOne[j].createFromString(&line);
+          j++;
+        }
+    }
+}
+
+bool  //TODO move to parser class
+FreeEMS_LoaderComms::lineIsLoadable(string* line)
+{
+  if( (line->find("S3")) == 0 || (line->find("S2")) == 0 || ((line->find("S1")) == 0) )
+      return true;
+  return false;
 }

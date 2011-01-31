@@ -16,6 +16,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <QString>
 
 //using namespace std;
 
@@ -34,6 +35,7 @@
 class FreeEMS_LoaderSREC {
 public:
 	FreeEMS_LoaderSREC(int type);
+	FreeEMS_LoaderSREC();
 	FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress);
 	virtual ~FreeEMS_LoaderSREC();
 //	bool verifyFile(int *file);
@@ -47,6 +49,7 @@ public:
 	char getRecordType();
 	void buildRecord();
 	void printRecord();
+	void createFromString(string* lineIn);
 	std::string retRecordString();
 
 	/*
@@ -64,6 +67,7 @@ public:
 	void setNumPairsInRecord();
 	void initVariables();
 	int  retRecordSize();
+	bool lineIsLoadable(string* line);
 
 	bool recordIsNull;
 
@@ -77,6 +81,7 @@ private:
 	char recordCheckSumChars[TWO_BYTES];
 
 	unsigned char recordChkSum;
+	unsigned char recordLoadedChkSum;
 	//char checksum;
 
 	int charsInAddress;

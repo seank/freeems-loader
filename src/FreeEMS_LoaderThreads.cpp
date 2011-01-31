@@ -33,6 +33,10 @@ FreeEMS_LoaderThreads::run()
      emit WOInfo("Loading...");
 
      break;
+  case EXECUTE_LOAD:
+    emit WOInfo("Executing load");
+    threadedConnection->loadDevice();
+    break;
   case EXECUTE_ERASE:
     emit WOInfo("Executing erase");
     threadedConnection->eraseDevice();

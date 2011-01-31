@@ -15,10 +15,14 @@
 	   S2     14      F880B0    B746B7C687B7467D3044FD30421AEEFD      60
 */
 
+FreeEMS_LoaderSREC::FreeEMS_LoaderSREC() {
+  initVariables();
+}
+
+
 FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(int type) {
   initVariables();
   setTypeIndex(type);
-
 }
 
 FreeEMS_LoaderSREC::~FreeEMS_LoaderSREC() {
@@ -187,4 +191,72 @@ int
 FreeEMS_LoaderSREC::retRecordSize()
 {
   return record.length();
+}
+
+void
+FreeEMS_LoaderSREC::createFromString(string* lineIn)
+{
+
+  char type = *(lineIn->c_str() + 1);
+  //int IDOffset;
+  //int payloadEnd;
+  //int lengthOffset;
+  int numCharsInPayload;
+  //char convBuffer[1024];
+
+  if(*lineIn->c_str() == 'S') //start of record
+    {
+      switch(type)
+      {
+      case '1':
+        break;
+      case '2': //Record is S2
+        memcpy(recordTypeIdChars, lineIn->c_str(), TWO_BYTES);
+        memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
+        recordPayloadBytes = (int)FreeEMS_LoaderParsing::asciiPairToChar(recordPayloadPairCountChars);
+        memcpy(recordAddressChars, lineIn->c_str() + S2_ADDRESS_OFFSET, 6); //S2 has 6 chars in address
+        numCharsInPayload = recordPayloadBytes * 2;
+        memcpy(recordPayload, lineIn->c_str() + S2_PAYLOAD_OFFSET, numCharsInPayload - 1);
+        memcpy(recordCheckSumChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET + numCharsInPayload, TWO_BYTES);
+        recordLoadedChkSum = FreeEMS_LoaderParsing::asciiPairToChar(recordCheckSumChars);
+        //charsInAddres = 6;
+        calculateCheckSum();
+        if(recordChkSum != recordLoadedChkSum)
+          {
+            cout<<"WARNING RECORD LOADED CHECKSUM DOES NOT MATCH CALCUATED SUM";
+          }
+        cout<<"S2 record built from line";
+        break;
+      case '3':
+        break;
+      default: cout<<"LINE DOES NOT CONTAIN LOADABLE RECORD";
+        break;
+      }
+    }
+  else
+    {
+      cout<<"LINE DOES NOT CONTAIN LOADABLE RECORD";
+    }
+
+  return;
+  //recordPayload[]; -
+  //recordAddressChars[]; -
+  //recordTypeIdChars[]; -
+  //recordPayloadPairCountChars[]; -
+  //recordCheckSumChars[];
+
+  //recordChkSum;
+          //char checksum;
+
+  //charsInAddress;
+  //recordIndex;
+  //recordPayloadBytes;
+  //typeIndex;
+  //numHexValues;
+  //payloadAddress;
+
+  //writeAccess;
+  //recordStatus;
+  //addressIsSet;
+  //typeIsSet;
 }
