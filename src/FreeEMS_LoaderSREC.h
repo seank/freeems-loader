@@ -62,6 +62,7 @@ public:
 
 	int  putNextByte(char byte);
 	int  setRecordAddress(unsigned int address);
+	int  setRecordAddress(char* address);
 	int  setRecordType(int type);
 	int  setTypeIndex(int type);
 	void setNumPairsInRecord();
@@ -96,6 +97,7 @@ private:
 	bool recordStatus;
 	bool addressIsSet;
 	bool typeIsSet;
+	bool numPairsSet;
 
 };
 

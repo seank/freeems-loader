@@ -104,29 +104,59 @@ FreeEMS_LoaderSREC::setTypeIndex(int type)
 int
 FreeEMS_LoaderSREC::setRecordAddress(unsigned int address)
 {
-  payloadAddress = address;
-  //recordPayloadLength += s19Table[typeIndex].addressBytes * TWO_BYTES;
-  FreeEMS_LoaderParsing::intToHexAscii(address, recordAddressChars, (s19Table[typeIndex].addressBytes) * BITS_PER_BYTE);
-  charsInAddress = (s19Table[typeIndex].addressBytes) * ASCII_PAIR;
-  addressIsSet = true;
+  if(typeIsSet)
+    {
+      payloadAddress = address;
+      FreeEMS_LoaderParsing::intToHexAscii(address, recordAddressChars, (s19Table[typeIndex].addressBytes) * BITS_PER_BYTE);
+      charsInAddress = (s19Table[typeIndex].addressBytes) * ASCII_PAIR;
+      addressIsSet = true;
+    }
+  else
+    {
+      cout<<"error type not set";
+    }
+
+  return 0;
+}
+
+int
+FreeEMS_LoaderSREC::setRecordAddress(char* address)
+{
+  if(typeIsSet)
+    {
+      payloadAddress = atoi(address);
+      charsInAddress = (s19Table[typeIndex].addressBytes) * ASCII_PAIR;
+      addressIsSet = true;
+    }
+  else
+    {
+      cout<<"error type not set";
+    }
+
   return 0;
 }
 
 void
 FreeEMS_LoaderSREC::calculateCheckSum(){
   int index;
-  //unsigned  int checksum = payloadAddress;
-  recordChkSum = 0;
-  for(index = 0; index < (recordPayloadBytes * ASCII_PAIR); index += 2)
+  if(addressIsSet && typeIsSet && numPairsSet)
     {
-      recordChkSum += FreeEMS_LoaderParsing::asciiPairToChar(&recordPayload[index]);// add all payload bytes
+      recordChkSum = 0;
+       for(index = 0; index < (recordPayloadBytes * ASCII_PAIR); index += 2)
+         {
+           recordChkSum += FreeEMS_LoaderParsing::asciiPairToChar(&recordPayload[index]);// add all payload bytes
+         }
+       for(index = 0; index < (charsInAddress); index += 2)
+         {
+           recordChkSum += FreeEMS_LoaderParsing::asciiPairToChar(&recordAddressChars[index]);// add all address bytes
+         }
+       recordChkSum += numHexValues; // add char count to checksum
+       recordChkSum = ~(recordChkSum & 0x00ff);
     }
-  for(index = 0; index < (charsInAddress); index += 2)
+  else
     {
-      recordChkSum += FreeEMS_LoaderParsing::asciiPairToChar(&recordAddressChars[index]);// add all address bytes
+      cout<<"Address or type is not set";
     }
-  recordChkSum += numHexValues; // add char count to checksum
-  recordChkSum = ~(recordChkSum & 0x00ff);
   return ;
 }
 
@@ -167,9 +197,10 @@ FreeEMS_LoaderSREC::buildRecord()
 
 void
 FreeEMS_LoaderSREC::setNumPairsInRecord()
-{
+{ //TODO add isSet
   numHexValues = recordPayloadBytes + (charsInAddress / 2 ) + CH_PAIR_COUNT_BYTE;
   FreeEMS_LoaderParsing::intToHexAscii(numHexValues, &recordPayloadPairCountChars[0], ONE_BYTE * BITS_PER_BYTE);
+  numPairsSet = true;
 }
 
 
@@ -196,13 +227,7 @@ FreeEMS_LoaderSREC::retRecordSize()
 void
 FreeEMS_LoaderSREC::createFromString(string* lineIn)
 {
-
   char type = *(lineIn->c_str() + 1);
-  //int IDOffset;
-  //int payloadEnd;
-  //int lengthOffset;
-  int numCharsInPayload;
-  //char convBuffer[1024];
 
   if(*lineIn->c_str() == 'S') //start of record
     {
@@ -211,15 +236,21 @@ FreeEMS_LoaderSREC::createFromString(string* lineIn)
       case '1':
         break;
       case '2': //Record is S2
+        setTypeIndex(S2);
+
         memcpy(recordTypeIdChars, lineIn->c_str(), TWO_BYTES);
         memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
         recordPayloadBytes = (int)FreeEMS_LoaderParsing::asciiPairToChar(recordPayloadPairCountChars);
+        recordPayloadBytes -= 4; //TODO make proper maybe make a function to call setNumPairsInRecord too
+
         memcpy(recordAddressChars, lineIn->c_str() + S2_ADDRESS_OFFSET, 6); //S2 has 6 chars in address
-        numCharsInPayload = recordPayloadBytes * 2;
-        memcpy(recordPayload, lineIn->c_str() + S2_PAYLOAD_OFFSET, numCharsInPayload - 1);
-        memcpy(recordCheckSumChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET + numCharsInPayload, TWO_BYTES);
+        setRecordAddress(recordAddressChars);
+
+        memcpy(recordPayload, lineIn->c_str() + S2_PAYLOAD_OFFSET, recordPayloadBytes * 2);
+        memcpy(recordCheckSumChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET + (recordPayloadBytes * 2) + charsInAddress + 2, TWO_BYTES);
         recordLoadedChkSum = FreeEMS_LoaderParsing::asciiPairToChar(recordCheckSumChars);
-        //charsInAddres = 6;
+        setNumPairsInRecord();
+
         calculateCheckSum();
         if(recordChkSum != recordLoadedChkSum)
           {
@@ -239,24 +270,4 @@ FreeEMS_LoaderSREC::createFromString(string* lineIn)
     }
 
   return;
-  //recordPayload[]; -
-  //recordAddressChars[]; -
-  //recordTypeIdChars[]; -
-  //recordPayloadPairCountChars[]; -
-  //recordCheckSumChars[];
-
-  //recordChkSum;
-          //char checksum;
-
-  //charsInAddress;
-  //recordIndex;
-  //recordPayloadBytes;
-  //typeIndex;
-  //numHexValues;
-  //payloadAddress;
-
-  //writeAccess;
-  //recordStatus;
-  //addressIsSet;
-  //typeIsSet;
 }
