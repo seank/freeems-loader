@@ -72,6 +72,7 @@ extern const unsigned char SMReadBlock;
 extern const unsigned char SMErasePage;
 extern const unsigned char SMWriteBlock;
 extern const char*       defFlashType;
+extern const unsigned char SMReturn;
 
 
 

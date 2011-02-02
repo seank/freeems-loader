@@ -125,7 +125,7 @@ FreeEMS_LoaderSREC::setRecordAddress(char* address)
 {
   if(typeIsSet)
     {
-      payloadAddress = atoi(address);
+      sscanf(address, "%x", &payloadAddress);
       charsInAddress = (s19Table[typeIndex].addressBytes) * ASCII_PAIR;
       addressIsSet = true;
     }
@@ -229,6 +229,7 @@ void
 FreeEMS_LoaderSREC::createFromString(string* lineIn)
 {
   char type = *(lineIn->c_str() + 1);
+  //int i;
 
   if(*lineIn->c_str() == 'S') //start of record
     {
@@ -250,18 +251,22 @@ FreeEMS_LoaderSREC::createFromString(string* lineIn)
         memcpy(recordPayload, lineIn->c_str() + S2_PAYLOAD_OFFSET, recordPayloadBytes * 2);
         memcpy(recordCheckSumChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET + (recordPayloadBytes * 2) + charsInAddress + 2, TWO_BYTES);
         recordLoadedChkSum = FreeEMS_LoaderParsing::asciiPairToChar(recordCheckSumChars);
+
+        FreeEMS_LoaderParsing::asciiPairToArray(recordPayload, recordBytes, recordPayloadBytes);
+
         setNumPairsInRecord();
 
         calculateCheckSum();
         if(recordChkSum != recordLoadedChkSum)
           {
+            //emit FreeEMS_LoaderComms::WOInfo("WARNING RECORD LOADED CHECKSUM DOES NOT MATCH CALCUATED SUM");
             cout<<"WARNING RECORD LOADED CHECKSUM DOES NOT MATCH CALCUATED SUM";
           }
-        cout<<"S2 record built from line";
+        //cout<<"S2 record built from line";
         break;
       case '3':
         break;
-      default: cout<<"LINE DOES NOT CONTAIN LOADABLE RECORD";
+      default: //cout<<"LINE DOES NOT CONTAIN LOADABLE RECORD";
         break;
       }
     }

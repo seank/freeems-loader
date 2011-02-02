@@ -106,8 +106,20 @@ void
 FreeEMS_LoaderParsing::asciiPairToArray(string* inString, unsigned char* destBuffer, int numChars)
 {
   int i, j;
-  for(i = 0, j = 0; i < numChars ; i += 2, j++)
+  for(i = 0, j = 0; j < numChars; i += 2, j++)
     {
-      *(destBuffer + j) =  asciiPairToChar((inString->c_str() + 1));
+      *(destBuffer + j) =  asciiPairToChar((inString->c_str() + i));
+    }
+}
+
+void
+FreeEMS_LoaderParsing::asciiPairToArray(char* inString, char* destBuffer, int numChars)
+{
+  int i, j;
+  char value;
+  for(i = 0, j = 0; j < numChars; i += 2, j++)
+    {
+       value =  asciiPairToChar((inString + i));
+       *(destBuffer + j) = value;
     }
 }

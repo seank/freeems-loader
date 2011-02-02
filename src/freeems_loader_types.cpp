@@ -38,6 +38,7 @@ const char *defFlashType = "S12XDP512";
 
 const unsigned char PPageRegister = 0x30;
 const unsigned char Zero = 0x00;
+const unsigned char SMReturn = 0x0D;
 
 
 const unsigned char SMReadByte = 0xA1;  //  — Read_Byte  A1/AAAA/RD — Reads a byte of data from the specified 16-bit address and

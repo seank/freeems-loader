@@ -118,7 +118,7 @@ FreeEMS_LoaderComms::loadDevice()
       lineArray.push_back(line);
     }
 
-  generateRecords(&lineArray);
+  generateRecords(lineArray);
 
   loadRecordSet();
 
@@ -281,7 +281,7 @@ void FreeEMS_LoaderComms::setSM()
 
 void FreeEMS_LoaderComms::write(const char *data, size_t size)
 {
-    asio::write(port,asio::buffer(data,size));
+  asio::write(port,asio::buffer(data,size));
 }
 
 void FreeEMS_LoaderComms::write(const std::vector<char>& data)
@@ -640,17 +640,17 @@ FreeEMS_LoaderComms::getDeviceByteCount()
 }
 
 void
-FreeEMS_LoaderComms::generateRecords(vector<string>* lineArray)
+FreeEMS_LoaderComms::generateRecords(vector<string> lineArray)
 {
   unsigned int i, j;
   string line;
 
-  for(i = 0, j = 0; i < lineArray->size(); i++)
+  for(i = 0, j = 0; i < lineArray.size(); i++)
     {
-      line = lineArray->at(i);
+      line = lineArray.at(i);
       if(lineIsLoadable(&line))
         {
-          emit WOInfo("Line Is Loadable");
+          //emit WOInfo("Line Is Loadable");
           s19SetOne[j].createFromString(&line);
           s19SetOneCount++;
           j++;
@@ -671,14 +671,11 @@ FreeEMS_LoaderComms::loadRecordSet()
 {
   int i;
 
-  //unsigned int lastAddress = 0;
-
+  emit configureProgress(0, s19SetOneCount - 1);
   for(i = 0; i < s19SetOneCount; i++)
     {
-      //set address
-      //send data
-      //cout<<s19SetOne[i].recordAddressChars;
-      SMWriteByteBlock(s19SetOne[i].payloadAddress, s19SetOne[i].recordPayload, 16);
+      SMWriteByteBlock(s19SetOne[i].payloadAddress, s19SetOne[i].recordBytes, s19SetOne[i].recordPayloadBytes);
+      emit udProgress(i);
     }
   return;
 }
@@ -686,17 +683,12 @@ FreeEMS_LoaderComms::loadRecordSet()
 void
 FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes, int numBytes)
 {
+  int typeID = S2; //TODO get from s19
+  unsigned int Ppage;
+  bool isSuccessful = false;
 
-  //set address
-  SMSetLoadAddress(address, S2, 16);
-  write(bytes, numBytes);//TODO make configuratble
-  //write data
-}
-
-void
-FreeEMS_LoaderComms::SMSetLoadAddress(unsigned int address, unsigned int typeID, int numBytes)
-{
-  //char Ppage;
+  std::vector<char> SMReturnString(3);
+  char c;
   char highByte;
   char lowByte;
   char bytesToWrite;
@@ -706,22 +698,27 @@ FreeEMS_LoaderComms::SMSetLoadAddress(unsigned int address, unsigned int typeID,
   case S2:
     if((address & 0x0FF0000) != (lastLoadAddress & 0x0FF0000))
       {
-        SMSetPPage((char)(address & 0xFF0000) >> 4); //change page if necessary
+        Ppage = address >> 16;
+        SMSetPPage((char)Ppage); //change page if necessary
       }
-    //write address
     highByte = (address & 0xFF00) >> 8;
     lowByte = address & 0x00FF;
     bytesToWrite = (char)numBytes - 1;
-    asio::write(port,asio::buffer(&SMWriteBlock,ONE_BYTE));
-    asio::write(port,asio::buffer(&highByte,ONE_BYTE));
-    asio::write(port,asio::buffer(&lowByte,ONE_BYTE));
-    asio::write(port,asio::buffer(&bytesToWrite,ONE_BYTE));
+    c = (char)SMWriteBlock;
+    write(&c, ONE_BYTE);
+    write(&highByte, ONE_BYTE);
+    write(&lowByte, ONE_BYTE);
+    write(&bytesToWrite, ONE_BYTE);
+    write(bytes, numBytes);
 
+    SMReturnString = read(3);
+    isSuccessful = verifyReturn(SMReturnString);
+    if(isSuccessful == false)
+      {
+        emit WOInfo("Error: did not receive ACK after writing a block");
+      }
     break;
-  default:
-    break;
-
-  }
-  //set address
-  //write data
+    default: //emit WOInfo("Cannot get byte count, no device set");
+      break;
+   }
 }

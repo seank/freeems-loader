@@ -80,7 +80,7 @@ public:
 
     void clearSets();
 
-    void generateRecords(vector<string>* lineArray);
+    void generateRecords(vector<string> lineArray);
 
     bool lineIsLoadable(string* line);
 
@@ -96,7 +96,7 @@ public:
 
     void SMWriteByteBlock(unsigned int address, char* bytes, int numBytes);
 
-    void SMSetLoadAddress(unsigned int address, unsigned int typeID, int numBytes);
+    //void SMSetLoadAddress(unsigned int address, unsigned int typeID, int numBytes);
 
     /*
      *  B7/DC/IDID — Returns the constant $DC (Device C=12) and the 2-byte

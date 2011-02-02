@@ -17,8 +17,9 @@
 #include <vector>
 #include <string>
 #include <QString>
+#include <QObject>
 
-//using namespace std;
+using namespace std;
 
 #define START_OF_ADDRESS_OFFSET  0x04 //the first character of our address in hex ascii
 #define BITS_PER_BYTE           0x08 // bits in a byte
@@ -74,6 +75,11 @@ public:
 	char recordPayload[ONE_KB];
 
 	unsigned int payloadAddress;
+	int recordPayloadBytes;
+	char recordBytes[ONE_KB];
+
+signals:
+        void WOInfo(string text);
 
 private:
 	string record;
@@ -90,7 +96,7 @@ private:
 
 	int charsInAddress;
 	int recordIndex;
- 	int recordPayloadBytes;
+
  	int typeIndex;
  	int numHexValues;
 

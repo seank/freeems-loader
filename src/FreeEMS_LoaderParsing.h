@@ -22,8 +22,10 @@ public:
   virtual
   ~FreeEMS_LoaderParsing();
   static unsigned char asciiPairToChar(char *ascii_pair);
+  //static unsigned char asciiPairsToChars(char *ascii_pair, char *buffer);
   static unsigned char asciiPairToChar(const char *ascii_pair);
-  void asciiPairToArray(string* inString, unsigned char* destBuffer, int numChars);
+  static void asciiPairToArray(string* inString, unsigned char* destBuffer, int numChars);
+  static void asciiPairToArray(char* inString, char* destBuffer, int numChars);
   static void intToHexAscii(int number, char* buffer, unsigned char numBitsToConvert);
   static int calcuateNumRecordsNeeded(int flashBytes, int bytesInRecord);
 };

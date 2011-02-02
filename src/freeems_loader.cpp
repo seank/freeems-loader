@@ -20,6 +20,8 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 	ui.setupUi(this);
 	fillDevice();
 	qRegisterMetaType<string>("string");
+	//'QTextCursor' is registered using qRegisterMetaType().
+	//qRegisterMetaType<QTextCursor>;
 	serialConnection = new FreeEMS_LoaderComms;
 	heapThreads = new FreeEMS_LoaderThreads(serialConnection);
 	fillBaud();
@@ -313,9 +315,10 @@ FreeEMS_Loader::load()
   serialConnection->setLoadFilename(loadFileName);
   serialConnection->setRipFilename(ripFileName);
 
-  heapThreads->setAction(EXECUTE_LOAD);
-  //heapThreads->start();
-  serialConnection->loadDevice();
+  //heapThreads->setAction(EXECUTE_LOAD);
+  heapThreads->setAction(EXECUTE_RIP_ERASE_LOAD);
+  heapThreads->start();
+  //serialConnection->loadDevice();
 }
 
 void
