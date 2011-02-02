@@ -68,7 +68,7 @@ FreeEMS_LoaderComms::init()
   s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   clearSets();
-
+  s19SetOneCount = 0;
 }
 
 void
@@ -119,6 +119,8 @@ FreeEMS_LoaderComms::loadDevice()
     }
 
   generateRecords(&lineArray);
+
+  loadRecordSet();
 
   return;
 }
@@ -650,6 +652,7 @@ FreeEMS_LoaderComms::generateRecords(vector<string>* lineArray)
         {
           emit WOInfo("Line Is Loadable");
           s19SetOne[j].createFromString(&line);
+          s19SetOneCount++;
           j++;
         }
     }
@@ -661,4 +664,64 @@ FreeEMS_LoaderComms::lineIsLoadable(string* line)
   if( (line->find("S3")) == 0 || (line->find("S2")) == 0 || ((line->find("S1")) == 0) )
       return true;
   return false;
+}
+
+void
+FreeEMS_LoaderComms::loadRecordSet()
+{
+  int i;
+
+  //unsigned int lastAddress = 0;
+
+  for(i = 0; i < s19SetOneCount; i++)
+    {
+      //set address
+      //send data
+      //cout<<s19SetOne[i].recordAddressChars;
+      SMWriteByteBlock(s19SetOne[i].payloadAddress, s19SetOne[i].recordPayload, 16);
+    }
+  return;
+}
+
+void
+FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes, int numBytes)
+{
+
+  //set address
+  SMSetLoadAddress(address, S2, 16);
+  write(bytes, numBytes);//TODO make configuratble
+  //write data
+}
+
+void
+FreeEMS_LoaderComms::SMSetLoadAddress(unsigned int address, unsigned int typeID, int numBytes)
+{
+  //char Ppage;
+  char highByte;
+  char lowByte;
+  char bytesToWrite;
+
+  switch(typeID)
+  {
+  case S2:
+    if((address & 0x0FF0000) != (lastLoadAddress & 0x0FF0000))
+      {
+        SMSetPPage((char)(address & 0xFF0000) >> 4); //change page if necessary
+      }
+    //write address
+    highByte = (address & 0xFF00) >> 8;
+    lowByte = address & 0x00FF;
+    bytesToWrite = (char)numBytes - 1;
+    asio::write(port,asio::buffer(&SMWriteBlock,ONE_BYTE));
+    asio::write(port,asio::buffer(&highByte,ONE_BYTE));
+    asio::write(port,asio::buffer(&lowByte,ONE_BYTE));
+    asio::write(port,asio::buffer(&bytesToWrite,ONE_BYTE));
+
+    break;
+  default:
+    break;
+
+  }
+  //set address
+  //write data
 }

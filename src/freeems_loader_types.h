@@ -70,6 +70,7 @@ extern const unsigned char SMReadByte;
 extern const unsigned char SMWriteByte;
 extern const unsigned char SMReadBlock;
 extern const unsigned char SMErasePage;
+extern const unsigned char SMWriteBlock;
 extern const char*       defFlashType;
 
 

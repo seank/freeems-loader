@@ -92,6 +92,12 @@ public:
 
     int  getDeviceByteCount();
 
+    void loadRecordSet();
+
+    void SMWriteByteBlock(unsigned int address, char* bytes, int numBytes);
+
+    void SMSetLoadAddress(unsigned int address, unsigned int typeID, int numBytes);
+
     /*
      *  B7/DC/IDID — Returns the constant $DC (Device C=12) and the 2-byte
      *  HCS12 device ID register. Please refer to selected device guides for device ID
@@ -316,6 +322,10 @@ private:
 
     FreeEMS_LoaderSREC *s19SetOne;
     FreeEMS_LoaderSREC *s19SetTwo;
+
+    int s19SetOneCount;
+    int s19SetTwoCount;
+    unsigned int lastLoadAddress;
 
     QString ripFilename;
     QString loadFilename;

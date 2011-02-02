@@ -71,11 +71,14 @@ public:
 	bool lineIsLoadable(string* line);
 
 	bool recordIsNull;
+	char recordPayload[ONE_KB];
+
+	unsigned int payloadAddress;
 
 private:
 	string record;
 
-	char recordPayload[ONE_KB];
+
 	char recordAddressChars[ONE_KB];
 	char recordTypeIdChars[TWO_BYTES];
 	char recordPayloadPairCountChars[TWO_BYTES];
@@ -90,8 +93,6 @@ private:
  	int recordPayloadBytes;
  	int typeIndex;
  	int numHexValues;
-
- 	unsigned int payloadAddress;
 
 	bool writeAccess;
 	bool recordStatus;

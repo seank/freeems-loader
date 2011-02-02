@@ -52,6 +52,7 @@ FreeEMS_LoaderSREC::initVariables()
   addressIsSet = false;
   typeIsSet = false;
   recordIsNull = true;
+  numPairsSet = false;
 }
 
 FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress) {
