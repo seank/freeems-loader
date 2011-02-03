@@ -20,11 +20,14 @@
 #define S2_ADDRESS_OFFSET       0x04
 #define S2_PAYLOAD_OFFSET       0x0A
 
-enum action{NONE, EXECUTE_ERASE, EXECUTE_RIP, EXECUTE_RIP_ERASE_LOAD, EXECUTE_LOAD};
+enum action
+{
+  NONE, EXECUTE_ERASE, EXECUTE_RIP, EXECUTE_RIP_ERASE_LOAD, EXECUTE_LOAD
+};
 
-enum s19ID{
-  S0,
-  S1, // The type of record field is 'S1' (0x5331)
+enum s19ID
+{
+  S0, S1, // The type of record field is 'S1' (0x5331)
   S2, // The type of record field is 'S2' (0x5332)
   S3, // The type of record field is 'S3' (0x5333)
   S4,
@@ -32,10 +35,12 @@ enum s19ID{
   S6,
   S7, // The type of record field is 'S7' (0x5337)
   S8, // The type of record field is 'S8' (0x5338)
-  S9  // The type of record field is 'S9' (0x5339)
+  S9
+// The type of record field is 'S9' (0x5339)
 };
 
-struct dataVector_tag{
+struct dataVector_tag
+{
   const char *association;
   unsigned int startAddress;
   unsigned int stopAddress;
@@ -45,14 +50,16 @@ struct dataVector_tag{
   unsigned int pageRegister;
 };
 
-struct flashModuleInfo_tag{
+struct flashModuleInfo_tag
+{
   const char *name;
   unsigned int flashModule;
   unsigned int EEPROMModule;
   int numFlashBytes;
 };
 
-struct s19Info{
+struct s19Info
+{
   int type;
   const char *description;
   const char *s19ID; // type in ascii
@@ -71,9 +78,7 @@ extern const unsigned char SMWriteByte;
 extern const unsigned char SMReadBlock;
 extern const unsigned char SMErasePage;
 extern const unsigned char SMWriteBlock;
-extern const char*       defFlashType;
+extern const char* defFlashType;
 extern const unsigned char SMReturn;
-
-
 
 #endif

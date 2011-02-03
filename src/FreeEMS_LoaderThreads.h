@@ -17,20 +17,24 @@ using namespace std;
 
 class FreeEMS_LoaderThreads : public QThread
 {
-  Q_OBJECT
+Q_OBJECT
 public:
   FreeEMS_LoaderThreads(FreeEMS_LoaderComms *connection);
-  void run();
-  virtual ~FreeEMS_LoaderThreads();
+  void
+  run();
+  virtual
+  ~FreeEMS_LoaderThreads();
 
   FreeEMS_LoaderComms *threadedConnection;
-  void setAction(int action);
+  void
+  setAction(int action);
 
 private:
   int threadAction;
 
 signals:
-  void WOInfo(string text);
+  void
+  WOInfo(string text);
 };
 
 #endif /* FREEEMS_LOADERTHREADS_H_ */

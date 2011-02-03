@@ -32,59 +32,80 @@ using namespace std;
 
 class FreeEMS_Loader : public QWidget
 {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    FreeEMS_Loader(QWidget *parent = 0);
-    ~FreeEMS_Loader();
+  FreeEMS_Loader(QWidget *parent = 0);
+  ~FreeEMS_Loader();
 
-    virtual bool notify(QObject *rec, QEvent *ev)
-       {
-           qDebug() << "MyApplication::notify";
-           try {
-               return QApplication::instance()->notify(rec, ev);
-           }
-           catch( ... ) {
-               qDebug() << "Unknown Exception: Terminating!";
-               exit(0);
-           }
-           return false;
-       }
+  virtual bool
+  notify(QObject *rec, QEvent *ev)
+  {
+    qDebug() << "MyApplication::notify";
+    try
+      {
+        return QApplication::instance()->notify(rec, ev);
+      }
+    catch (...)
+      {
+        qDebug() << "Unknown Exception: Terminating!";
+        exit(0);
+      }
+    return false;
+  }
 
 protected:
-    void fillBaud();
-    void fillStopBits();
-    void fillDataBits();
-    void fillParity();
-    void redirectCLI();
-    static void outCallBack( const char* ptr, std::streamsize count, void* pTextBox );
-    void setGUIState(int state);
-    void initGUI();
-    int fillDevice();
-    void getFileName(QString name);
-    void setFlashType();
-
+  void
+  fillBaud();
+  void
+  fillStopBits();
+  void
+  fillDataBits();
+  void
+  fillParity();
+  void
+  redirectCLI();
+  static void
+  outCallBack(const char* ptr, std::streamsize count, void* pTextBox);
+  void
+  setGUIState(int state);
+  void
+  initGUI();
+  int
+  fillDevice();
+  void
+  getFileName(QString name);
+  void
+  setFlashType();
 
 private:
-    Ui::FreeEMS_LoaderClass ui;
+  Ui::FreeEMS_LoaderClass ui;
 
-    FreeEMS_LoaderComms *serialConnection;
-    FreeEMS_LoaderThreads *heapThreads;
+  FreeEMS_LoaderComms *serialConnection;
+  FreeEMS_LoaderThreads *heapThreads;
 
-    QString ripFileName;
-    QString loadFileName;
+  QString ripFileName;
+  QString loadFileName;
 
-    int flashTypeIndex;
+  int flashTypeIndex;
 
 public slots:
-	void connect();
-	void rip();
-	void eraseFlash();
-	void test();
-	void load();
-	void writeText(string message);
-	void updateProgress(int percent);
-	void configureProgress(int min, int max);
+  void
+  connect();
+  void
+  rip();
+  void
+  eraseFlash();
+  void
+  test();
+  void
+  load();
+  void
+  writeText(string message);
+  void
+  updateProgress(int percent);
+  void
+  configureProgress(int min, int max);
 };
 
 #endif // FREEEMS_LOADER_H

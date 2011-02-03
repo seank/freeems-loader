@@ -23,17 +23,17 @@ void
 FreeEMS_LoaderThreads::run()
 {
   switch (threadAction)
-  {
+    {
   case EXECUTE_RIP_ERASE_LOAD:
-     emit WOInfo("Executing rip, erase and load");
-     emit WOInfo("Ripping...");
-     threadedConnection->ripDevice();
-     emit WOInfo("Erasing...");
-     threadedConnection->eraseDevice();
-     emit WOInfo("Loading...");
-     threadedConnection->loadDevice();
-     emit WOInfo("DONE!");
-     break;
+    emit WOInfo("Executing rip, erase and load");
+    emit WOInfo("Ripping...");
+    threadedConnection->ripDevice();
+    emit WOInfo("Erasing...");
+    threadedConnection->eraseDevice();
+    emit WOInfo("Loading...");
+    threadedConnection->loadDevice();
+    emit WOInfo("DONE!");
+    break;
   case EXECUTE_LOAD:
     emit WOInfo("Executing load");
     threadedConnection->loadDevice();
@@ -46,11 +46,12 @@ FreeEMS_LoaderThreads::run()
     emit WOInfo("Executing rip");
     threadedConnection->ripDevice();
     break;
-  case NONE: emit WOInfo("Action for thread not set!");
+  case NONE:
+    emit WOInfo("Action for thread not set!");
     break;
   default:
     break;
-  }
+    }
   //exec();
 }
 
