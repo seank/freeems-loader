@@ -61,7 +61,7 @@
     <string>Load Firmware</string>
    </property>
   </widget>
-  <widget class="QTextBrowser" name="textOutput">
+  <widget class="QTextEdit" name="textOutput">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -228,10 +228,13 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>90</y>
-       <width>61</width>
+       <y>80</y>
+       <width>91</width>
        <height>17</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
      </property>
      <property name="text">
       <string>Stop bits:</string>
@@ -250,11 +253,14 @@
     <widget class="QLabel" name="label_3">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>71</width>
+       <x>0</x>
+       <y>20</y>
+       <width>121</width>
        <height>17</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
      </property>
      <property name="text">
       <string>Baud rate:</string>
@@ -265,9 +271,12 @@
       <rect>
        <x>10</x>
        <y>50</y>
-       <width>61</width>
+       <width>111</width>
        <height>17</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
      </property>
      <property name="text">
       <string>Data bits:</string>
@@ -277,7 +286,7 @@
      <property name="geometry">
       <rect>
        <x>110</x>
-       <y>50</y>
+       <y>40</y>
        <width>78</width>
        <height>27</height>
       </rect>
@@ -287,7 +296,7 @@
      <property name="geometry">
       <rect>
        <x>110</x>
-       <y>90</y>
+       <y>70</y>
        <width>61</width>
        <height>27</height>
       </rect>
@@ -297,62 +306,33 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>130</y>
-       <width>41</width>
-       <height>17</height>
+       <y>100</y>
+       <width>61</width>
+       <height>31</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
+     </property>
      <property name="text">
-      <string>Parity:</string>
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Bitstream Charter'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;table style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;border: none;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Pairty:&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QComboBox" name="comboParity">
      <property name="geometry">
       <rect>
        <x>110</x>
-       <y>130</y>
+       <y>100</y>
        <width>78</width>
        <height>27</height>
       </rect>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="chkSoft">
-     <property name="geometry">
-      <rect>
-       <x>260</x>
-       <y>90</y>
-       <width>81</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Software</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="chkHard">
-     <property name="geometry">
-      <rect>
-       <x>260</x>
-       <y>120</y>
-       <width>91</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Hardware</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_7">
-     <property name="geometry">
-      <rect>
-       <x>260</x>
-       <y>70</y>
-       <width>81</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Handshake</string>
      </property>
     </widget>
    </widget>

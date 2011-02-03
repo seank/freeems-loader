@@ -33,7 +33,6 @@ const struct s19Info s19Table[] = {
 };
 
 const int numDataVectorTableEntries = sizeof(dataVectorTable) / sizeof(struct dataVector_tag);
-
 const char *defFlashType = "S12XDP512";
 
 const unsigned char PPageRegister = 0x30;

@@ -102,13 +102,11 @@ FreeEMS_LoaderComms::loadDevice()
 {
   vector<string> lineArray;
   string line;
-
   int i;
-
   ifstream ifs(loadFilename.toAscii());
   if(ifs.fail())
     {
-      //TODO EMIT ERROR
+      cout<<"error opening load file";
       return;
     }
 
@@ -117,11 +115,8 @@ FreeEMS_LoaderComms::loadDevice()
       i = 0;
       lineArray.push_back(line);
     }
-
   generateRecords(lineArray);
-
   loadRecordSet();
-
   return;
 }
 
@@ -131,7 +126,6 @@ FreeEMS_LoaderComms::ripDevice()
   int i;
   int totalBytes = 0;
   int totalBytesTX = 0;
-
   unsigned int numSectors;
   unsigned int address;
   unsigned int PPageIndex;
@@ -143,9 +137,7 @@ FreeEMS_LoaderComms::ripDevice()
   unsigned int pagedAddress = 0;
 
   std::vector<char> rxBuffer(bytesPerRecord);
-
   ofstream outFile(ripFilename.toAscii(), ios::out | ios::binary);
-
   FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
 
   totalBytes = getDeviceByteCount();
@@ -201,9 +193,6 @@ FreeEMS_LoaderComms::ripDevice()
     {
       cout<<"error SM not ready";
     }
-//calculate number of bytes in device
-  //allocate number of s19 records needed based on bytes per record
-  //
   delete s19Record;
   outFile.close();
 }
@@ -228,7 +217,6 @@ void FreeEMS_LoaderComms::SMSetPPage(char PPage)
   bool isSuccessful = false;
   char page = PPage;
   std::vector<char> SMReturnString(3);
-  //cout<<"writing to ppage register"<<PPage;
   asio::write(port,asio::buffer(&SMWriteByte,ONE_BYTE));
   asio::write(port,asio::buffer(&Zero,ONE_BYTE));
   asio::write(port,asio::buffer(&PPageRegister,ONE_BYTE));
@@ -250,7 +238,6 @@ void FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size)
         printf("-> %x", *(data + (i - 1)));
       }
     printf("\n to com port \n");
-
     asio::write(port,asio::buffer(data,size));
 }
 
@@ -286,12 +273,12 @@ void FreeEMS_LoaderComms::write(const char *data, size_t size)
 
 void FreeEMS_LoaderComms::write(const std::vector<char>& data)
 {
-    asio::write(port,asio::buffer(&data[0],data.size()));
+  asio::write(port,asio::buffer(&data[0],data.size()));
 }
 
 void FreeEMS_LoaderComms::writeString(const std::string& s)
 {
-    asio::write(port,asio::buffer(s.c_str(),s.size()));
+  asio::write(port,asio::buffer(s.c_str(),s.size()));
 }
 
 //TODO add parity "double read" option
@@ -579,7 +566,6 @@ FreeEMS_LoaderComms::eraseDevice()
                    {
                      SMSetPPage(PPageIndex); //set Ppage register
                      erasePage(PPageIndex); // TODO put signal here
-                     //emit WOInfo("Erased Page");
                      emit udProgress((unsigned char)PPageIndex);
                    }
                  }
@@ -650,7 +636,6 @@ FreeEMS_LoaderComms::generateRecords(vector<string> lineArray)
       line = lineArray.at(i);
       if(lineIsLoadable(&line))
         {
-          //emit WOInfo("Line Is Loadable");
           s19SetOne[j].createFromString(&line);
           s19SetOneCount++;
           j++;
@@ -710,7 +695,6 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes, int num
     write(&lowByte, ONE_BYTE);
     write(&bytesToWrite, ONE_BYTE);
     write(bytes, numBytes);
-
     SMReturnString = read(3);
     isSuccessful = verifyReturn(SMReturnString);
     if(isSuccessful == false)
@@ -718,7 +702,7 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes, int num
         emit WOInfo("Error: did not receive ACK after writing a block");
       }
     break;
-    default: //emit WOInfo("Cannot get byte count, no device set");
+    default: cout<<"Cannot get byte count, no device set";
       break;
    }
 }

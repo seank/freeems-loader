@@ -43,7 +43,6 @@ public:
            qDebug() << "MyApplication::notify";
            try {
                return QApplication::instance()->notify(rec, ev);
-               //return QApplication::notify(rec, ev);
            }
            catch( ... ) {
                qDebug() << "Unknown Exception: Terminating!";
@@ -76,9 +75,6 @@ private:
     QString loadFileName;
 
     int flashTypeIndex;
-
- //   TimeoutSerial *serial("/dev/ttyUSB0",115200);
- //   int connected;
 
 public slots:
 	void connect();

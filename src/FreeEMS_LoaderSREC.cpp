@@ -229,8 +229,6 @@ void
 FreeEMS_LoaderSREC::createFromString(string* lineIn)
 {
   char type = *(lineIn->c_str() + 1);
-  //int i;
-
   if(*lineIn->c_str() == 'S') //start of record
     {
       switch(type)
@@ -239,34 +237,26 @@ FreeEMS_LoaderSREC::createFromString(string* lineIn)
         break;
       case '2': //Record is S2
         setTypeIndex(S2);
-
         memcpy(recordTypeIdChars, lineIn->c_str(), TWO_BYTES);
         memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
         recordPayloadBytes = (int)FreeEMS_LoaderParsing::asciiPairToChar(recordPayloadPairCountChars);
         recordPayloadBytes -= 4; //TODO make proper maybe make a function to call setNumPairsInRecord too
-
         memcpy(recordAddressChars, lineIn->c_str() + S2_ADDRESS_OFFSET, 6); //S2 has 6 chars in address
         setRecordAddress(recordAddressChars);
-
         memcpy(recordPayload, lineIn->c_str() + S2_PAYLOAD_OFFSET, recordPayloadBytes * 2);
         memcpy(recordCheckSumChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET + (recordPayloadBytes * 2) + charsInAddress + 2, TWO_BYTES);
         recordLoadedChkSum = FreeEMS_LoaderParsing::asciiPairToChar(recordCheckSumChars);
-
         FreeEMS_LoaderParsing::asciiPairToArray(recordPayload, recordBytes, recordPayloadBytes);
-
         setNumPairsInRecord();
-
         calculateCheckSum();
         if(recordChkSum != recordLoadedChkSum)
-          {
-            //emit FreeEMS_LoaderComms::WOInfo("WARNING RECORD LOADED CHECKSUM DOES NOT MATCH CALCUATED SUM");
+          {  //TODO emit critical error message and halt
             cout<<"WARNING RECORD LOADED CHECKSUM DOES NOT MATCH CALCUATED SUM";
           }
-        //cout<<"S2 record built from line";
         break;
       case '3':
         break;
-      default: //cout<<"LINE DOES NOT CONTAIN LOADABLE RECORD";
+      default: cout<<"LINE DOES NOT CONTAIN LOADABLE RECORD OR IS UNRECOGNIZED";
         break;
       }
     }
@@ -274,6 +264,5 @@ FreeEMS_LoaderSREC::createFromString(string* lineIn)
     {
       cout<<"LINE DOES NOT CONTAIN LOADABLE RECORD";
     }
-
   return;
 }

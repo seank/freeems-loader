@@ -72,11 +72,11 @@ public:
 	bool lineIsLoadable(string* line);
 
 	bool recordIsNull;
-	char recordPayload[ONE_KB];
+	char recordPayload[512]; //ascii pair representaion of the payload
 
 	unsigned int payloadAddress;
 	int recordPayloadBytes;
-	char recordBytes[ONE_KB];
+	char recordBytes[256];  //char string representaion of the payload  according to the s-rec specs 256 is the max TODO maybe vector this
 
 signals:
         void WOInfo(string text);
@@ -85,7 +85,7 @@ private:
 	string record;
 
 
-	char recordAddressChars[ONE_KB];
+	char recordAddressChars[12]; //ascii pair representation of the address
 	char recordTypeIdChars[TWO_BYTES];
 	char recordPayloadPairCountChars[TWO_BYTES];
 	char recordCheckSumChars[TWO_BYTES];

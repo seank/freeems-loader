@@ -20,15 +20,13 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 	ui.setupUi(this);
 	fillDevice();
 	qRegisterMetaType<string>("string");
-	//'QTextCursor' is registered using qRegisterMetaType().
-	//qRegisterMetaType<QTextCursor>;
 	serialConnection = new FreeEMS_LoaderComms;
 	heapThreads = new FreeEMS_LoaderThreads(serialConnection);
 	fillBaud();
 	fillDataBits();
 	fillStopBits();
 	fillParity();
-	redirectCLI();
+	//redirectCLI();
 	initGUI();
 
 	//TODO move to a seperate function
@@ -45,7 +43,7 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent)
 FreeEMS_Loader::~FreeEMS_Loader()
 {
   serialConnection->close();
-  //delete serialConnection;
+  delete serialConnection;
   //delete coutRedirector;
 }
 
@@ -192,8 +190,8 @@ void FreeEMS_Loader::connect()
     {
       //setFlashType();
       serialConnection->open(ui.comboDevice->currentText().toAscii().data(),ui.comboBaud->currentText().toUInt());
-      //sleep(1); //some systems need a delay after a port config
       serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
+      //serialConnection->
       serialConnection->setSM();
       serialConnection->setFlashType(defFlashType);
       serialConnection->isReady() ? setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
@@ -201,7 +199,7 @@ void FreeEMS_Loader::connect()
       {
         serialConnection->close();
         serialConnection->isReady() ? setGUIState(CONNECTED):setGUIState(NOTCONNECTED);
-	}
+      }
  }
 
 void FreeEMS_Loader::rip()
@@ -216,21 +214,13 @@ void FreeEMS_Loader::rip()
       {
         cout<<"error opening file";
       }
-
       serialConnection->setRipFilename(ripFileName);
       heapThreads->setAction(EXECUTE_RIP);
       heapThreads->start();
-      //  while(this->ge)
-//  cout<<"using file "<<ripFileName.toAscii().data();
-//  char test[20] = "512.s19";
-//  serialConnection->ripDevice(test);
-  //serialConnection->ripDevice(ripFileName.toAscii().data());
-  //ui.chkRip->setEnabled(1);
 }
 
 void FreeEMS_Loader::getFileName(QString name)
 {
-  cout<<" in getfile name";
   name = QFileDialog::getSaveFileName(
          this,
          tr("Save s19 as"),
@@ -238,9 +228,7 @@ void FreeEMS_Loader::getFileName(QString name)
          tr("s19 (*.s19)") );
      if( !name.isNull() )
      {
-       //qDebug( filename.toAscii() );
-       cout<<"error opening file ";
-           //<<name.toAscii();
+         writeText("error opening file");
      }
    }
 
@@ -262,7 +250,6 @@ void FreeEMS_Loader::setGUIState(int state)
    case NOTCONNECTED:
     ui.pushLoad->setEnabled(0);
     ui.pushRip->setEnabled(0);
-    //ui.pushGo->setEnabled(0);
     ui.pushConnect->setText("Connect");
     ui.pushErase->setEnabled(0);
     break;
@@ -286,12 +273,13 @@ void FreeEMS_Loader::test()
   //heapThreads->wait();
   //test.wait();
   //serialConnection->setLoadFilename();
+  string test = "Yo MOFO you ready to get loaded or what?";
+  writeText(test);
 }
 
 void
 FreeEMS_Loader::eraseFlash()
 {
-  //serialConnection->ripDevice();
   heapThreads->setAction(EXECUTE_ERASE);
   heapThreads->start();
 }
@@ -299,18 +287,24 @@ FreeEMS_Loader::eraseFlash()
 void
 FreeEMS_Loader::load()
 {
+  QDate date = QDate::currentDate();
+  QTime time = QTime::currentTime();
   loadFileName = QFileDialog::getOpenFileName(
             this,
-            tr("Save s19 as"),
+            tr("Load s19 file"),
             QDir::currentPath(),
             tr("s19 (*.s19)") );
         if( loadFileName.isNull() )
         {
           cout<<"error opening file";
         }
-
-  ripFileName = loadFileName;
-  ripFileName += ".saved"; //TODO also append with date-time
+  ripFileName = "saved-";
+  ripFileName += date.toString();
+  ripFileName += "-";
+  ripFileName += time.toString();
+  ripFileName += "-";
+  ripFileName += loadFileName;
+   //TODO save in a default dir not same as load dir
 
   serialConnection->setLoadFilename(loadFileName);
   serialConnection->setRipFilename(ripFileName);
@@ -324,13 +318,13 @@ FreeEMS_Loader::load()
 void
 FreeEMS_Loader::writeText(string message)
 {
-   cout<<message;
+  QString out = message.c_str();
+  ui.textOutput->append(out);
 }
 
 void
 FreeEMS_Loader::updateProgress(int percent)
 {
-  //cout<<"updating progress bar "<<percent;
   ui.progressBar->setValue(percent);
 }
 
