@@ -307,37 +307,22 @@ FreeEMS_Loader::load()
     {
       cout << "error opening file";
     }
-  //ripFileName = "saved-";
-  //ripFileName += date.toString();
-  //ripFileName += "-";
-  //ripFileName += time.toString();
-  //ripFileName += "-";
-  //ripFileName += loadFileName;
-  //ripFileName = QDir::currentDirPath();
-
-  //QString path( QDir::currentDirPath() ); // First field is empty
-  QString name = loadFileName.section( '/', -1 ); // s == "myapp"
-
-
-  //QString path( QDir::currentDirPath() ); // First field is empty
-  //ripFileName = path.section( '/', -1 ); // s == "myapp"
-
+  QString name = loadFileName.section( '/', -1 );
   ripFileName = QDir::currentPath();
   ripFileName += "/saved/";
-
-  if(!QDir(ripFileName).exists())
+  if(!QDir(ripFileName).exists(ripFileName))
     {
-      QDir(ripFileName).exists();
+      QDir(ripFileName).mkpath(ripFileName);
     }
-  ripFileName += date.toString();
-  ripFileName += time.toString();
+  ripFileName += date.toString("MM-dd-yyyy-");
+  ripFileName += time.toString("H-m-s-");
   ripFileName += name;
   writeText("Ripping as "); writeText(ripFileName.toStdString());
   serialConnection->setLoadFilename(loadFileName);
   serialConnection->setRipFilename(ripFileName);
   heapThreads->setAction(EXECUTE_RIP_ERASE_LOAD);
   heapThreads->start();
-  //serialConnection->loadDevice();
+  //serialConnection->loadDevice(); // calls load without a seperate thread
 }
 
 void
