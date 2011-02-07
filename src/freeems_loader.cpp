@@ -247,7 +247,6 @@ FreeEMS_Loader::initGUI()
 {
   ui.chkVerify->setChecked(true);
   ui.chkRip->setChecked(true);
-  ui.chkErase->setChecked(true);
   setGUIState(NOTCONNECTED);
   ui.progressBar->setValue(0);
   //	ui.radFlashType->setChecked(1);
