@@ -196,6 +196,11 @@ FreeEMS_Loader::fillParity()
 void
 FreeEMS_Loader::connect()
 {
+  if(!QDir(ui.comboDevice->currentText()).exists(ui.comboDevice->currentText()))
+     {
+       writeText("ERROR: Serial device file does not exist!");
+       return;
+     }
   if (!serialConnection->isReady())
     {
       //setFlashType();
