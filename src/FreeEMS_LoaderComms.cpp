@@ -676,7 +676,6 @@ FreeEMS_LoaderComms::generateRecords(vector<string> lineArray)
 {
   unsigned int i, j;
   string line;
-
   for (i = 0, j = 0; i < lineArray.size(); i++)
     {
       line = lineArray.at(i);

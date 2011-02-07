@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <vector>
 #include <string>
+#include <about.h>
 
 using namespace std;
 
@@ -106,6 +107,8 @@ public slots:
   updateProgress(int percent);
   void
   configureProgress(int min, int max);
+  void
+  showAbout();
 };
 
 #endif // FREEEMS_LOADER_H

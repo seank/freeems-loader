@@ -203,22 +203,6 @@
       <string>Verify Load</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="chkErase">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>60</y>
-       <width>221</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
-     </property>
-     <property name="text">
-      <string>Erase Before Load</string>
-     </property>
-    </widget>
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
@@ -337,22 +321,6 @@ p, li { white-space: pre-wrap; }
     </widget>
    </widget>
   </widget>
-  <widget class="QPushButton" name="pushRip_2">
-   <property name="geometry">
-    <rect>
-     <x>520</x>
-     <y>160</y>
-     <width>101</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
-   </property>
-   <property name="text">
-    <string>Debug</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="pushErase">
    <property name="geometry">
     <rect>
@@ -367,6 +335,19 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Erase Device</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushAbout">
+   <property name="geometry">
+    <rect>
+     <x>700</x>
+     <y>510</y>
+     <width>91</width>
+     <height>33</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>About</string>
    </property>
   </widget>
  </widget>
@@ -408,22 +389,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>pushRip_2</sender>
-   <signal>clicked()</signal>
-   <receiver>FreeEMS_LoaderClass</receiver>
-   <slot>test()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>538</x>
-     <y>183</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>691</x>
-     <y>193</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushErase</sender>
    <signal>clicked()</signal>
    <receiver>FreeEMS_LoaderClass</receiver>
@@ -455,6 +420,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushAbout</sender>
+   <signal>released()</signal>
+   <receiver>FreeEMS_LoaderClass</receiver>
+   <slot>showAbout()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>749</x>
+     <y>520</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>742</x>
+     <y>483</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>signal2()</signal>
@@ -467,5 +448,7 @@ p, li { white-space: pre-wrap; }
   <slot>slot4()</slot>
   <slot>eraseFlash()</slot>
   <slot>load()</slot>
+  <slot>showAbout()</slot>
+  <slot>slot5()</slot>
  </slots>
 </ui>

@@ -308,18 +308,34 @@ FreeEMS_Loader::load()
     {
       cout << "error opening file";
     }
-  ripFileName = "saved-";
-  ripFileName += date.toString();
-  ripFileName += "-";
-  ripFileName += time.toString();
-  ripFileName += "-";
-  ripFileName += loadFileName;
-  //TODO save in a default dir not same as load dir
+  //ripFileName = "saved-";
+  //ripFileName += date.toString();
+  //ripFileName += "-";
+  //ripFileName += time.toString();
+  //ripFileName += "-";
+  //ripFileName += loadFileName;
+  //ripFileName = QDir::currentDirPath();
 
+  //QString path( QDir::currentDirPath() ); // First field is empty
+  QString name = loadFileName.section( '/', -1 ); // s == "myapp"
+
+
+  //QString path( QDir::currentDirPath() ); // First field is empty
+  //ripFileName = path.section( '/', -1 ); // s == "myapp"
+
+  ripFileName = QDir::currentPath();
+  ripFileName += "/saved/";
+
+  if(!QDir(ripFileName).exists())
+    {
+      QDir(ripFileName).exists();
+    }
+  ripFileName += date.toString();
+  ripFileName += time.toString();
+  ripFileName += name;
+  writeText("Ripping as "); writeText(ripFileName.toStdString());
   serialConnection->setLoadFilename(loadFileName);
   serialConnection->setRipFilename(ripFileName);
-
-  //heapThreads->setAction(EXECUTE_LOAD);
   heapThreads->setAction(EXECUTE_RIP_ERASE_LOAD);
   heapThreads->start();
   //serialConnection->loadDevice();
@@ -343,4 +359,11 @@ FreeEMS_Loader::configureProgress(int min, int max)
 {
   ui.progressBar->setMinimum(min);
   ui.progressBar->setMaximum(max);
+}
+
+void
+FreeEMS_Loader::showAbout()
+{
+  About *message = new About;
+  message->show();
 }

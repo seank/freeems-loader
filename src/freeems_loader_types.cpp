@@ -6,6 +6,7 @@
  */
 
 #include "freeems_loader_types.h"
+#include <string>
 
 const struct dataVector_tag dataVectorTable[] =
   {
@@ -113,4 +114,3 @@ const unsigned char SMWriteBlock = 0xA8; // — Write_Block A8/AAAA/NN/WB(AAAA) 
 const unsigned char SMErasePage = 0xB8; // — Erase one page of FLASH memory selected by the current PPAGE
 // register. $E6 error code will be returned if the command does not complete
 // successfully. PPAGE must be preloaded with desired page to erase.
-
