@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'about.ui'
 **
-** Created: Mon Feb 7 15:19:56 2011
+** Created: Tue Feb 8 15:13:06 2011
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -15,6 +15,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QHeaderView>
+#include <QtGui/QLabel>
 #include <QtGui/QTextBrowser>
 #include <QtGui/QWidget>
 
@@ -24,15 +25,20 @@ class Ui_AboutClass
 {
 public:
     QTextBrowser *textBrowser;
+    QLabel *label;
 
     void setupUi(QWidget *AboutClass)
     {
         if (AboutClass->objectName().isEmpty())
             AboutClass->setObjectName(QString::fromUtf8("AboutClass"));
-        AboutClass->resize(455, 300);
+        AboutClass->resize(444, 422);
         textBrowser = new QTextBrowser(AboutClass);
         textBrowser->setObjectName(QString::fromUtf8("textBrowser"));
-        textBrowser->setGeometry(QRect(20, 20, 421, 231));
+        textBrowser->setGeometry(QRect(10, 160, 421, 231));
+        label = new QLabel(AboutClass);
+        label->setObjectName(QString::fromUtf8("label"));
+        label->setGeometry(QRect(20, 30, 401, 121));
+        label->setPixmap(QPixmap(QString::fromUtf8("images/FreeEMS_Picture_5.png")));
 
         retranslateUi(AboutClass);
 
@@ -42,6 +48,7 @@ public:
     void retranslateUi(QWidget *AboutClass)
     {
         AboutClass->setWindowTitle(QApplication::translate("AboutClass", "About", 0, QApplication::UnicodeUTF8));
+        label->setText(QString());
     } // retranslateUi
 
 };

@@ -38,12 +38,19 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
       SLOT( updateProgress(int) ));
   QObject::connect(serialConnection, SIGNAL( configureProgress(int, int) ),
       this, SLOT( configureProgress(int, int) ));
+
+  QSettings settings("FreeEMS", "Loader");
+  resize(settings.value("size", QSize(400, 320)).toSize());
+  move(settings.value("pos", QPoint(50, 50)).toPoint());
 }
 
 FreeEMS_Loader::~FreeEMS_Loader()
 {
   serialConnection->close();
   delete serialConnection;
+  QSettings settings("FreeEMS", "Loader");
+  settings.setValue("pos", pos());
+  settings.setValue("size", size());
   //delete coutRedirector;
 }
 
@@ -51,19 +58,26 @@ int
 FreeEMS_Loader::fillDevice()
 {
   ui.comboDevice->addItem("/dev/ttyUSB0");
-  /*	DIR *dp;
-   struct dirent *dirp;
-   if((dp = opendir(dir.c_str("/dev/"))) == NULL) {
-   cout << "Error(" << errno << ") opening " << dir << endl;
-   return errno;
-   }
 
-   while ((dirp = readdir(dp)) != NULL) {
-   //files.push_back(string(dirp->d_name));
-   ui.comboDevice->addItem(string(dirp->d_name));
-   }
-   closedir(dp);
-   */
+
+
+  QDir dir("/dev");
+  QStringList filters;
+  filters << "serial*"<<"tty*";
+  dir.setNameFilters(filters);
+  foreach ( QString file, dir.entryList(QDir::AllEntries) )
+    {
+     ui.comboDevice->addItem(file);
+    }
+
+  //ui.comboDevice->addItems(list);
+
+  //currentDir = QDir(path);
+  //QStringList files;
+  //if (fileName.isEmpty())
+  //    fileName = "*";
+  //files = currentDir.entryList(QStringList(fileName),
+  //                             QDir::Files | QDir::NoSymLinks);
   return 0;
 }
 
@@ -207,7 +221,6 @@ FreeEMS_Loader::connect()
       serialConnection->open(ui.comboDevice->currentText().toAscii().data(),
           ui.comboBaud->currentText().toUInt());
       serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
-      //serialConnection->
       serialConnection->setSM();
       serialConnection->setFlashType(defFlashType);
       serialConnection->isReady() ? setGUIState(CONNECTED) : setGUIState(
@@ -254,6 +267,8 @@ FreeEMS_Loader::initGUI()
   ui.chkRip->setChecked(true);
   setGUIState(NOTCONNECTED);
   ui.progressBar->setValue(0);
+  ui.radioRX->setEnabled(false);
+  ui.radioTX->setEnabled(false);
   //	ui.radFlashType->setChecked(1);
   //	ui.radFlashType->setDisabled(1);
 }
