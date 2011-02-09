@@ -59,8 +59,6 @@ FreeEMS_Loader::fillDevice()
 {
   ui.comboDevice->addItem("/dev/ttyUSB0");
 
-
-
   QDir dir("/dev");
   QStringList filters;
   filters << "serial*"<<"tty*";
@@ -69,15 +67,6 @@ FreeEMS_Loader::fillDevice()
     {
      ui.comboDevice->addItem(file);
     }
-
-  //ui.comboDevice->addItems(list);
-
-  //currentDir = QDir(path);
-  //QStringList files;
-  //if (fileName.isEmpty())
-  //    fileName = "*";
-  //files = currentDir.entryList(QStringList(fileName),
-  //                             QDir::Files | QDir::NoSymLinks);
   return 0;
 }
 
@@ -104,9 +93,7 @@ FreeEMS_Loader::outCallBack(const char* ptr, std::streamsize count,
 
 void
 FreeEMS_Loader::fillBaud()
-
 {
-
   //#ifdef B0
   ui.comboBaud->addItem("0");
   //#endif
@@ -171,11 +158,9 @@ FreeEMS_Loader::fillBaud()
   //#ifdef B76800
   ui.comboBaud->addItem("76800");
   //#endif
-
   // this one is the default
   ui.comboBaud->addItem("115200");
   ui.comboBaud->setCurrentIndex(ui.comboBaud->count() - 1);
-
 }
 
 void
@@ -184,7 +169,6 @@ FreeEMS_Loader::fillStopBits()
   ui.comboStopBits->addItem("1");
   ui.comboStopBits->addItem("1.5");
   ui.comboStopBits->addItem("2");
-
 }
 
 void

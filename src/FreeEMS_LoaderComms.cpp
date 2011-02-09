@@ -709,6 +709,7 @@ FreeEMS_LoaderComms::loadRecordSet()
       SMWriteByteBlock(s19SetOne[i].payloadAddress, s19SetOne[i].recordBytes,
           s19SetOne[i].recordPayloadBytes);
       emit udProgress(i);
+
     }
   return;
 }
@@ -720,12 +721,20 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
   int typeID = S2; //TODO get from s19
   unsigned int Ppage;
   bool isSuccessful = false;
+  int i;
 
   std::vector<char> SMReturnString(3);
+  std::vector<char> verifyString;
+  std::vector<char> readString;
   char c;
   char highByte;
   char lowByte;
   char bytesToWrite;
+
+  for(i = 0; i < numBytes; i++)
+    {
+      verifyString.push_back(*(bytes +i));
+    }
 
   switch (typeID)
     {
@@ -749,6 +758,11 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
     if (isSuccessful == false)
       {
         emit WOInfo("Error: did not receive ACK after writing a block");
+      }
+    SMReadByteBlock(address, numBytes, readString);
+    if(verifyString != readString)
+      {
+        emit WOInfo("Error: validating sector at TODO implement retry");
       }
     break;
   default:
