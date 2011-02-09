@@ -145,11 +145,14 @@ public:
   int
   verifyReturn(char *buffer, int size);
 
-  bool
-  verifyReturn(std::vector<char> &vec);
-
   int
   verifyReturn();
+
+  int
+  verifyReturnDeb();
+
+  bool
+  verifyReturn(std::vector<char> &vec);
 
   /**
    * Opens a serial device.

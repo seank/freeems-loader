@@ -58,7 +58,6 @@ int
 FreeEMS_Loader::fillDevice()
 {
   ui.comboDevice->addItem("/dev/ttyUSB0");
-
   QDir dir("/dev");
   QStringList filters;
   filters << "serial*"<<"tty*";
@@ -324,7 +323,14 @@ FreeEMS_Loader::load()
   writeText("Ripping as "); writeText(ripFileName.toStdString());
   serialConnection->setLoadFilename(loadFileName);
   serialConnection->setRipFilename(ripFileName);
-  heapThreads->setAction(EXECUTE_RIP_ERASE_LOAD);
+  if(ui.chkRip->isChecked())
+    {
+      heapThreads->setAction(EXECUTE_RIP_ERASE_LOAD);
+    }
+  else
+    {
+      heapThreads->setAction(EXECUTE_LOAD);
+    }
   heapThreads->start();
   //serialConnection->loadDevice(); // calls load without a seperate thread
 }

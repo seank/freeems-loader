@@ -35,8 +35,11 @@ FreeEMS_LoaderThreads::run()
     emit WOInfo("DONE!");
     break;
   case EXECUTE_LOAD:
+    emit WOInfo("Erasing...");
+    threadedConnection->eraseDevice();
     emit WOInfo("Executing load");
     threadedConnection->loadDevice();
+    emit WOInfo("DONE!");
     break;
   case EXECUTE_ERASE:
     emit WOInfo("Executing erase");
@@ -52,7 +55,6 @@ FreeEMS_LoaderThreads::run()
   default:
     break;
     }
-  //exec();
 }
 
 void

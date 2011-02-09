@@ -69,7 +69,7 @@ void
 FreeEMS_LoaderComms::init()
 {
   s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
-  s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
+  //s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   clearSets();
   s19SetOneCount = 0;
 }
@@ -82,7 +82,7 @@ FreeEMS_LoaderComms::clearSets()
   for (i = 0; i < ONE_TWENTY_EIGHT_K_RECORDS; i++)
     {
       s19SetOne[i].initVariables();
-      s19SetTwo[i].initVariables();
+     // s19SetTwo[i].initVariables();
     }
 }
 
@@ -104,6 +104,9 @@ FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
 void
 FreeEMS_LoaderComms::loadDevice()
 {
+  clearSets();
+  s19SetOneCount = 0;
+
   vector<string> lineArray;
   string line;
   int i;
@@ -113,7 +116,6 @@ FreeEMS_LoaderComms::loadDevice()
       cout << "error opening load file";
       return;
     }
-
   while (getline(ifs, line))
     {
       i = 0;
@@ -121,6 +123,7 @@ FreeEMS_LoaderComms::loadDevice()
     }
   generateRecords(lineArray);
   loadRecordSet();
+  ifs.close();
   return;
 }
 
@@ -140,6 +143,7 @@ FreeEMS_LoaderComms::ripDevice()
   unsigned int bytesInRange;
   unsigned int pagedAddress = 0;
 
+  setSM(); //Incase the SM has been reset by the user
   std::vector<char> rxBuffer(bytesPerRecord);
   ofstream outFile(ripFilename.toAscii(), ios::out | ios::binary);
   FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
@@ -228,16 +232,12 @@ FreeEMS_LoaderComms::setFlashType(const char *commonName)
 void
 FreeEMS_LoaderComms::SMSetPPage(char PPage)
 {
-  bool isSuccessful = false;
   char page = PPage;
-  std::vector<char> SMReturnString(3);
   asio::write(port, asio::buffer(&SMWriteByte, ONE_BYTE));
   asio::write(port, asio::buffer(&Zero, ONE_BYTE));
   asio::write(port, asio::buffer(&PPageRegister, ONE_BYTE));
   asio::write(port, asio::buffer(&page, ONE_BYTE));
-  SMReturnString = read(3);
-  isSuccessful = verifyReturn(SMReturnString);
-  if (isSuccessful == false)
+  if(verifyReturnDeb() < 0)
     {
       cout << "cannot verify return string after setting ppage";
     }
@@ -267,9 +267,7 @@ FreeEMS_LoaderComms::setSM()
   try
     {
       write(&charReturn, 1);
-      //sleep(1);
       read(values, 3);
-      //sleep(1);
       if (!strcmp(values, ready))
         {
           smIsReady = true;
@@ -496,7 +494,7 @@ FreeEMS_LoaderComms::returnFlashType(char *responce)
   read(responce, 4);
   return;
 }
-
+/*
 int
 FreeEMS_LoaderComms::verifyReturn(char *buffer, int size)
 {
@@ -516,8 +514,41 @@ FreeEMS_LoaderComms::verifyReturn(char *buffer, int size)
     }
   cout << "waring:return chars not found";
   return -1;
+}*/
+
+int
+FreeEMS_LoaderComms::verifyReturnDeb()
+{
+  std::string data;
+  int end;
+  int moreChars;
+  char inputByte;
+  for(end = 0, moreChars = 1; moreChars == 1 ;end++)
+    {
+      try
+         {
+           read(&inputByte, 1);
+           data += inputByte;
+         }
+       catch (boost::system::system_error& e)
+         {
+           moreChars = 0;
+           cout << "Error: " << e.what() << endl;
+         }
+       if(end == 2)
+         {
+           if (data[2] == (char) 0x3E && data[1] == (char) 0x0
+                  && data[0] == (char) 0xE0)
+                {
+                  return 1;
+                }
+         }
+    }
+  std::cout<<"Error verifying return buffer reads "<<data;
+  return -1;
 }
 
+/*
 bool
 FreeEMS_LoaderComms::verifyReturn(std::vector<char> &vec)
 {
@@ -533,8 +564,8 @@ FreeEMS_LoaderComms::verifyReturn(std::vector<char> &vec)
       return true;
     }
   return false;
-}
-
+}*/
+/*
 int
 FreeEMS_LoaderComms::verifyReturn()
 {
@@ -553,13 +584,13 @@ FreeEMS_LoaderComms::verifyReturn()
     }
   cout << "waring:return chars not found";
   return -1;
-}
+}*/
 
 void
 FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
     std::vector<char> &vec)
 {
-  std::vector<char> buffer(plusBytes + 3);
+  std::vector<char> buffer(plusBytes);
   char highByte = (address & 0xFF00) >> 8;
   char lowByte = address & 0x00FF;
   char bytesRequested = plusBytes - 1;
@@ -567,9 +598,8 @@ FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
   asio::write(port, asio::buffer(&highByte, ONE_BYTE));
   asio::write(port, asio::buffer(&lowByte, ONE_BYTE));
   asio::write(port, asio::buffer(&bytesRequested, ONE_BYTE));
-
-  buffer = read(plusBytes + 3);
-  if (verifyReturn(buffer) < 0)
+  buffer = read(plusBytes);
+  if (verifyReturnDeb() < 0)
     cout << "error validating return from SMRequestByteBlock";
   vec = buffer;
   return;
@@ -580,9 +610,8 @@ FreeEMS_LoaderComms::erasePage(char PPage)
 {
   SMSetPPage(PPage);
   asio::write(port, asio::buffer(&SMErasePage, ONE_BYTE));
-  if (verifyReturn() == false)// TODO put signal here
-    cout
-        << "Error validating SMErasePage confirmation, page may already be erased";
+  if(verifyReturnDeb() < 0)
+    cout<< "Error validating SMErasePage confirmation, page may already be erased";
 }
 
 void
@@ -591,7 +620,7 @@ FreeEMS_LoaderComms::eraseDevice()
   int i;
   int nPages;
   char PPageIndex;
-
+  setSM(); //Incase the SM has been reset by the user
   if (smIsReady)
     {
       //calculate total bytes in device
@@ -618,12 +647,6 @@ FreeEMS_LoaderComms::eraseDevice()
     {
       cout << "error SM not ready";
     }
-}
-
-void
-loadDevice(char *filename)
-{
-  filename++;
 }
 
 void
@@ -720,10 +743,8 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
 {
   int typeID = S2; //TODO get from s19
   unsigned int Ppage;
-  bool isSuccessful = false;
   int i;
 
-  std::vector<char> SMReturnString(3);
   std::vector<char> verifyString;
   std::vector<char> readString;
   char c;
@@ -753,11 +774,10 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
     write(&lowByte, ONE_BYTE);
     write(&bytesToWrite, ONE_BYTE);
     write(bytes, numBytes);
-    SMReturnString = read(3);
-    isSuccessful = verifyReturn(SMReturnString);
-    if (isSuccessful == false)
+    if(verifyReturnDeb() < 0)
       {
         emit WOInfo("Error: did not receive ACK after writing a block");
+        return;
       }
     SMReadByteBlock(address, numBytes, readString);
     if(verifyString != readString)
