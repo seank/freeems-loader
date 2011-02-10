@@ -237,7 +237,7 @@ FreeEMS_LoaderComms::SMSetPPage(char PPage)
   asio::write(port, asio::buffer(&Zero, ONE_BYTE));
   asio::write(port, asio::buffer(&PPageRegister, ONE_BYTE));
   asio::write(port, asio::buffer(&page, ONE_BYTE));
-  if(verifyReturnDeb() < 0)
+  if(verifyReturn() < 0)
     {
       cout << "cannot verify return string after setting ppage";
     }
@@ -259,28 +259,44 @@ FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size)
 void
 FreeEMS_LoaderComms::setSM()
 {
-  char charReturn = (unsigned char) 0x0D;
-  char values[4] =
-    { 0x00, 0x00, 0x00, 0x00 };
-  char ready[4] =
-    { (char) 0xE1, (char) 0x00, (char) 0x3E, (char) 0x00 };
+  flushRXStream();
+  std::string data;
+  int end;
+  char inputByte;
   try
     {
-      write(&charReturn, 1);
-      read(values, 3);
-      if (!strcmp(values, ready))
-        {
-          smIsReady = true;
-        }
-      else
-        {
-          smIsReady = false;
-        }
+      asio::write(port, asio::buffer(&SMReturn, ONE_BYTE));
     }
   catch (boost::system::system_error& e)
     {
-      cout << "Error: " << e.what() << endl;
+      cout << "Error trying to write SM return char to serial port: "
+          << e.what() << endl;
+      return;
     }
+  for (end = 0;; end++)
+    {
+      try
+        {
+          read(&inputByte, 1);
+          data += inputByte;
+        }
+      catch (boost::system::system_error& e)
+        {
+          cout << "Error: " << e.what() << endl;
+          break;
+        }
+      if (end == 2)
+        {
+          if (data[2] == (char) 0x3E && data[1] == (char) 0x0 && data[0]
+              == (char) 0xE1)
+            {
+              smIsReady = true;
+              return;
+            }
+        }
+    }
+  smIsReady = false;
+  std::cout << "Error verifying SM ready code got: " << data;
 }
 
 void
@@ -517,13 +533,12 @@ FreeEMS_LoaderComms::verifyReturn(char *buffer, int size)
 }*/
 
 int
-FreeEMS_LoaderComms::verifyReturnDeb()
+FreeEMS_LoaderComms::verifyReturn()
 {
   std::string data;
   int end;
-  int moreChars;
   char inputByte;
-  for(end = 0, moreChars = 1; moreChars == 1 ;end++)
+  for(end = 0; ;end++)
     {
       try
          {
@@ -532,8 +547,8 @@ FreeEMS_LoaderComms::verifyReturnDeb()
          }
        catch (boost::system::system_error& e)
          {
-           moreChars = 0;
            cout << "Error: " << e.what() << endl;
+           break;
          }
        if(end == 2)
          {
@@ -548,44 +563,6 @@ FreeEMS_LoaderComms::verifyReturnDeb()
   return -1;
 }
 
-/*
-bool
-FreeEMS_LoaderComms::verifyReturn(std::vector<char> &vec)
-{
-  int length;
-  length = vec.size();
-  length--; //align to zero
-  if (vec.at(length) == (char) 0x3E && vec.at(length - 1) == (char) 0x0
-      && vec.at(length - 2) == (char) 0xE0)
-    {
-      vec.pop_back(); //clip return values from data payload
-      vec.pop_back();
-      vec.pop_back();
-      return true;
-    }
-  return false;
-}*/
-/*
-int
-FreeEMS_LoaderComms::verifyReturn()
-{
-  char serialIn[100] =
-    { 0 };
-  read(serialIn, 3); //TODO maybe do a search for within the 100 ch buffer
-  if ((unsigned char) serialIn[2] == 0x3E)
-    {
-      if ((unsigned char) serialIn[1] == 0x0)
-        {
-          if ((unsigned char) serialIn[0] == 0xe0)
-            {
-              return 1;
-            }
-        }
-    }
-  cout << "waring:return chars not found";
-  return -1;
-}*/
-
 void
 FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
     std::vector<char> &vec)
@@ -599,7 +576,7 @@ FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
   asio::write(port, asio::buffer(&lowByte, ONE_BYTE));
   asio::write(port, asio::buffer(&bytesRequested, ONE_BYTE));
   buffer = read(plusBytes);
-  if (verifyReturnDeb() < 0)
+  if (verifyReturn() < 0)
     cout << "error validating return from SMRequestByteBlock";
   vec = buffer;
   return;
@@ -610,7 +587,7 @@ FreeEMS_LoaderComms::erasePage(char PPage)
 {
   SMSetPPage(PPage);
   asio::write(port, asio::buffer(&SMErasePage, ONE_BYTE));
-  if(verifyReturnDeb() < 0)
+  if(verifyReturn() < 0)
     cout<< "Error validating SMErasePage confirmation, page may already be erased";
 }
 
@@ -774,7 +751,7 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
     write(&lowByte, ONE_BYTE);
     write(&bytesToWrite, ONE_BYTE);
     write(bytes, numBytes);
-    if(verifyReturnDeb() < 0)
+    if(verifyReturn() < 0)
       {
         emit WOInfo("Error: did not receive ACK after writing a block");
         return;
@@ -789,4 +766,26 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
     cout << "Cannot get byte count, no device set";
     break;
     }
+}
+
+void
+FreeEMS_LoaderComms::flushRXStream()
+{
+  std::string data;
+   int end;
+   char inputByte;
+   for(end = 0;  ;end++)
+     {
+       try
+          {
+            read(&inputByte, 1);
+            data += inputByte;
+            continue;
+          }
+        catch (boost::system::system_error& e)
+          {
+            break;
+            cout << "Flushed From RX Stream " <<end<<" bytes"<< e.what() << endl;
+          }
+     }
 }

@@ -132,27 +132,20 @@ public:
   void
   SMReadChars(const char *data, size_t size);
 
+  void
+  flushRXStream();
+
   /*
    * Read a block of memory starting at address specified.
    * Block is read twice to check integrity.
    * 256 bytes max
    */
-  //std::vector<char> readBlock(unsigned short startAddress, int readNumBytes);
-
-  /*
-   * Every command returns the ready SM sequence, if not there is a problem
-   */
-  int
-  verifyReturn(char *buffer, int size);
 
   int
   verifyReturn();
 
-  int
-  verifyReturnDeb();
-
-  bool
-  verifyReturn(std::vector<char> &vec);
+  //bool
+  //verifyReturn(std::vector<char> &vec);
 
   /**
    * Opens a serial device.

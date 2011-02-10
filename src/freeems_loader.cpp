@@ -203,7 +203,7 @@ FreeEMS_Loader::connect()
       //setFlashType();
       serialConnection->open(ui.comboDevice->currentText().toAscii().data(),
           ui.comboBaud->currentText().toUInt());
-      serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
+      serialConnection->setTimeout(boost::posix_time::seconds(2)); //TODO make configable
       serialConnection->setSM();
       serialConnection->setFlashType(defFlashType);
       serialConnection->isReady() ? setGUIState(CONNECTED) : setGUIState(
