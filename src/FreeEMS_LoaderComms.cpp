@@ -479,11 +479,13 @@ FreeEMS_LoaderComms::readCompleted(const boost::system::error_code& error,
 {
   if (error)
     {
+      cout<<" in readCompleted error true";
       if (error != asio::error::operation_aborted)
         {
 #ifdef __APPLE__
           if(error.value()==45)
             {
+              cout<<" ifdef _APPLE_ true";
               //Bug on OS X, it might be necessary to repeat the setup
               //http://osdir.com/ml/lib.boost.asio.user/2008-08/msg00004.html
               performReadSetup(setupParameters);
@@ -510,27 +512,6 @@ FreeEMS_LoaderComms::returnFlashType(char *responce)
   read(responce, 4);
   return;
 }
-/*
-int
-FreeEMS_LoaderComms::verifyReturn(char *buffer, int size)
-{
-  buffer += (size - 1);
-  printf("\n buffer is %x", *buffer);
-  if ((unsigned char) *buffer == 0x3E)
-    {
-      buffer--;
-      if ((unsigned char) *buffer == 0x0)
-        {
-          buffer--;
-          if ((unsigned char) *buffer == 0xe0)
-            {
-              return 1;
-            }
-        }
-    }
-  cout << "waring:return chars not found";
-  return -1;
-}*/
 
 int
 FreeEMS_LoaderComms::verifyReturn()
