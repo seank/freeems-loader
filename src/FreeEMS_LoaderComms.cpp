@@ -259,7 +259,7 @@ FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size)
 void
 FreeEMS_LoaderComms::setSM()
 {
-  flushRXStream();
+  //flushRXStream();
   std::string data;
   int end;
   char inputByte;
@@ -351,24 +351,25 @@ FreeEMS_LoaderComms::read(char *data, size_t size)
         {
       case resultSuccess:
         timer.cancel();
+        cout<<"result Successful";
         return;
       case resultTimeoutExpired:
         port.cancel();
         //throw(timeout_exception("Timeout expired"));
-        cout << "Timeout expired";
+        cout << "resultTimeoutExpired: Timeout expired ";
       case resultError:
         timer.cancel();
         port.cancel();
         throw(boost::system::system_error(boost::system::error_code(),
-            "Error while reading"));
+            " resultError: Error while reading "));
       case resultInProgress:
         continue;
       default:
         timer.cancel();
         port.cancel();
-        //throw(boost::system::system_error(boost::system::error_code(),
-        //        "Error while reading"));
-        cout << "Error while reading";
+        throw(boost::system::system_error(boost::system::error_code(),
+                " default: Error while reading"));
+        cout << " default: Error while reading ";
         //if resultInProgress remain in the loop
         }
     }
@@ -450,12 +451,14 @@ FreeEMS_LoaderComms::performReadSetup(const ReadSetupParameters& param)
 {
   if (param.fixedSize)
     {
+      cout<<"param is fixedSize";
       asio::async_read(port, asio::buffer(param.data, param.size), boost::bind(
           &FreeEMS_LoaderComms::readCompleted, this, asio::placeholders::error,
           asio::placeholders::bytes_transferred));
     }
   else
     {
+      cout<<"param is NOT fixedSize";
       asio::async_read_until(port, readData, param.delim, boost::bind(
           &FreeEMS_LoaderComms::readCompleted, this, asio::placeholders::error,
           asio::placeholders::bytes_transferred));
@@ -479,13 +482,13 @@ FreeEMS_LoaderComms::readCompleted(const boost::system::error_code& error,
 {
   if (error)
     {
-      cout<<" in readCompleted error true";
+      cout<<" in readCompleted error true ";
       if (error != asio::error::operation_aborted)
         {
 #ifdef __APPLE__
           if(error.value()==45)
             {
-              cout<<" ifdef _APPLE_ true";
+              cout<<" ifdef _APPLE_ true and error value is 45";
               //Bug on OS X, it might be necessary to repeat the setup
               //http://osdir.com/ml/lib.boost.asio.user/2008-08/msg00004.html
               performReadSetup(setupParameters);
