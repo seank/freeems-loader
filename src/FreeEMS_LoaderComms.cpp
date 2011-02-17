@@ -735,13 +735,13 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
     write(&lowByte, ONE_BYTE);
     write(&bytesToWrite, ONE_BYTE);
     write(bytes, numBytes);
-    if(verifyReturn() < 0)
-      {
-        emit WOInfo("Error: did not receive ACK after writing a block");
-        return;
-      }
     if(verifyLastWrite == true)
       {
+        if(verifyReturn() < 0)
+          {
+            emit WOInfo("Error: did not receive ACK after writing a block");
+            return;
+          }
         SMReadByteBlock(address, numBytes, readString);
          if(verifyString != readString)
           {
