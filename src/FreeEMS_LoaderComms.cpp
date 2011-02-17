@@ -19,7 +19,7 @@ using namespace std;
 using namespace boost;
 
 FreeEMS_LoaderComms::FreeEMS_LoaderComms() :
-  io(), port(io), timer(io), timeout(posix_time::seconds(1)),
+     verifyLastWrite(false), io(), port(io), timer(io), timeout(posix_time::seconds(1)),
       flashTypeIndex(0), fDeviceIsSet(false), smIsReady(false)
 {
   init();
@@ -740,10 +740,13 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
         emit WOInfo("Error: did not receive ACK after writing a block");
         return;
       }
-    SMReadByteBlock(address, numBytes, readString);
-    if(verifyString != readString)
+    if(verifyLastWrite == true)
       {
-        emit WOInfo("Error: validating sector at TODO implement retry");
+        SMReadByteBlock(address, numBytes, readString);
+         if(verifyString != readString)
+          {
+           emit WOInfo("Error: validating sector at TODO implement retry");
+          }
       }
     break;
   default:

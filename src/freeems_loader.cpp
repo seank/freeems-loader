@@ -314,6 +314,10 @@ FreeEMS_Loader::load()
     {
       cout << "error opening file";
     }
+  if(ui.chkVerify->isChecked())
+    {
+      serialConnection->verifyLastWrite = true; //todo make set function
+    }
   QString name = loadFileName.section( '/', -1 );
   ripFileName = QDir::currentPath();
   ripFileName += "/saved/";

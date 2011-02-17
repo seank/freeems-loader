@@ -280,6 +280,8 @@ public:
   void
   setSM();
 
+  bool verifyLastWrite;
+
   ~FreeEMS_LoaderComms();
 
 signals:
