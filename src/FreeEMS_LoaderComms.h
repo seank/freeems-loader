@@ -281,6 +281,7 @@ public:
   setSM();
 
   bool verifyLastWrite;
+  bool verifyACKs;
 
   ~FreeEMS_LoaderComms();
 

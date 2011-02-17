@@ -19,7 +19,7 @@ using namespace std;
 using namespace boost;
 
 FreeEMS_LoaderComms::FreeEMS_LoaderComms() :
-     verifyLastWrite(false), io(), port(io), timer(io), timeout(posix_time::seconds(1)),
+     verifyLastWrite(false), verifyACKs(false), io(), port(io), timer(io), timeout(posix_time::seconds(1)),
       flashTypeIndex(0), fDeviceIsSet(false), smIsReady(false)
 {
   init();
@@ -237,10 +237,13 @@ FreeEMS_LoaderComms::SMSetPPage(char PPage)
   asio::write(port, asio::buffer(&Zero, ONE_BYTE));
   asio::write(port, asio::buffer(&PPageRegister, ONE_BYTE));
   asio::write(port, asio::buffer(&page, ONE_BYTE));
-  if(verifyReturn() < 0)
-    {
-      cout << "cannot verify return string after setting ppage";
-    }
+  //if(verifyACKs == true)
+  //  {
+      if(verifyReturn() < 0)
+         {
+           cout << "cannot verify return string after setting ppage";
+         }
+  //  }
 }
 
 void
@@ -543,7 +546,10 @@ FreeEMS_LoaderComms::verifyReturn()
                 }
          }
     }
-  std::cout<<"Error verifying return buffer reads "<<data;
+  if(verifyACKs == true)
+    {
+      std::cout<<"Error verifying return buffer reads "<<data;
+    }
   return -1;
 }
 
@@ -560,8 +566,11 @@ FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
   asio::write(port, asio::buffer(&lowByte, ONE_BYTE));
   asio::write(port, asio::buffer(&bytesRequested, ONE_BYTE));
   buffer = read(plusBytes);
-  if (verifyReturn() < 0)
-    cout << "error validating return from SMRequestByteBlock";
+  if(verifyACKs == true)
+     {
+      if (verifyReturn() < 0)
+         cout << "error validating return from SMRequestByteBlock";
+     }
   vec = buffer;
   return;
 }
@@ -571,8 +580,11 @@ FreeEMS_LoaderComms::erasePage(char PPage)
 {
   SMSetPPage(PPage);
   asio::write(port, asio::buffer(&SMErasePage, ONE_BYTE));
-  if(verifyReturn() < 0)
-    cout<< "Error validating SMErasePage confirmation, page may already be erased";
+  //if(verifyACKs == true)
+  //  {
+      if(verifyReturn() < 0)
+         cout<< "Error validating SMErasePage confirmation, page may already be erased";
+  //  }
 }
 
 void
@@ -735,13 +747,16 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
     write(&lowByte, ONE_BYTE);
     write(&bytesToWrite, ONE_BYTE);
     write(bytes, numBytes);
-    if(verifyLastWrite == true)
+    if(verifyACKs == true)
       {
         if(verifyReturn() < 0)
           {
             emit WOInfo("Error: did not receive ACK after writing a block");
             return;
           }
+      }
+    if(verifyLastWrite == true)
+      {
         SMReadByteBlock(address, numBytes, readString);
          if(verifyString != readString)
           {

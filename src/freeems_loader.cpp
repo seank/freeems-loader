@@ -317,6 +317,12 @@ FreeEMS_Loader::load()
   if(ui.chkVerify->isChecked())
     {
       serialConnection->verifyLastWrite = true; //todo make set function
+      serialConnection->verifyACKs = true;
+    }
+  else
+    {
+      serialConnection->verifyLastWrite = false; //todo make set function
+      serialConnection->verifyACKs = false;
     }
   QString name = loadFileName.section( '/', -1 );
   ripFileName = QDir::currentPath();
