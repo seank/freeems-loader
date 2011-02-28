@@ -215,6 +215,7 @@ FreeEMS_Loader::connect()
     }
   else
     {
+      serialConnection->resetSM();
       serialConnection->close();
       serialConnection->isReady() ? setGUIState(CONNECTED) : setGUIState(
           NOTCONNECTED);
@@ -274,7 +275,7 @@ FreeEMS_Loader::setGUIState(int state)
   case CONNECTED:
     ui.pushLoad->setEnabled(1);
     ui.pushRip->setEnabled(1);
-    ui.pushConnect->setText("Disconnect");
+    ui.pushConnect->setText("Close/Rst");
     ui.pushErase->setEnabled(1);
   default:
     break;

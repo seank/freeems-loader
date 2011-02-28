@@ -114,3 +114,14 @@ const unsigned char SMWriteBlock = 0xA8; // — Write_Block A8/AAAA/NN/WB(AAAA) 
 const unsigned char SMErasePage = 0xB8; // — Erase one page of FLASH memory selected by the current PPAGE
 // register. $E6 error code will be returned if the command does not complete
 // successfully. PPAGE must be preloaded with desired page to erase.
+
+const unsigned char SMReset = 0xB4; //When a user reset vector is programmed, the levels on the run/load
+//switch and the RxD0 line could cause a reset to either the user code or the
+//monitor. The sequence of checks to determine the type of reset is listed and
+//illustrated in Figure 1.
+//    1. If the first byte of the user reset pseudo-vector = $FF
+//        (unprogrammed), force monitor reset.
+//    2. If the run/load switch = 0 (logic low), force monitor reset.
+//    3. If RxD0 = 0 (logic low), force monitor reset.
+//    4. If none of the above, use the reset pseudo-vector to jump to the
+//        user reset start-up routine.

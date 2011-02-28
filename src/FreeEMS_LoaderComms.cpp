@@ -260,6 +260,22 @@ FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size)
 }
 
 void
+FreeEMS_LoaderComms::resetSM()
+{
+  try
+     {
+       asio::write(port, asio::buffer(&SMReset, ONE_BYTE));
+     }
+   catch (boost::system::system_error& e)
+     {
+       cout << "Error trying to write SM Reset char to serial port: "
+           << e.what() << endl;
+       return;
+     }
+   return;
+}
+
+void
 FreeEMS_LoaderComms::setSM()
 {
   //flushRXStream();
@@ -324,6 +340,7 @@ FreeEMS_LoaderComms::writeString(const std::string& s)
 void
 FreeEMS_LoaderComms::read(char *data, size_t size)
 {
+  // LOOK UP BOOST ASIO FLUSH
   if (readData.size() > 0)//If there is some data from a previous read
     {
       istream is(&readData);

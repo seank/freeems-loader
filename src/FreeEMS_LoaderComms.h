@@ -101,6 +101,9 @@ public:
   void
   setLoadFilename(QString name);
 
+  void
+  resetSM();
+
   int
   getDeviceByteCount();
 
