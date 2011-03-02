@@ -278,42 +278,39 @@ FreeEMS_LoaderComms::resetSM()
 void
 FreeEMS_LoaderComms::setSM()
 {
-  //flushRXStream();
+  int i;
   std::string data;
-  int end;
-  char inputByte;
-  try
+  for (i = 0; i < 10; i++) // try to connect 10 times
     {
-      asio::write(port, asio::buffer(&SMReturn, ONE_BYTE));
-    }
-  catch (boost::system::system_error& e)
-    {
-      cout << "Error trying to write SM return char to serial port: "
-          << e.what() << endl;
-      return;
-    }
-  for (end = 0;; end++)
-    {
+      char delimiter = 0x3E; // the char that comes at the send of the SMReady char string
       try
         {
-          read(&inputByte, 1);
-          data += inputByte;
+          asio::write(port, asio::buffer(&SMReturn, ONE_BYTE));
         }
       catch (boost::system::system_error& e)
         {
-          cout << "Error: " << e.what() << endl;
-          break;
+          cout << "Error trying to write SM return char to serial port: "
+              << e.what() << endl;
+          return;
         }
-      if (end == 2)
+      boost::asio::streambuf response;
+      size_t length = boost::asio::read_until(port, response, delimiter);
+      if (length >= 3)
         {
-          if (data[2] == (char) 0x3E && data[1] == (char) 0x0 && data[0]
-              == (char) 0xE1)
+          response.commit(length);
+          istream istr(&response);
+          istr >> data;
+          emit
+          WOInfo(data);
+          if ((data[length - 2] == (char) 0x00) && (data[length - 3]
+              == (char) 0xE1))
             {
               smIsReady = true;
               return;
             }
         }
     }
+  // cout<<" delim is "<<delimiter<<" last char is "<<data[length]<<" data is "<<data;
   smIsReady = false;
   std::cout << "Error verifying SM ready code got: " << data;
 }

@@ -196,7 +196,6 @@ FreeEMS_Loader::connect()
 #ifdef __APPLE__
          cout<<"Fred is gay, didnt you know";
 #endif //__APPLE__
-
   if(!QDir(ui.comboDevice->currentText()).exists(ui.comboDevice->currentText()))
      {
        writeText("ERROR: Serial device file does not exist!");
