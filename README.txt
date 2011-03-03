@@ -1,4 +1,7 @@
-Welcome to FreeEMS-Loader!
+TODO
+how about remembering that i dont wanna rip? remembering which dir i last loaded shit from?
+and even, marcos suggested this, remembering which file i last loaded so it can be called
+from make with no file arg Welcome to FreeEMS-Loader!
 
 ##########################  LINUX USERS #################################
 To build and run this application please run the following commands:

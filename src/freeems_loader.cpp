@@ -18,7 +18,6 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
   QWidget(parent)
 {
   ui.setupUi(this);
-  fillDevice();
   qRegisterMetaType<string> ("string");
   serialConnection = new FreeEMS_LoaderComms;
   heapThreads = new FreeEMS_LoaderThreads(serialConnection);
@@ -26,9 +25,8 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
   fillDataBits();
   fillStopBits();
   fillParity();
-  //redirectCLI();
   initGUI();
-
+  //redirectCLI();
   //TODO move to a seperate function
   QObject::connect(heapThreads, SIGNAL( WOInfo(string) ), this,
       SLOT( writeText(string) ));
@@ -42,6 +40,11 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
   QSettings settings("FreeEMS", "Loader");
   resize(settings.value("size", QSize(400, 320)).toSize());
   move(settings.value("pos", QPoint(50, 50)).toPoint());
+  ui.comboDevice->addItem(settings.value("serialDevice").toString());
+  ui.chkRip->setChecked(settings.value("chkRip").toBool());
+  ui.chkVerify->setChecked(settings.value("chkVerify").toBool());
+
+  fillDevice();
 }
 
 FreeEMS_Loader::~FreeEMS_Loader()
@@ -51,6 +54,9 @@ FreeEMS_Loader::~FreeEMS_Loader()
   QSettings settings("FreeEMS", "Loader");
   settings.setValue("pos", pos());
   settings.setValue("size", size());
+  settings.setValue("serialDevice", ui.comboDevice->currentText());
+  settings.setValue("chkRip", ui.chkRip->isChecked());
+  settings.setValue("chkVerify", ui.chkVerify->isChecked());
   //delete coutRedirector;
 }
 

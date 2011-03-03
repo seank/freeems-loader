@@ -55,6 +55,8 @@ public:
     return false;
   }
 
+QString loadFileName;
+
 protected:
   void
   fillBaud();
@@ -86,7 +88,6 @@ private:
   FreeEMS_LoaderThreads *heapThreads;
 
   QString ripFileName;
-  QString loadFileName;
 
   int flashTypeIndex;
 
