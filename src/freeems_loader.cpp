@@ -36,15 +36,54 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
       SLOT( updateProgress(int) ));
   QObject::connect(serialConnection, SIGNAL( configureProgress(int, int) ),
       this, SLOT( configureProgress(int, int) ));
-
+  // restore settings
   QSettings settings("FreeEMS", "Loader");
   resize(settings.value("size", QSize(400, 320)).toSize());
   move(settings.value("pos", QPoint(50, 50)).toPoint());
   ui.comboDevice->addItem(settings.value("serialDevice").toString());
   ui.chkRip->setChecked(settings.value("chkRip").toBool());
   ui.chkVerify->setChecked(settings.value("chkVerify").toBool());
+  loadFileName = settings.value("lastFileName").toString();
+  loadDirectory = settings.value("lastDirectory").toString();
 
+  QString arg;
+  cmdline_args = QCoreApplication::arguments();
   fillDevice();
+
+  bool isFileName, isBaseDir, repeat = false;
+  foreach(arg, cmdline_args)
+  {
+    if(isFileName)
+      {
+        loadFileName = arg;
+        isFileName = false;
+        cout<<loadFileName.toStdString()<<endl;
+        writeText("using filename: ");
+        writeText(loadFileName.toStdString());
+      }
+    else if(isBaseDir)
+      {
+        loadDirectory = arg;
+        isBaseDir = false;
+        cout<<loadDirectory.toStdString()<<endl;
+      }
+    if(arg.contains("--repeat"))
+      {
+        cout<<" repeat the last action ";
+        repeat = true;
+      }
+    if(arg.contains("--file"))
+      {
+        cout<<" set the file to load ";
+        isFileName = true;
+      }
+    if(arg.contains("--basedir"))
+      {
+        cout<<" set the base directory ";
+        isBaseDir = true;
+      }
+  }
+
 }
 
 FreeEMS_Loader::~FreeEMS_Loader()
@@ -57,6 +96,8 @@ FreeEMS_Loader::~FreeEMS_Loader()
   settings.setValue("serialDevice", ui.comboDevice->currentText());
   settings.setValue("chkRip", ui.chkRip->isChecked());
   settings.setValue("chkVerify", ui.chkVerify->isChecked());
+  settings.setValue("lastFileName", loadFileName);
+  settings.setValue("lastDirectory", loadDirectory);
   //delete coutRedirector;
 }
 
@@ -217,6 +258,8 @@ FreeEMS_Loader::connect()
       serialConnection->setFlashType(defFlashType);
       serialConnection->isReady() ? setGUIState(CONNECTED) : setGUIState(
           NOTCONNECTED);
+      cout<<"last file loaded was"<<loadFileName.toStdString();
+      writeText(loadDirectory.toStdString());
     }
   else
     {
@@ -314,11 +357,16 @@ FreeEMS_Loader::load()
 {
   QDate date = QDate::currentDate();
   QTime time = QTime::currentTime();
-  loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"),
-      QDir::currentPath(), tr("s19 (*.s19)"));
+  if(!loadFileName.isNull()) //if no file was specified from the cmdline open browser
+    {
+      loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"),
+          QDir::currentPath(), tr("s19 (*.s19)"));
+    }
   if (loadFileName.isNull())
     {
+      writeText("error opening file");
       cout << "error opening file";
+      return;
     }
   if(ui.chkVerify->isChecked())
     {
