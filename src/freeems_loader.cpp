@@ -15,7 +15,7 @@
 //using namespace boost;
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
-  QWidget(parent)
+  QWidget(parent), unattended(false)
 {
   ui.setupUi(this);
   qRegisterMetaType<string> ("string");
@@ -30,6 +30,8 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
   //TODO move to a seperate function
   QObject::connect(heapThreads, SIGNAL( WOInfo(string) ), this,
       SLOT( writeText(string) ));
+  QObject::connect(heapThreads, SIGNAL( closeReset() ), this,
+        SLOT( closeReset() ));
   QObject::connect(serialConnection, SIGNAL( WOInfo(string) ), this,
       SLOT( writeText(string) ));
   QObject::connect(serialConnection, SIGNAL( udProgress(int) ), this,
@@ -50,7 +52,7 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
   cmdline_args = QCoreApplication::arguments();
   fillDevice();
 
-  bool isFileName, isBaseDir, repeat = false;
+  bool isFileName, isDevice = false;
   foreach(arg, cmdline_args)
   {
     if(isFileName)
@@ -61,29 +63,66 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
         writeText("using filename: ");
         writeText(loadFileName.toStdString());
       }
-    else if(isBaseDir)
+    else if(isDevice)
       {
-        loadDirectory = arg;
-        isBaseDir = false;
-        cout<<loadDirectory.toStdString()<<endl;
+        isDevice = false;
+        ui.comboDevice->clear();
+        ui.comboDevice->addItem(arg);
+        writeText("using device: ");
+        writeText(arg.toStdString());
       }
-    if(arg.contains("--repeat"))
-      {
-        cout<<" repeat the last action ";
-        repeat = true;
+        if (arg.contains("--"))
+          {
+            if (arg.contains("--unattended")) //TODO use nested if and detect invalid args
+              {
+                cout << " connect and load ";
+                unattended = true;
+              }
+            else if (arg.contains("--file"))
+              {
+                isFileName = true;
+              }
+            else if (arg.contains("--verify"))
+              {
+                cout << " Verify Set True ";
+                ui.chkVerify->setChecked(true);
+              }
+            else if (arg.contains("--device"))
+            {
+              isDevice = true;
+            }
+            else if (arg.contains("--rip"))
+              {
+                cout << " Rip Set True ";
+                ui.chkRip->setChecked(true);
+              }
+            else if (arg.contains("--norip"))
+              {
+                cout << " Rip Before Load Set False ";
+                ui.chkRip->setChecked(false);
+              }
+            else if (arg.contains("--noverify"))
+              {
+                cout << " Verify Set False ";
+                ui.chkVerify->setChecked(false);
+              }
+            else if (arg.contains("--help"))
+            {
+              cout << " valid arguments are: --rip, --norip, --verify, --noverify, --file <path to file>, --device, --unattended"
+              " --help";
+            }
+            else
+              {
+                cout << " invalid argument: " << arg.toStdString();
+              }
+          }
       }
-    if(arg.contains("--file"))
-      {
-        cout<<" set the file to load ";
-        isFileName = true;
-      }
-    if(arg.contains("--basedir"))
-      {
-        cout<<" set the base directory ";
-        isBaseDir = true;
-      }
-  }
 
+  if(unattended)
+    {
+      connect();
+      load();
+    }
 }
 
 FreeEMS_Loader::~FreeEMS_Loader()
@@ -258,8 +297,6 @@ FreeEMS_Loader::connect()
       serialConnection->setFlashType(defFlashType);
       serialConnection->isReady() ? setGUIState(CONNECTED) : setGUIState(
           NOTCONNECTED);
-      cout<<"last file loaded was"<<loadFileName.toStdString();
-      writeText(loadDirectory.toStdString());
     }
   else
     {
@@ -357,7 +394,7 @@ FreeEMS_Loader::load()
 {
   QDate date = QDate::currentDate();
   QTime time = QTime::currentTime();
-  if(!loadFileName.isNull()) //if no file was specified from the cmdline open browser
+  if(loadFileName.isNull()) //if no file was specified from the cmdline open browser
     {
       loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"),
           QDir::currentPath(), tr("s19 (*.s19)"));
@@ -416,6 +453,12 @@ FreeEMS_Loader::updateProgress(int percent)
   ui.progressBar->setValue(percent);
 }
 
+bool
+FreeEMS_Loader::isUnattended()
+{
+  return unattended;
+}
+
 void
 FreeEMS_Loader::configureProgress(int min, int max)
 {
@@ -428,4 +471,10 @@ FreeEMS_Loader::showAbout()
 {
   About *message = new About;
   message->show();
+}
+
+void
+FreeEMS_Loader::closeReset()
+{
+
 }

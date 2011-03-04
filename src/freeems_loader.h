@@ -78,12 +78,16 @@ protected:
   getFileName(QString name);
   void
   setFlashType();
+  bool
+  isUnattended();
 
 private:
   Ui::FreeEMS_LoaderClass ui;
 
   FreeEMS_LoaderComms *serialConnection;
   FreeEMS_LoaderThreads *heapThreads;
+
+  bool unattended;
 
   QString ripFileName;
   QString loadFileName;
@@ -111,6 +115,8 @@ public slots:
   configureProgress(int min, int max);
   void
   showAbout();
+  void
+  closeReset();
 };
 
 #endif // FREEEMS_LOADER_H

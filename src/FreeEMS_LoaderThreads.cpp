@@ -55,6 +55,10 @@ FreeEMS_LoaderThreads::run()
   default:
     break;
     }
+  //if(FreeEMS_Loader::isUnattended())
+  //  {
+  //    emit closeReset();
+  //  }
 }
 
 void
