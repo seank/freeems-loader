@@ -28,6 +28,7 @@ QWidget(parent), showHelp(false), unattended(false)
   initGUI();
   //redirectCLI();
   //TODO move to a seperate function
+  loadFileName.clear();
   QObject::connect(heapThreads, SIGNAL( WOInfo(string) ), this,
       SLOT( writeText(string) ));
   //QObject::connect(heapThreads, SIGNAL( closeReset() ), this,
