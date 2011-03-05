@@ -60,7 +60,6 @@ QWidget(parent), showHelp(false), unattended(false)
       {
         loadFileName = arg;
         isFileName = false;
-        cout<<loadFileName.toStdString()<<endl;
         writeText("using filename: ");
         writeText(loadFileName.toStdString());
       }
@@ -396,6 +395,7 @@ FreeEMS_Loader::load()
 {
   QDate date = QDate::currentDate();
   QTime time = QTime::currentTime();
+  cout<<" about to see if this is null "<<loadFileName.toStdString();
   if(loadFileName.isNull()) //if no file was specified from the cmdline open browser
     {
       loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"),
