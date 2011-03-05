@@ -414,7 +414,7 @@ FreeEMS_Loader::load()
   else
     {
       serialConnection->verifyLastWrite = false; //todo make set function
-      serialConnection->verifyACKs = false;
+      serialConnection->verifyACKs = true; //todo make settable
     }
   QString name = loadFileName.section( '/', -1 );
   ripFileName = QDir::currentPath();
