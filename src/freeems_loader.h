@@ -40,6 +40,7 @@ public:
   ~FreeEMS_Loader();
 
   bool showHelp;
+  bool fileArg;
 
   virtual bool
   notify(QObject *rec, QEvent *ev)

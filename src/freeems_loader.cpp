@@ -15,7 +15,7 @@
 //using namespace boost;
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
-QWidget(parent), showHelp(false), unattended(false)
+QWidget(parent), showHelp(false), fileArg(false), unattended(false)
 {
   ui.setupUi(this);
   qRegisterMetaType<string> ("string");
@@ -81,6 +81,7 @@ QWidget(parent), showHelp(false), unattended(false)
             else if (arg.contains("--file"))
               {
                 isFileName = true;
+                fileArg = true;
               }
             else if (arg.contains("--verify"))
               {
@@ -395,8 +396,8 @@ FreeEMS_Loader::load()
 {
   QDate date = QDate::currentDate();
   QTime time = QTime::currentTime();
-  cout<<" about to see if this is null "<<loadFileName.toStdString();
-  if(loadFileName.isNull()) //if no file was specified from the cmdline open browser
+
+  if(!fileArg) //if no file was specified from the cmdline open browser
     {
       loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"),
           QDir::currentPath(), tr("s19 (*.s19)"));
