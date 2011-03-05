@@ -39,6 +39,8 @@ public:
   FreeEMS_Loader(QWidget *parent = 0);
   ~FreeEMS_Loader();
 
+  bool showHelp;
+
   virtual bool
   notify(QObject *rec, QEvent *ev)
   {

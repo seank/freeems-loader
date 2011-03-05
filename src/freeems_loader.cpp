@@ -15,7 +15,7 @@
 //using namespace boost;
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
-  QWidget(parent), unattended(false)
+QWidget(parent), showHelp(false), unattended(false)
 {
   ui.setupUi(this);
   qRegisterMetaType<string> ("string");
@@ -30,8 +30,8 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
   //TODO move to a seperate function
   QObject::connect(heapThreads, SIGNAL( WOInfo(string) ), this,
       SLOT( writeText(string) ));
-  QObject::connect(heapThreads, SIGNAL( closeReset() ), this,
-        SLOT( closeReset() ));
+  //QObject::connect(heapThreads, SIGNAL( closeReset() ), this,
+  //      SLOT( closeReset() ));
   QObject::connect(serialConnection, SIGNAL( WOInfo(string) ), this,
       SLOT( writeText(string) ));
   QObject::connect(serialConnection, SIGNAL( udProgress(int) ), this,
@@ -110,6 +110,7 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
             {
               cout << " valid arguments are: --rip, --norip, --verify, --noverify, --file <path to file>, --device, --unattended"
               " --help";
+              showHelp = true;
             }
             else
               {

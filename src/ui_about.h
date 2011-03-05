@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'about.ui'
 **
-** Created: Fri Mar 4 11:18:17 2011
+** Created: Fri Mar 4 22:00:55 2011
 **      by: Qt User Interface Compiler version 4.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
