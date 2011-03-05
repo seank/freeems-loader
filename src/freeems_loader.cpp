@@ -45,7 +45,7 @@ QWidget(parent), showHelp(false), unattended(false)
   ui.comboDevice->addItem(settings.value("serialDevice").toString());
   ui.chkRip->setChecked(settings.value("chkRip").toBool());
   ui.chkVerify->setChecked(settings.value("chkVerify").toBool());
-  loadFileName = settings.value("lastFileName").toString();
+  //loadFileName = settings.value("lastFileName").toString();
   loadDirectory = settings.value("lastDirectory").toString();
 
   QString arg;
