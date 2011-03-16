@@ -368,7 +368,7 @@ FreeEMS_LoaderComms::read(char *data, size_t size)
         {
       case resultSuccess:
         timer.cancel();
-        cout<<"result Successful";
+        //cout<<"result Successful";
         return;
       case resultTimeoutExpired:
         port.cancel();
@@ -468,14 +468,14 @@ FreeEMS_LoaderComms::performReadSetup(const ReadSetupParameters& param)
 {
   if (param.fixedSize)
     {
-      cout<<"param is fixedSize";
+      //cout<<"param is fixedSize";
       asio::async_read(port, asio::buffer(param.data, param.size), boost::bind(
           &FreeEMS_LoaderComms::readCompleted, this, asio::placeholders::error,
           asio::placeholders::bytes_transferred));
     }
   else
     {
-      cout<<"param is NOT fixedSize";
+      //cout<<"param is NOT fixedSize";
       asio::async_read_until(port, readData, param.delim, boost::bind(
           &FreeEMS_LoaderComms::readCompleted, this, asio::placeholders::error,
           asio::placeholders::bytes_transferred));
