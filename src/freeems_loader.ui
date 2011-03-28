@@ -55,7 +55,7 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">font: 6pt &quot;Bitstream Charter&quot;;</string>
+    <string notr="true">font: 8pt &quot;Bitstream Charter&quot;;</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushRip">
