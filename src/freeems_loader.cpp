@@ -53,7 +53,8 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   cmdline_args = QCoreApplication::arguments();
   fillDevice();
 
-  bool isFileName, isDevice = false;
+  bool isFileName = false;
+  bool isDevice = false;
   foreach(arg, cmdline_args)
   {
     if(isFileName)
