@@ -285,17 +285,29 @@ FreeEMS_Loader::connect()
 #ifdef __APPLE__
          cout<<"Fred is gay, didnt you know";
 #endif //__APPLE__
-#ifndef __WIN32__
-  if(!QDir(ui.comboDevice->currentText()).exists(ui.comboDevice->currentText()))
-     {
-       writeText("ERROR: Serial device file does not exist!");
-       return;
-     }
+
+//  if(!QDir(ui.comboDevice->currentText()).exists(ui.comboDevice->currentText()))
+//     {
+//       writeText("ERROR: Serial device file does not exist!");
+//       return;
+//     }
+
+  QString portName = ui.comboDevice->currentText();
+#ifdef __WIN32__
+  portName.toUpper();
 #endif
+  QFile file(portName);
+  if (!file.open(QIODevice::ReadWrite))
+    {
+      writeText("ERROR: Cannot open serial deivce "+portName.toStdString());
+      return;
+    }
+  file.close();
+
   if (!serialConnection->isReady())
     {
       //setFlashType();
-      serialConnection->open(ui.comboDevice->currentText().toAscii().data(),
+      serialConnection->open(portName.toAscii().data(),
           ui.comboBaud->currentText().toUInt());
       serialConnection->setTimeout(boost::posix_time::seconds(2)); //TODO make configable
       serialConnection->setSM();
