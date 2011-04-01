@@ -23,6 +23,7 @@ FreeEMS_LoaderComms::FreeEMS_LoaderComms() :
       flashTypeIndex(0), fDeviceIsSet(false), smIsReady(false)
 {
   init();
+  flushMode = false;
 }
 
 FreeEMS_LoaderComms::FreeEMS_LoaderComms(const std::string& devname,
@@ -278,41 +279,38 @@ FreeEMS_LoaderComms::resetSM()
 void
 FreeEMS_LoaderComms::setSM()
 {
-  int i;
-  std::string data;
-  for (i = 0; i < 10; i++) // try to connect 10 times
+  unsigned int i;
+  unsigned int length = 0;
+  std::vector<char> data;
+  flushRXStream();
+  try
     {
-      char delimiter = 0x3E; // the char that comes at the send of the SMReady char string
-      try
+      port.write_some(asio::buffer(&SMReturn, ONE_BYTE));
+    }
+  catch (boost::system::system_error& e)
+    {
+      cout << "Error trying to write SM return char to serial port: "
+          << e.what() << endl;
+      return;
+    }
+  data = read(3);
+  char a, b ,c = 0;
+      length = data.size() - 1;
+      for (i = 0; i < data.size(); i++)
         {
-          asio::write(port, asio::buffer(&SMReturn, ONE_BYTE));
+          printf("char is %c, %i", data[i], data.size());
         }
-      catch (boost::system::system_error& e)
+      a = data[length - 2];
+      b = data[length - 1];
+      c = data[length];
+      if (((b == (char) 0x00) || (b == (char) 0x08)) && ((a
+          == (char) 0xE1) || (a == (char) 0xE0)) && (c == (char) 0x3E))
         {
-          cout << "Error trying to write SM return char to serial port: "
-              << e.what() << endl;
+          cout << "SM READY";
+          smIsReady = true;
           return;
         }
-      boost::asio::streambuf response;
-      size_t length = boost::asio::read_until(port, response, delimiter);
-      if (length >= 3)
-        {
-          response.commit(length);
-          istream istr(&response);
-          istr >> data;
-          emit
-          WOInfo(data);
-          if ((data[length - 2] == (char) 0x00) && (data[length - 3]
-              == (char) 0xE1))
-            {
-              smIsReady = true;
-              return;
-            }
-        }
-    }
-  // cout<<" delim is "<<delimiter<<" last char is "<<data[length]<<" data is "<<data;
   smIsReady = false;
-  std::cout << "Error verifying SM ready code got: " << data;
 }
 
 void
@@ -372,11 +370,18 @@ FreeEMS_LoaderComms::read(char *data, size_t size)
         return;
       case resultTimeoutExpired:
         port.cancel();
-        //throw(timeout_exception("Timeout expired"));
         cout << "resultTimeoutExpired: Timeout expired ";
+        if(flushMode == true)
+          {
+            flushMode = false;
+            cout<<"flushed ";
+            return;
+          }
+        throw(timeout_exception("Timeout expired"));
       case resultError:
         timer.cancel();
         port.cancel();
+        //return;
         throw(boost::system::system_error(boost::system::error_code(),
             " resultError: Error while reading "));
       case resultInProgress:
@@ -417,12 +422,12 @@ FreeEMS_LoaderComms::readStringUntil(const std::string& delim)
   setupParameters = ReadSetupParameters(delim);
   performReadSetup(setupParameters);
 
-  if (timeout != posix_time::seconds(0)) //If timeout is set, start timer
-    {
+  //if (timeout != posix_time::seconds(0)) //If timeout is set, start timer
+  //  {
       timer.expires_from_now(timeout);
       timer.async_wait(boost::bind(&FreeEMS_LoaderComms::timeoutExpired, this,
           asio::placeholders::error));
-    }
+  //  }
   result = resultInProgress;
   bytesTransferred = 0;
   for (;;)
@@ -438,22 +443,25 @@ FreeEMS_LoaderComms::readStringUntil(const std::string& delim)
           string result(bytesTransferred, '\0');//Alloc string
           is.read(&result[0], bytesTransferred);//Fill values
           is.ignore(delim.size());//Remove delimiter from stream
+          cout<<"resultSuccess";
           return result;
         }
       case resultTimeoutExpired:
         port.cancel();
-        throw(timeout_exception("Timeout expired"));
+        throw(timeout_exception("Timeout expired, readStringUntil()"));
       case resultError:
         timer.cancel();
         port.cancel();
         throw(boost::system::system_error(boost::system::error_code(),
-            "Error while reading"));
+            "Error while reading, readStringUntil()"));
+      case resultInProgress://if resultInProgress remain in the loop
+        cout<<"still waiting";
+        break;
       default:
         timer.cancel();
         port.cancel();
         throw(boost::system::system_error(boost::system::error_code(),
             "Error while reading"));
-        //if resultInProgress remain in the loop
         }
     }
 }
@@ -475,7 +483,7 @@ FreeEMS_LoaderComms::performReadSetup(const ReadSetupParameters& param)
     }
   else
     {
-      //cout<<"param is NOT fixedSize";
+      cout<<"param is NOT fixedSize";
       asio::async_read_until(port, readData, param.delim, boost::bind(
           &FreeEMS_LoaderComms::readCompleted, this, asio::placeholders::error,
           asio::placeholders::bytes_transferred));
@@ -787,21 +795,17 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
 void
 FreeEMS_LoaderComms::flushRXStream()
 {
-  std::string data;
-   int end;
-   char inputByte;
-   for(end = 0;  ;end++)
-     {
-       try
-          {
-            read(&inputByte, 1);
-            data += inputByte;
-            continue;
-          }
-        catch (boost::system::system_error& e)
-          {
-            break;
-            cout << "Flushed From RX Stream " <<end<<" bytes"<< e.what() << endl;
-          }
-     }
+ //check for open port
+  flushMode = true;
+  char c;
+  unsigned int bytes;
+  for(bytes = 0; flushMode == true; bytes++)
+    {
+      read(&c, 1);
+      if(bytes > 4096)
+        {
+          emit WOInfo("Error: it seems there is a stream of data coming in the serial port, is the firmware running ?");
+          return;
+        }
+    }
 }

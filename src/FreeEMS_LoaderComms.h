@@ -382,6 +382,7 @@ private:
   int threadAction;
   bool fDeviceIsSet;
   bool smIsReady;
+  bool flushMode;
 };
 
 #endif /* FREEEMS_LOADERCOMMS_H_ */

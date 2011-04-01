@@ -146,15 +146,21 @@ FreeEMS_Loader::~FreeEMS_Loader()
 int
 FreeEMS_Loader::fillDevice()
 {
+#ifdef __linux__
   ui.comboDevice->addItem("/dev/ttyUSB0");
   QDir dir("/dev");
-  QStringList filters;
-  filters << "serial*"<<"tty*";
-  dir.setNameFilters(filters);
-  foreach ( QString file, dir.entryList(QDir::AllEntries) )
-    {
-     ui.comboDevice->addItem(file);
-    }
+   QStringList filters;
+   filters << "serial*"<<"tty*";
+   dir.setNameFilters(filters);
+   foreach ( QString file, dir.entryList(QDir::AllEntries) )
+     {
+      ui.comboDevice->addItem(file);
+     }
+#endif
+#ifdef __WIN32__
+  ui.comboDevice->addItem("COM1");
+#endif
+
   return 0;
 }
 
@@ -282,6 +288,7 @@ FreeEMS_Loader::fillParity()
 void
 FreeEMS_Loader::connect()
 {
+
 #ifdef __APPLE__
          cout<<"Fred is gay, didnt you know";
 #endif //__APPLE__
@@ -292,24 +299,26 @@ FreeEMS_Loader::connect()
 //       return;
 //     }
 
-  QString portName = ui.comboDevice->currentText();
+QString portName = ui.comboDevice->currentText();
 #ifdef __WIN32__
   portName.toUpper();
 #endif
-  QFile file(portName);
+
+#ifndef __WIN32__
+QFile file(portName);
   if (!file.open(QIODevice::ReadWrite))
     {
       writeText("ERROR: Cannot open serial deivce "+portName.toStdString());
       return;
     }
   file.close();
-
+#endif
   if (!serialConnection->isReady())
     {
       //setFlashType();
       serialConnection->open(portName.toAscii().data(),
           ui.comboBaud->currentText().toUInt());
-      serialConnection->setTimeout(boost::posix_time::seconds(2)); //TODO make configable
+      serialConnection->setTimeout(boost::posix_time::seconds(1)); //TODO make configable
       serialConnection->setSM();
       serialConnection->setFlashType(defFlashType);
       serialConnection->isReady() ? setGUIState(CONNECTED) : setGUIState(

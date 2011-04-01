@@ -18,8 +18,8 @@
     <rect>
      <x>20</x>
      <y>160</y>
-     <width>101</width>
-     <height>27</height>
+     <width>92</width>
+     <height>36</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -369,13 +369,13 @@ p, li { white-space: pre-wrap; }
  <connections>
   <connection>
    <sender>pushConnect</sender>
-   <signal>clicked()</signal>
+   <signal>released()</signal>
    <receiver>FreeEMS_LoaderClass</receiver>
    <slot>connect()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>98</x>
-     <y>216</y>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>47</x>
