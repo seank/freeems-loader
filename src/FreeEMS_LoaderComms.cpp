@@ -278,7 +278,7 @@ FreeEMS_LoaderComms::resetSM()
 void
 FreeEMS_LoaderComms::setSM()
 {
-  unsigned int i;
+//  unsigned int i;
   unsigned int length = 0;
   std::vector<char> data;
   flushRXStream();
@@ -295,10 +295,10 @@ FreeEMS_LoaderComms::setSM()
   data = read(3);
   char a, b ,c = 0;
       length = data.size() - 1;
-      for (i = 0; i < data.size(); i++)
-        {
-          printf("char is %c, %i", data[i], data.size());
-        }
+   //   for (i = 0; i < data.size(); i++)
+   //     {
+   //       printf("char is %c, %i", data[i], data.size());
+   //     }
       a = data[length - 2];
       b = data[length - 1];
       c = data[length];
