@@ -1,6 +1,7 @@
 TEMPLATE = app
 TARGET = FreeEMS_Loader
-QMAKE_CXXFLAGS += -Wall 
+QMAKE_CXXFLAGS += -Wall
+QMAKE_CXXFLAGS += -Werror
     
 CONFIG += qt \
     warn_on \
