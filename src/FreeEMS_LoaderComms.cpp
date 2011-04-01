@@ -144,11 +144,10 @@ FreeEMS_LoaderComms::ripDevice()
   unsigned int bytesInRange;
   unsigned int pagedAddress = 0;
 
-  setSM(); //Incase the SM has been reset by the user
+  //setSM(); //Incase the SM has been reset by the user
   std::vector<char> rxBuffer(bytesPerRecord);
   ofstream outFile(ripFilename.toAscii(), ios::out | ios::binary);
   FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
-
   totalBytes = getDeviceByteCount();
   emit
   configureProgress(0, totalBytes);
@@ -377,7 +376,7 @@ FreeEMS_LoaderComms::read(char *data, size_t size)
             cout<<"flushed ";
             return;
           }
-        throw(timeout_exception("Timeout expired"));
+        throw(timeout_exception("Timeout expired "));
       case resultError:
         timer.cancel();
         port.cancel();
@@ -390,8 +389,7 @@ FreeEMS_LoaderComms::read(char *data, size_t size)
         timer.cancel();
         port.cancel();
         throw(boost::system::system_error(boost::system::error_code(),
-                " default: Error while reading"));
-        cout << " default: Error while reading ";
+                " default: Error while reading "));
         //if resultInProgress remain in the loop
         }
     }
@@ -588,11 +586,8 @@ FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
   asio::write(port, asio::buffer(&lowByte, ONE_BYTE));
   asio::write(port, asio::buffer(&bytesRequested, ONE_BYTE));
   buffer = read(plusBytes);
-  if(verifyACKs == true)
-     {
-      if (verifyReturn() < 0)
+  if (verifyReturn() < 0) // you must always verify a return to "clear" the buffer
          cout << "error validating return from SMRequestByteBlock";
-     }
   vec = buffer;
   return;
 }
