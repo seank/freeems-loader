@@ -55,3 +55,26 @@ Install/Build Boost C++
  Simply type "qmake && make all" and hit enter!
 
 ######################### MAC USERS #####################################
+
+
+
+
+
+
+
+
+
+######################### DEBUGGING TOOLS ##############################
+
+GNU PROOF
+add -pg -g  to CFLAGS to use http://sourceware.org/binutils/docs/gprof/
+run app
+when done run gprof app |less,  it'll read the profile app the program created (gmon.out) and the app and resolve the sombols and show you hte slow places
+
+VALGRIND(MEMLEAKS)
+
+http://valgrind.org/
+
+GDB
+
+
