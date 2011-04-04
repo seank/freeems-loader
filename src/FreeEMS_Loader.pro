@@ -41,9 +41,7 @@ FORMS += about.ui \
     freeems_loader.ui \
     freeems_loader.ui
 RESOURCES += resource-root.qrc
-#  This is for REGULAR straight compile on unix/os-X
-#unix:LIBS += -lboost_system
-# Comment above and uncomment these, if you are dave and crosscompiling
+# Cross compilation
 win32-x-g++ {
 	unix:INCLUDEPATH += 
 	unix:LIBS += -lboost_system-mt \
@@ -52,13 +50,9 @@ win32-x-g++ {
 	QMAKE_CXXFLAGS -= -Werror
 
 } else {
-
+# Straight unix (Linux/OS-X)
 	unix:LIBS += -lboost_system
 }
-#unix:INCLUDEPATH += 
-#unix:LIBS += -lboost_system-mt \
-#   -L/opt/crossroot/boost/lib
-#unix:INCLUDEPATH += /opt/crossroot/boost/include/
 win32:LIBS += -LC:/boost/lib \
     -lboost_system-mgw44-mt-1_45 \
     -Lc:/mingw/lib \
