@@ -6,7 +6,7 @@ QMAKE_CXXFLAGS += -Werror
 CONFIG += qt \
     warn_on \
     release \
-    debug
+    debug 
 QT += core \
     gui \
     xml \
@@ -44,10 +44,21 @@ RESOURCES += resource-root.qrc
 #  This is for REGULAR straight compile on unix/os-X
 #unix:LIBS += -lboost_system
 # Comment above and uncomment these, if you are dave and crosscompiling
-unix:INCLUDEPATH += 
-unix:LIBS += -lboost_system-mt \
-   -L/opt/crossroot/boost/lib
-unix:INCLUDEPATH += /opt/crossroot/boost/include/
+win32-x-g++ {
+	unix:INCLUDEPATH += 
+	unix:LIBS += -lboost_system-mt \
+	   -L/opt/crossroot/boost/lib
+	unix:INCLUDEPATH += /opt/crossroot/boost/include/
+	QMAKE_CXXFLAGS -= -Werror
+
+} else {
+
+	unix:LIBS += -lboost_system
+}
+#unix:INCLUDEPATH += 
+#unix:LIBS += -lboost_system-mt \
+#   -L/opt/crossroot/boost/lib
+#unix:INCLUDEPATH += /opt/crossroot/boost/include/
 win32:LIBS += -LC:/boost/lib \
     -lboost_system-mgw44-mt-1_45 \
     -Lc:/mingw/lib \
