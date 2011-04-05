@@ -1,13 +1,13 @@
 TEMPLATE = app
 TARGET = FreeEMS_Loader
-QMAKE_CXXFLAGS += -Wall
-QMAKE_CXXFLAGS += -Werror
+QMAKE_CXXFLAGS *= -Wall
+QMAKE_CXXFLAGS *= -Werror
     
-CONFIG += qt \
+CONFIG *= qt \
     warn_on \
     release \
     debug 
-QT += core \
+QT *= core \
     gui \
     xml \
     xmlpatterns \
@@ -35,26 +35,34 @@ SOURCES += about.cpp \
     FreeEMS_LoaderComms.cpp \
     freeems_loader.cpp \
     main.cpp
-FORMS += about.ui \
-    freeems_loader.ui \
-    freeems_loader.ui \
-    freeems_loader.ui \
+FORMS *= about.ui \
     freeems_loader.ui
 RESOURCES += resource-root.qrc
 # Cross compilation
 win32-x-g++ {
-	unix:INCLUDEPATH += 
-	unix:LIBS += -lboost_system-mt \
+	message("Crosscompiling on Unix to Windows")
+	unix:INCLUDEPATH *= /opt/crossroot/boost/include/
+	unix:LIBS *= -lboost_system-mt \
 	   -L/opt/crossroot/boost/lib
-	unix:INCLUDEPATH += /opt/crossroot/boost/include/
 	QMAKE_CXXFLAGS -= -Werror
-
-} else {
-# Straight unix (Linux/OS-X)
-	unix:LIBS += -lboost_system
 }
-win32:LIBS += -LC:/boost/lib \
-    -lboost_system-mgw44-mt-1_45 \
-    -Lc:/mingw/lib \
-    -lwsock32
-win32:INCLUDEPATH += $$quote(C:/boost/include/boost-1_45)
+mac {
+# Straight Mac-OS (OS-X)
+	message("Mac OS-X Build")
+	unix:INCLUDEPATH *= /opt/local/include
+	unix:LIBS *= -L/opt/local/lib -lboost_system-mt
+} 
+linux-g++ {
+# Straight Linux 
+	message("Linux Build")
+	unix:INCLUDEPATH *= 
+	unix:LIBS *= -lboost_system
+} 
+win32 {
+	message("Straight compile on windows (seank only)")
+	win32:INCLUDEPATH *= $$quote(C:/boost/include/boost-1_45)
+	win32:LIBS *= -LC:/boost/lib \
+		-lboost_system-mgw44-mt-1_45 \
+		-Lc:/mingw/lib \
+		-lwsock32
+}
