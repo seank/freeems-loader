@@ -39,7 +39,8 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
       SLOT( updateProgress(int) ));
   QObject::connect(serialConnection, SIGNAL( configureProgress(int, int) ),
       this, SLOT( configureProgress(int, int) ));
-  // restore settings
+
+  /* restore settings */
   QSettings settings("FreeEMS", "Loader");
   resize(settings.value("size", QSize(400, 320)).toSize());
   move(settings.value("pos", QPoint(50, 50)).toPoint());
@@ -48,6 +49,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   ui.chkVerify->setChecked(settings.value("chkVerify").toBool());
   //loadFileName = settings.value("lastFileName").toString();
   loadDirectory = settings.value("lastDirectory").toString();
+  cout<<"load name is: "<<loadFileName.toStdString();
 
   QString arg;
   cmdline_args = QCoreApplication::arguments();
@@ -139,8 +141,7 @@ FreeEMS_Loader::~FreeEMS_Loader()
   settings.setValue("chkRip", ui.chkRip->isChecked());
   settings.setValue("chkVerify", ui.chkVerify->isChecked());
   settings.setValue("lastFileName", loadFileName);
-  settings.setValue("lastDirectory", loadDirectory);
-  //delete coutRedirector;
+   //delete coutRedirector;
 }
 
 int
@@ -424,7 +425,7 @@ FreeEMS_Loader::load()
   if(!fileArg) //if no file was specified from the cmdline open browser
     {
       loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"),
-          QDir::currentPath(), tr("s19 (*.s19)"));
+          loadDirectory, tr("s19 (*.s19)"));
     }
   if (loadFileName.isNull())
     {
@@ -442,6 +443,7 @@ FreeEMS_Loader::load()
       serialConnection->verifyLastWrite = false; //todo make set function
       serialConnection->verifyACKs = true; //todo make settable
     }
+  loadDirectory = loadFileName;
   QString name = loadFileName.section( '/', -1 );
   ripFileName = QDir::currentPath();
   ripFileName += "/saved/";
@@ -464,6 +466,9 @@ FreeEMS_Loader::load()
       heapThreads->setAction(EXECUTE_LOAD);
     }
   heapThreads->start();
+
+  QSettings settings("FreeEMS", "Loader"); //TODO make saveSettings fuction
+  settings.setValue("lastDirectory", loadDirectory);
   //serialConnection->loadDevice(); // calls load without a seperate thread
 }
 
