@@ -429,8 +429,8 @@ FreeEMS_Loader::load()
     }
   if (loadFileName.isNull())
     {
-      writeText("error opening file");
-      cout << "error opening file";
+      writeText("no file selected");
+      //cout << "error opening file";
       return;
     }
   if(ui.chkVerify->isChecked())
