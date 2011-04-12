@@ -319,7 +319,7 @@ QFile file(portName);
       //setFlashType();
       serialConnection->open(portName.toAscii().data(),
           ui.comboBaud->currentText().toUInt());
-      serialConnection->setTimeout(boost::posix_time::seconds(1)); //TODO make configable
+      serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
       serialConnection->setSM();
       serialConnection->setFlashType(defFlashType);
       serialConnection->isReady() ? setGUIState(CONNECTED) : setGUIState(
@@ -430,9 +430,9 @@ FreeEMS_Loader::load()
   if (loadFileName.isNull())
     {
       writeText("no file selected");
-      //cout << "error opening file";
       return;
     }
+
   if(ui.chkVerify->isChecked())
     {
       serialConnection->verifyLastWrite = true; //todo make set function
