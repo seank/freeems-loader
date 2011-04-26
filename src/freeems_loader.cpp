@@ -290,6 +290,10 @@ void
 FreeEMS_Loader::connect()
 {
 
+if(!ui.comboDevice_2->currentText().isEmpty()){
+    serialConnection->open(ui.comboDevice_2->currentText());
+    return;
+}
 #ifdef __APPLE__
          cout<<"Fred is gay, didnt you know";
 #endif //__APPLE__

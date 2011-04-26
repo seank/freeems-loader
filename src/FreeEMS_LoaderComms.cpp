@@ -3,7 +3,7 @@
  *
  *  Created on: Oct 29, 2010
  *      Author: seank
- *  Heavily copied from Terraneo Federico
+ *
  */
 
 #include "FreeEMS_LoaderComms.h"
@@ -35,6 +35,31 @@ FreeEMS_LoaderComms::FreeEMS_LoaderComms(const std::string& devname,
 {
   open(devname, baud_rate, opt_parity, opt_csize, opt_flow, opt_stop);
   init();
+}
+
+void
+FreeEMS_LoaderComms::open(QString serPortName)
+{
+  const char SMRDY = 0x0D;
+  const char SMRTN[3] = {0xe1,0x00,0x3e};
+  QByteArray resp;
+  TNX::CommTimeouts commTimeouts;
+  commTimeouts.PosixVMIN = 0;
+  commTimeouts.PosixVTIME = 2;
+  serPort = new TNX::QSerialPort(serPortName, "115200,8,n,1");
+  serPort->open();
+  serPort->flushInBuffer();
+  serPort->setCommTimeouts(commTimeouts);
+  serPort->write(&SMRDY);
+  resp = serPort->read(3);
+  QByteArray tester(SMRTN);// = {0xe1, 0x00, 0xe3};
+  if(resp.contains(tester)){
+      WOInfo("Found String");
+  }else{
+  WOInfo("NONBOOST Serial Port Read/Write Complete: SM NOT FOUND");
+  }
+  serPort->close();
+  delete(serPort);
 }
 
 void

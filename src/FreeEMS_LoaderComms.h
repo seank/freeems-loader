@@ -15,6 +15,8 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <QSerialPort>
+#include <QString>
 #include "FreeEMS_LoaderSREC.h"
 
 #include <QObject>
@@ -285,6 +287,9 @@ public:
 
   bool verifyLastWrite;
   bool verifyACKs;
+  // TNX STUFF
+  void open(QString serPortName);
+  TNX::QSerialPort *serPort;
 
   ~FreeEMS_LoaderComms();
 

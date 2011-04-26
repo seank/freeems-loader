@@ -330,7 +330,7 @@ p, li { white-space: pre-wrap; }
     <widget class="QPushButton" name="pushAbout">
      <property name="geometry">
       <rect>
-       <x>280</x>
+       <x>270</x>
        <y>70</y>
        <width>51</width>
        <height>21</height>
@@ -341,6 +341,35 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="text">
       <string>About</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboDevice_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>221</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushConnect_2">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>10</y>
+       <width>92</width>
+       <height>36</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
+     </property>
+     <property name="text">
+      <string>TestConnect</string>
      </property>
     </widget>
    </widget>
@@ -428,6 +457,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>432</x>
      <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushConnect_2</sender>
+   <signal>released()</signal>
+   <receiver>FreeEMS_LoaderClass</receiver>
+   <slot>connect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>317</x>
+     <y>68</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>159</y>
     </hint>
    </hints>
   </connection>

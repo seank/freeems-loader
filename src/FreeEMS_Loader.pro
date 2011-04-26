@@ -41,7 +41,7 @@ RESOURCES += resource-root.qrc
 # Cross compilation
 win32-x-g++ {
 	message("Crosscompiling on Unix to Windows")
-	unix:INCLUDEPATH *= /opt/crossroot/boost/include/
+	unix:INCLUDEPATH *= /opt/crossroot/boost/include/ 
 	unix:LIBS *= -lboost_system-mt \
 	   -L/opt/crossroot/boost/lib
 	QMAKE_CXXFLAGS -= -Werror
@@ -55,8 +55,8 @@ mac {
 linux-g++ {
 # Straight Linux 
 	message("Linux Build")
-	unix:INCLUDEPATH *= 
-	unix:LIBS *= -lboost_system
+	unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
+	unix:LIBS *= -lboost_system -lQtSerialPort
 } 
 win32 {
 	message("Straight compile on windows (seank only)")
