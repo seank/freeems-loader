@@ -9,74 +9,61 @@
 #include "FreeEMS_LoaderComms.h"
 #include "FreeEMS_LoaderParsing.h"
 #include <algorithm>
-//#include <iostream>
 #include <boost/bind.hpp>
 #include <freeems_loader_types.h>
 #include <fstream>
 #include <ostream>
 
 using namespace std;
-using namespace boost;
 
-FreeEMS_LoaderComms::FreeEMS_LoaderComms() :
-     verifyLastWrite(false), verifyACKs(false), io(), port(io), timer(io), timeout(posix_time::seconds(1)),
+FreeEMS_LoaderComms::FreeEMS_LoaderComms() : verifyLastWrite(false), verifyACKs(false),
       flashTypeIndex(0), fDeviceIsSet(false), smIsReady(false)
 {
   init();
   flushMode = false;
 }
 
-FreeEMS_LoaderComms::FreeEMS_LoaderComms(const std::string& devname,
-    unsigned int baud_rate, asio::serial_port_base::parity opt_parity,
-    asio::serial_port_base::character_size opt_csize,
-    asio::serial_port_base::flow_control opt_flow,
-    asio::serial_port_base::stop_bits opt_stop) :
-  io(), port(io), timer(io), timeout(posix_time::seconds(1))
-{
-  open(devname, baud_rate, opt_parity, opt_csize, opt_flow, opt_stop);
-  init();
-}
-
 void
 FreeEMS_LoaderComms::open(QString serPortName)
 {
-  const char SMRDY = 0x0D;
-  const char SMRTN[3] = {0xe1,0x00,0x3e};
-  QByteArray resp;
+  serPortName = serPortName;
+  //const char SMRDY = 0x0D;
   TNX::CommTimeouts commTimeouts;
   commTimeouts.PosixVMIN = 0;
   commTimeouts.PosixVTIME = 2;
-  serPort = new TNX::QSerialPort(serPortName, "115200,8,n,1");
-  serPort->open();
-  serPort->flushInBuffer();
-  serPort->setCommTimeouts(commTimeouts);
-  serPort->write(&SMRDY);
-  resp = serPort->read(3);
-  QByteArray tester(SMRTN);// = {0xe1, 0x00, 0xe3};
+  //serPorttest = new TNX::QSerialPort(serPortName, "115200,8,n,1");
+  //serPorttest.setPortName(serPortName);
+  //serPorttest.open();
+  //serPorttest.flushInBuffer();
+  //serPorttest.setCommTimeouts(commTimeouts);
+  write(SMRDY, sizeof(SMRDY));
+  //TODO user return verify instead
+  QByteArray resp;
+  //resp = serPorttest.read(3);
+  QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
   if(resp.contains(tester)){
       WOInfo("Found String");
   }else{
   WOInfo("NONBOOST Serial Port Read/Write Complete: SM NOT FOUND");
   }
-  serPort->close();
-  delete(serPort);
+  //serPorttest.close();
+  //delete(serPort);
 }
 
 void
-FreeEMS_LoaderComms::open(const std::string& devname, unsigned int baud_rate,
-    asio::serial_port_base::parity opt_parity,
-    asio::serial_port_base::character_size opt_csize,
-    asio::serial_port_base::flow_control opt_flow,
-    asio::serial_port_base::stop_bits opt_stop)
+FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
 {
   if (isOpen())
     close();
-  port.open(devname);
-  port.set_option(asio::serial_port_base::baud_rate(baud_rate));
-  port.set_option(opt_parity);
-  port.set_option(opt_csize);
-  port.set_option(opt_flow);
-  port.set_option(opt_stop);
+  //TODO move else where
+  baud_rate = baud_rate;//delete
+  //serPortSettings.setBaudRate(TNX::QPortSettings::BAUDR_115200);
+  serPortSettings.set("115200,8,n,1");
+  serPort->setPortName(serPortName);
+  //serPort.setBaudRate(baud_rate);
+  //serPort.setBaudRate(BAUDR_115200);
+  //serPort.portSettings_ = "115200,8,n,1"; //TODO dynamic config
+  serPort->open();
 }
 
 bool
@@ -88,12 +75,13 @@ FreeEMS_LoaderComms::isReady() const
 bool
 FreeEMS_LoaderComms::isOpen() const
 {
-  return port.is_open();
+  return serPort->isOpen();
 }
 
 void
 FreeEMS_LoaderComms::init()
 {
+  serPort = new TNX::QSerialPort("115200,8,n,1");
   s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   //s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   clearSets();
@@ -117,15 +105,15 @@ FreeEMS_LoaderComms::close()
 {
   if (isOpen() == false)
     return;
-  port.close();
+  serPort->close();
   smIsReady = false;
 }
 
-void
-FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
-{
-  timeout = t;
-}
+//void //TODO reimpliment
+//FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
+//{
+//  timeout = t;
+//}
 
 void
 FreeEMS_LoaderComms::loadDevice()
@@ -258,10 +246,15 @@ void
 FreeEMS_LoaderComms::SMSetPPage(char PPage)
 {
   char page = PPage;
-  asio::write(port, asio::buffer(&SMWriteByte, ONE_BYTE));
-  asio::write(port, asio::buffer(&Zero, ONE_BYTE));
-  asio::write(port, asio::buffer(&PPageRegister, ONE_BYTE));
-  asio::write(port, asio::buffer(&page, ONE_BYTE));
+  //asio::write(port, asio::buffer(&SMWriteByte, ONE_BYTE));
+  //asio::write(port, asio::buffer(&Zero, ONE_BYTE));
+  //asio::write(port, asio::buffer(&PPageRegister, ONE_BYTE));
+  //asio::write(port, asio::buffer(&page, ONE_BYTE));
+  write(&SMWriteByte);
+  write(&Zero);
+  write(&PPageRegister);
+  write(&page);
+
   //if(verifyACKs == true)
   //  {
       if(verifyReturn() < 0)
@@ -280,144 +273,112 @@ FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size)
     {
       printf("-> %x", *(data + (i - 1)));
     }
-  printf("\n to com port \n");
-  asio::write(port, asio::buffer(data, size));
+  //asio::write(port, asio::buffer(data, size));
 }
 
 void
 FreeEMS_LoaderComms::resetSM()
 {
-  try
-     {
-       asio::write(port, asio::buffer(&SMReset, ONE_BYTE));
-     }
-   catch (boost::system::system_error& e)
-     {
-       cout << "Error trying to write SM Reset char to serial port: "
-           << e.what() << endl;
-       return;
-     }
+ // try
+ //    {
+       write(&SMReset);
+       //asio::write(port, asio::buffer(&SMReset, ONE_BYTE));
+//     }
+//   catch (/*boost::system::system_error& e*/)
+//     {
+//       cout << "Error trying to write SM Reset char to serial port: ";
+       //    << e.what() << endl;
+//       return;
+//     }
    return;
 }
 
 void
 FreeEMS_LoaderComms::setSM()
 {
-//  unsigned int i;
-  unsigned int length = 0;
-  std::vector<char> data;
-  flushRXStream();
-  try
+  //  unsigned int i;
+  //  unsigned int length = 0;
+  //  std::vector<char> data;
+  //  flushRXStream();
+  //  try
+  //    {
+  //      port.write_some(asio::buffer(&SMReturn, ONE_BYTE));
+  //    }
+  //  catch (boost::system::system_error& e)
+  //    {
+  //      cout << "Error trying to write SM return char to serial port: "
+  //          << e.what() << endl;
+  //      return;
+  //    }
+  //  data = read(3);
+  //  char a, b ,c = 0;
+  //      length = data.size() - 1;
+  //   for (i = 0; i < data.size(); i++)
+  //     {
+  //       printf("char is %c, %i", data[i], data.size());
+  //     }
+  //      a = data[length - 2];
+  //      b = data[length - 1];
+  //      c = data[length];
+  QByteArray response;
+  write(&SMReturn);
+  response = serPort->read(3); //todo write a new read()
+  QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
+  if (response.contains(tester))
     {
-      port.write_some(asio::buffer(&SMReturn, ONE_BYTE));
+      cout << "SM READY";
+      smIsReady = true;
     }
-  catch (boost::system::system_error& e)
+  else
     {
-      cout << "Error trying to write SM return char to serial port: "
-          << e.what() << endl;
-      return;
+      smIsReady = false;
     }
-  data = read(3);
-  char a, b ,c = 0;
-      length = data.size() - 1;
-   //   for (i = 0; i < data.size(); i++)
-   //     {
-   //       printf("char is %c, %i", data[i], data.size());
-   //     }
-      a = data[length - 2];
-      b = data[length - 1];
-      c = data[length];
-      if (((b == (char) 0x00) || (b == (char) 0x08)) && ((a
-          == (char) 0xE1) || (a == (char) 0xE0)) && (c == (char) 0x3E))
-        {
-          cout << "SM READY";
-          smIsReady = true;
-          return;
-        }
-  smIsReady = false;
+  return;
 }
 
 void
 FreeEMS_LoaderComms::write(const char *data, size_t size)
 {
-  asio::write(port, asio::buffer(data, size));
+  //asio::write(port, asio::buffer(data, size));
+  serPort->write(data, size);
+}
+
+void
+FreeEMS_LoaderComms::write(const char *data)
+{
+  //asio::write(port, asio::buffer(data, size));
+  serPort->write(data);
 }
 
 void
 FreeEMS_LoaderComms::write(const std::vector<char>& data)
 {
-  asio::write(port, asio::buffer(&data[0], data.size()));
+  unsigned int i;
+  char d;
+  for(i = 0; i < data.size(); i++){
+      d = data[i];
+      write(&d);
+  }
+  //asio::write(port, asio::buffer(&data[0], data.size()));
 }
 
 void
 FreeEMS_LoaderComms::writeString(const std::string& s)
 {
-  asio::write(port, asio::buffer(s.c_str(), s.size()));
+  unsigned int i;
+  char d;
+  for(i = 0; i < s.size(); i++){
+      d = s[i];
+      write(&d);
+  }
+  //asio::write(port, asio::buffer(s.c_str(), s.size()));
 }
 
 //TODO add parity "double read" option
 void
 FreeEMS_LoaderComms::read(char *data, size_t size)
 {
-  // LOOK UP BOOST ASIO FLUSH
-  if (readData.size() > 0)//If there is some data from a previous read
-    {
-      istream is(&readData);
-      size_t toRead = min(readData.size(), size);//How many bytes to read?
-      is.read(data, toRead);
-      data += toRead;
-      size -= toRead;
-      if (size == 0)
-        return;//If read data was enough, just return
-    }
-
-  setupParameters = ReadSetupParameters(data, size);
-  performReadSetup(setupParameters);
-
-  if (timeout != posix_time::seconds(0)) //If timeout is set, start timer
-    {
-      timer.expires_from_now(timeout);
-      timer.async_wait(boost::bind(&FreeEMS_LoaderComms::timeoutExpired, this,
-          asio::placeholders::error));
-    }
-
-  result = resultInProgress;
-  bytesTransferred = 0;
-  for (;;)
-    {
-      io.run_one();
-      switch (result)
-        {
-      case resultSuccess:
-        timer.cancel();
-        //cout<<"result Successful";
-        return;
-      case resultTimeoutExpired:
-        port.cancel();
-        cout << "resultTimeoutExpired: Timeout expired ";
-        if(flushMode == true)
-          {
-            flushMode = false;
-            cout<<"flushed ";
-            return;
-          }
-        throw(timeout_exception("Timeout expired "));
-      case resultError:
-        timer.cancel();
-        port.cancel();
-        //return;
-        throw(boost::system::system_error(boost::system::error_code(),
-            " resultError: Error while reading "));
-      case resultInProgress:
-        continue;
-      default:
-        timer.cancel();
-        port.cancel();
-        throw(boost::system::system_error(boost::system::error_code(),
-                " default: Error while reading "));
-        //if resultInProgress remain in the loop
-        }
-    }
+ serPort->read(data, size);
 }
 
 std::vector<char>
@@ -436,84 +397,12 @@ FreeEMS_LoaderComms::readString(size_t size)
   return result;
 }
 
-std::string
-FreeEMS_LoaderComms::readStringUntil(const std::string& delim)
-{
-  // Note: if readData contains some previously read data, the call to
-  // async_read_until (which is done in performReadSetup) correctly handles
-  // it. If the data is enough it will also immediately call readCompleted()
-  setupParameters = ReadSetupParameters(delim);
-  performReadSetup(setupParameters);
-
-  //if (timeout != posix_time::seconds(0)) //If timeout is set, start timer
-  //  {
-      timer.expires_from_now(timeout);
-      timer.async_wait(boost::bind(&FreeEMS_LoaderComms::timeoutExpired, this,
-          asio::placeholders::error));
-  //  }
-  result = resultInProgress;
-  bytesTransferred = 0;
-  for (;;)
-    {
-      io.run_one();
-      switch (result)
-        {
-      case resultSuccess:
-        {
-          timer.cancel();
-          bytesTransferred -= delim.size();//Don't count delim
-          istream is(&readData);
-          string result(bytesTransferred, '\0');//Alloc string
-          is.read(&result[0], bytesTransferred);//Fill values
-          is.ignore(delim.size());//Remove delimiter from stream
-          cout<<"resultSuccess";
-          return result;
-        }
-      case resultTimeoutExpired:
-        port.cancel();
-        throw(timeout_exception("Timeout expired, readStringUntil()"));
-      case resultError:
-        timer.cancel();
-        port.cancel();
-        throw(boost::system::system_error(boost::system::error_code(),
-            "Error while reading, readStringUntil()"));
-      case resultInProgress://if resultInProgress remain in the loop
-        cout<<"still waiting";
-        break;
-      default:
-        timer.cancel();
-        port.cancel();
-        throw(boost::system::system_error(boost::system::error_code(),
-            "Error while reading"));
-        }
-    }
-}
-
 FreeEMS_LoaderComms::~FreeEMS_LoaderComms()
 {
 
 }
-
-void
-FreeEMS_LoaderComms::performReadSetup(const ReadSetupParameters& param)
-{
-  if (param.fixedSize)
-    {
-      //cout<<"param is fixedSize";
-      asio::async_read(port, asio::buffer(param.data, param.size), boost::bind(
-          &FreeEMS_LoaderComms::readCompleted, this, asio::placeholders::error,
-          asio::placeholders::bytes_transferred));
-    }
-  else
-    {
-      cout<<"param is NOT fixedSize";
-      asio::async_read_until(port, readData, param.delim, boost::bind(
-          &FreeEMS_LoaderComms::readCompleted, this, asio::placeholders::error,
-          asio::placeholders::bytes_transferred));
-    }
-}
-
-void
+/*
+void //TODO reimpliment
 FreeEMS_LoaderComms::timeoutExpired(const boost::system::error_code& error)
 {
   if (result != resultInProgress)
@@ -523,37 +412,8 @@ FreeEMS_LoaderComms::timeoutExpired(const boost::system::error_code& error)
       result = resultTimeoutExpired;
     }
 }
+*/
 
-void
-FreeEMS_LoaderComms::readCompleted(const boost::system::error_code& error,
-    const size_t bytesTransferred)
-{
-  if (error)
-    {
-      cout<<" in readCompleted error true ";
-      if (error != asio::error::operation_aborted)
-        {
-#ifdef __APPLE__
-          if(error.value()==45)
-            {
-              cout<<" ifdef _APPLE_ true and error value is 45";
-              //Bug on OS X, it might be necessary to repeat the setup
-              //http://osdir.com/ml/lib.boost.asio.user/2008-08/msg00004.html
-              performReadSetup(setupParameters);
-              return;
-            }
-#endif //__APPLE__
-          result = resultError;
-        }
-    }
-  else
-    {
-      if (result != resultInProgress)
-        return;
-      result = resultSuccess;
-      this->bytesTransferred = bytesTransferred;
-    }
-}
 
 void
 FreeEMS_LoaderComms::returnFlashType(char *responce)
@@ -567,35 +427,20 @@ FreeEMS_LoaderComms::returnFlashType(char *responce)
 int
 FreeEMS_LoaderComms::verifyReturn()
 {
-  std::string data;
-  int end;
-  char inputByte;
-  for(end = 0; ;end++)
-    {
-      try
-         {
-           read(&inputByte, 1);
-           data += inputByte;
-         }
-       catch (boost::system::system_error& e)
-         {
-           cout << "Error: " << e.what() << endl;
-           break;
-         }
-       if(end == 2)
-         {
-           if (data[2] == (char) 0x3E && data[1] == (char) 0x0
-                  && data[0] == (char) 0xE0)
-                {
-                  return 1;
-                }
-         }
-    }
-  if(verifyACKs == true)
-    {
-      std::cout<<"Error verifying return buffer reads "<<data;
-    }
-  return -1;
+  QByteArray resp;
+  resp = serPort->read(3); //todo use wrapper
+  QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
+  if(resp.contains(tester)){
+      return 1;
+  }else{
+      return -1;
+  }
+
+//  if(verifyACKs == true)
+//    {
+//      std::cout<<"Error verifying return buffer reads "<<data;
+//    }
+//  return -1;
 }
 
 void
@@ -606,10 +451,15 @@ FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
   char highByte = (address & 0xFF00) >> 8;
   char lowByte = address & 0x00FF;
   char bytesRequested = plusBytes - 1;
-  asio::write(port, asio::buffer(&SMReadBlock, ONE_BYTE));
-  asio::write(port, asio::buffer(&highByte, ONE_BYTE));
-  asio::write(port, asio::buffer(&lowByte, ONE_BYTE));
-  asio::write(port, asio::buffer(&bytesRequested, ONE_BYTE));
+  //asio::write(port, asio::buffer(&SMReadBlock, ONE_BYTE));
+  //asio::write(port, asio::buffer(&highByte, ONE_BYTE));
+  //asio::write(port, asio::buffer(&lowByte, ONE_BYTE));
+  //asio::write(port, asio::buffer(&bytesRequested, ONE_BYTE));
+  write(&SMReadBlock);
+  write(&highByte);
+  write(&lowByte);
+  write(&bytesRequested);
+
   buffer = read(plusBytes);
   if (verifyReturn() < 0) // you must always verify a return to "clear" the buffer
          cout << "error validating return from SMRequestByteBlock";
@@ -621,7 +471,7 @@ void
 FreeEMS_LoaderComms::erasePage(char PPage)
 {
   SMSetPPage(PPage);
-  asio::write(port, asio::buffer(&SMErasePage, ONE_BYTE));
+  write(&SMErasePage);
   //if(verifyACKs == true)
   //  {
       if(verifyReturn() < 0)

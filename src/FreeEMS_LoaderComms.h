@@ -10,8 +10,6 @@
 #define FREEEMS_LOADERCOMMS_H_
 
 #include <stdexcept>
-#include <boost/utility.hpp>
-#include <boost/asio.hpp>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -42,34 +40,15 @@ public:
 /**
  * Serial port class, with timeout on read operations.
  */
-class FreeEMS_LoaderComms : public QObject, private boost::noncopyable
+class FreeEMS_LoaderComms : public QObject
 {
 Q_OBJECT
 public:
   FreeEMS_LoaderComms();
   /**
    * Opens a serial device. By default timeout is disabled.
-   * \param devname serial device name, example "/dev/ttyS0" or "COM1"
-   * \param baud_rate serial baud rate
-   * \param opt_parity serial parity, default none
-   * \param opt_csize serial character size, default 8bit
-   * \param opt_flow serial flow control, default none
-   * \param opt_stop serial stop bits, default 1
-   * \throws boost::system::system_error if cannot open the
    * serial device
    */
-  FreeEMS_LoaderComms(const std::string& devname, unsigned int baud_rate,
-      boost::asio::serial_port_base::parity opt_parity =
-          boost::asio::serial_port_base::parity(
-              boost::asio::serial_port_base::parity::none),
-      boost::asio::serial_port_base::character_size opt_csize =
-          boost::asio::serial_port_base::character_size(8),
-      boost::asio::serial_port_base::flow_control opt_flow =
-          boost::asio::serial_port_base::flow_control(
-              boost::asio::serial_port_base::flow_control::none),
-      boost::asio::serial_port_base::stop_bits opt_stop =
-          boost::asio::serial_port_base::stop_bits(
-              boost::asio::serial_port_base::stop_bits::one));
 
   /*
    *  B7/DC/IDID — Returns the constant $DC (Device C=12) and the 2-byte
@@ -154,28 +133,8 @@ public:
 
   /**
    * Opens a serial device.
-   * \param devname serial device name, example "/dev/ttyS0" or "COM1"
-   * \param baud_rate serial baud rate
-   * \param opt_parity serial parity, default none
-   * \param opt_csize serial character size, default 8bit
-   * \param opt_flow serial flow control, default none
-   * \param opt_stop serial stop bits, default 1
-   * \throws boost::system::system_error if cannot open the
-   * serial device
    */
-  void
-  open(const std::string& devname, unsigned int baud_rate,
-      boost::asio::serial_port_base::parity opt_parity =
-          boost::asio::serial_port_base::parity(
-              boost::asio::serial_port_base::parity::none),
-      boost::asio::serial_port_base::character_size opt_csize =
-          boost::asio::serial_port_base::character_size(8),
-      boost::asio::serial_port_base::flow_control opt_flow =
-          boost::asio::serial_port_base::flow_control(
-              boost::asio::serial_port_base::flow_control::none),
-      boost::asio::serial_port_base::stop_bits opt_stop =
-          boost::asio::serial_port_base::stop_bits(
-              boost::asio::serial_port_base::stop_bits::one));
+  void open(QString serPortName, unsigned int baud_rate);
 
   /**
    * \return true if serial device is open
@@ -199,8 +158,8 @@ public:
    * Set the timeout on read/write operations.
    * To disable the timeout, call setTimeout(boost::posix_time::seconds(0));
    */
-  void
-  setTimeout(const boost::posix_time::time_duration& t);
+//  void
+//  setTimeout(const boost::posix_time::time_duration& t); //TODO reimpliment
 
   /**
    * Write data
@@ -218,6 +177,9 @@ public:
    */
   void
   write(const std::vector<char>& data);
+
+  void
+  write(const char *data);
 
   /**
    * Write a string. Can be used to send ASCII data to the serial device.
@@ -287,9 +249,12 @@ public:
 
   bool verifyLastWrite;
   bool verifyACKs;
+
   // TNX STUFF
   void open(QString serPortName);
   TNX::QSerialPort *serPort;
+  TNX::QSerialPort *serPorttest;
+  TNX::QPortSettings serPortSettings;
 
   ~FreeEMS_LoaderComms();
 
@@ -345,17 +310,17 @@ private:
    * Callack called either when the read timeout is expired or canceled.
    * If called because timeout expired, sets result to resultTimeoutExpired
    */
-  void
-  timeoutExpired(const boost::system::error_code& error);
+//  void
+//  timeoutExpired(const boost::system::error_code& error); //TODO reimpliment
 
   /**
    * Callback called either if a read complete or read error occurs
    * If called because of read complete, sets result to resultSuccess
    * If called because read error, sets result to resultError
    */
-  void
-  readCompleted(const boost::system::error_code& error,
-      const size_t bytesTransferred);
+//  void
+//  readCompleted(const boost::system::error_code& error,
+//      const size_t bytesTransferred);
 
   /**
    * Possible outcome of a read. Set by callbacks, read from main code
@@ -364,14 +329,9 @@ private:
   {
     resultInProgress, resultSuccess, resultError, resultTimeoutExpired
   };
-  boost::asio::io_service io; ///< Io service object
-  boost::asio::serial_port port; ///< Serial port object
-  boost::asio::deadline_timer timer; ///< Timer for timeout
-  boost::posix_time::time_duration timeout; ///< Read/write timeout
-  boost::asio::streambuf readData; ///< Holds eventual read but not consumed
   enum ReadResult result; ///< Used by read with timeout
   size_t bytesTransferred; ///< Used by async read callback
-  ReadSetupParameters setupParameters; ///< Global because used in the OSX fix
+//  ReadSetupParameters setupParameters; ///< Global because used in the OSX fix
 
   FreeEMS_LoaderSREC *s19SetOne;
   FreeEMS_LoaderSREC *s19SetTwo;
