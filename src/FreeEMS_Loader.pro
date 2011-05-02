@@ -51,7 +51,8 @@ mac {
     # Straight Mac-OS (OS-X)
     message("Mac OS-X Build")
     unix:INCLUDEPATH *= /opt/local/include
-    unix:LIBS *= -L/opt/local/lib 
+    unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
+    unix:LIBS *= -L/opt/local/lib -lQtSerialPort
 }
 linux-g++ { 
     # Straight Linux
