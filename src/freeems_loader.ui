@@ -123,7 +123,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -457,22 +457,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>432</x>
      <y>182</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushConnect_2</sender>
-   <signal>released()</signal>
-   <receiver>FreeEMS_LoaderClass</receiver>
-   <slot>connect()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>317</x>
-     <y>68</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>159</y>
     </hint>
    </hints>
   </connection>

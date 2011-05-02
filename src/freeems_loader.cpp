@@ -329,10 +329,19 @@ QString portName = ui.comboDevice->currentText();
       //serialConnection->open(portName,
       //    ui.comboBaud->currentText().toUInt());
       //serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
-      serialConnection->setSM();
-      serialConnection->setFlashType(defFlashType);
-      serialConnection->isReady() ? setGUIState(CONNECTED) : setGUIState(
-          NOTCONNECTED);
+      for(unsigned int retries = 0; retries < 5; retries++){
+          serialConnection->setSM();
+          serialConnection->setFlashType(defFlashType);
+          if(serialConnection->isReady() == true){
+              setGUIState(CONNECTED);
+          }
+          if(serialConnection->isReady() == true){
+              return;
+          }else if(retries > 0){
+          cout<<"Serial Monitor Not Found Retry: "<< retries << " of 5"<<endl;
+          sleep(1);
+          }
+      }
     }
   else
     {

@@ -24,19 +24,20 @@ FreeEMS_LoaderComms::FreeEMS_LoaderComms() : verifyLastWrite(false), verifyACKs(
 }
 
 void
-FreeEMS_LoaderComms::open(QString serPortName)
+FreeEMS_LoaderComms::openTest(QString serPortName)
 {
   serPortName = serPortName;
   //const char SMRDY = 0x0D;
   TNX::CommTimeouts commTimeouts;
   commTimeouts.PosixVMIN = 0;
   commTimeouts.PosixVTIME = 2;
-  //serPorttest = new TNX::QSerialPort(serPortName, "115200,8,n,1");
-  //serPorttest.setPortName(serPortName);
-  //serPorttest.open();
-  //serPorttest.flushInBuffer();
-  //serPorttest.setCommTimeouts(commTimeouts);
-  write(SMRDY, sizeof(SMRDY));
+  TNX::QSerialPort serPorttest(serPortName, "115200,8,n,1");
+  serPorttest.setPortName(serPortName);
+  serPorttest.open();
+  serPorttest.flushInBuffer();
+  serPorttest.setCommTimeouts(commTimeouts);
+  serPorttest.write(SMRDY, sizeof(SMRDY));
+  //write(SMRDY, sizeof(SMRDY));
   //TODO user return verify instead
   QByteArray resp;
   //resp = serPorttest.read(3);
@@ -62,7 +63,7 @@ FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
   //serPortSettings->set("115200,8,n,1");
   TNX::CommTimeouts commTimeouts;
    commTimeouts.PosixVMIN = 0;
-   commTimeouts.PosixVTIME = 2;
+   commTimeouts.PosixVTIME = 10;
 
   serPort->setCommTimeouts(commTimeouts);
   serPort->setPortName(serPortName);
@@ -315,7 +316,6 @@ FreeEMS_LoaderComms::resetSM()
 void
 FreeEMS_LoaderComms::setSM()
 {
-
   serPort->flushInBuffer();
   QByteArray response;
   write(&SMReturn);

@@ -58,6 +58,8 @@ public:
   void
   ripDevice();
 
+  void openTest(QString serPortName);
+
   void
   loadDevice();
 
@@ -265,10 +267,9 @@ signals:
 private:
 
   // TNX STUFF
-  void open(QString serPortName);
   TNX::QSerialPort *serPort;
-  TNX::QSerialPort *serPorttest;
-  TNX::QPortSettings *serPortSettings;
+  //TNX::QSerialPort *serPorttest;
+  //TNX::QPortSettings *serPortSettings;
 
   /**
    * Parameters of performReadSetup.
