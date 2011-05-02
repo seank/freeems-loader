@@ -56,10 +56,28 @@ FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
   if (isOpen())
     close();
   //TODO move else where
-  baud_rate = baud_rate;//delete
-  //serPortSettings.setBaudRate(TNX::QPortSettings::BAUDR_115200);
-  serPortSettings.set("115200,8,n,1");
+   baud_rate = baud_rate;//delete
+  TNX::QPortSettings settings;
+   //serPortSettings.setBaudRate(TNX::QPortSettings::BAUDR_115200);
+  //serPortSettings->set("115200,8,n,1");
+  TNX::CommTimeouts commTimeouts;
+   commTimeouts.PosixVMIN = 0;
+   commTimeouts.PosixVTIME = 2;
+
+  serPort->setCommTimeouts(commTimeouts);
   serPort->setPortName(serPortName);
+  settings.set("115200,8,n,1");
+  //settings.
+//  TNX::QSerialPort test;
+//  test.portSettings()
+  //serPortSettings->setBaudRate((TNX::QPortSettings::BaudRate)baud_rate);
+  //serPortSettings->setBaudRate();
+  //serPortSettings->setPortName(serPortName);
+  //serPortSettings->setBaudRate(baud_rate);
+
+  serPort->setPortSettings(settings);
+  //serPort->portSettings(serPortSettings);
+  //serPort->setPortSettings(&serPortSettings);
   //serPort.setBaudRate(baud_rate);
   //serPort.setBaudRate(BAUDR_115200);
   //serPort.portSettings_ = "115200,8,n,1"; //TODO dynamic config
@@ -105,6 +123,7 @@ FreeEMS_LoaderComms::close()
 {
   if (isOpen() == false)
     return;
+  cout<<"Comms: closing port ";
   serPort->close();
   smIsReady = false;
 }
@@ -296,30 +315,8 @@ FreeEMS_LoaderComms::resetSM()
 void
 FreeEMS_LoaderComms::setSM()
 {
-  //  unsigned int i;
-  //  unsigned int length = 0;
-  //  std::vector<char> data;
-  //  flushRXStream();
-  //  try
-  //    {
-  //      port.write_some(asio::buffer(&SMReturn, ONE_BYTE));
-  //    }
-  //  catch (boost::system::system_error& e)
-  //    {
-  //      cout << "Error trying to write SM return char to serial port: "
-  //          << e.what() << endl;
-  //      return;
-  //    }
-  //  data = read(3);
-  //  char a, b ,c = 0;
-  //      length = data.size() - 1;
-  //   for (i = 0; i < data.size(); i++)
-  //     {
-  //       printf("char is %c, %i", data[i], data.size());
-  //     }
-  //      a = data[length - 2];
-  //      b = data[length - 1];
-  //      c = data[length];
+
+  serPort->flushInBuffer();
   QByteArray response;
   write(&SMReturn);
   response = serPort->read(3); //todo write a new read()
@@ -331,6 +328,7 @@ FreeEMS_LoaderComms::setSM()
     }
   else
     {
+      cout<<"SM Not Found"<<response.count();
       smIsReady = false;
     }
   return;
@@ -485,7 +483,7 @@ FreeEMS_LoaderComms::eraseDevice()
   int i;
   int nPages;
   char PPageIndex;
-  setSM(); //Incase the SM has been reset by the user
+  //setSM(); //change to checkSM Incase the SM has been reset by the user
   if (smIsReady)
     {
       //calculate total bytes in device

@@ -250,11 +250,7 @@ public:
   bool verifyLastWrite;
   bool verifyACKs;
 
-  // TNX STUFF
-  void open(QString serPortName);
-  TNX::QSerialPort *serPort;
-  TNX::QSerialPort *serPorttest;
-  TNX::QPortSettings serPortSettings;
+
 
   ~FreeEMS_LoaderComms();
 
@@ -267,6 +263,12 @@ signals:
   configureProgress(int min, int max);
 
 private:
+
+  // TNX STUFF
+  void open(QString serPortName);
+  TNX::QSerialPort *serPort;
+  TNX::QSerialPort *serPorttest;
+  TNX::QPortSettings *serPortSettings;
 
   /**
    * Parameters of performReadSetup.

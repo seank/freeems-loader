@@ -289,7 +289,7 @@ FreeEMS_Loader::fillParity()
 void
 FreeEMS_Loader::connect()
 {
-
+/*
 if(!ui.comboDevice_2->currentText().isEmpty()){
     serialConnection->open(ui.comboDevice_2->currentText());
     return;
@@ -318,11 +318,16 @@ QFile file(portName);
     }
   file.close();
 #endif
+*/
+QString portName = ui.comboDevice->currentText();
   if (!serialConnection->isReady())
     {
       //setFlashType();
-      serialConnection->open(portName.toAscii().data(),
+      serialConnection->open(portName,
           ui.comboBaud->currentText().toUInt());
+      //serialConnection->close();
+      //serialConnection->open(portName,
+      //    ui.comboBaud->currentText().toUInt());
       //serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
       serialConnection->setSM();
       serialConnection->setFlashType(defFlashType);
