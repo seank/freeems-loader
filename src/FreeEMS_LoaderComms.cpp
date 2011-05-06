@@ -9,7 +9,7 @@
 #include "FreeEMS_LoaderComms.h"
 #include "FreeEMS_LoaderParsing.h"
 #include <algorithm>
-#include <boost/bind.hpp>
+//#include <boost/bind.hpp>
 #include <freeems_loader_types.h>
 #include <fstream>
 #include <ostream>
@@ -63,7 +63,7 @@ FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
   //serPortSettings->set("115200,8,n,1");
   TNX::CommTimeouts commTimeouts;
    commTimeouts.PosixVMIN = 0;
-   commTimeouts.PosixVTIME = 10;
+   commTimeouts.PosixVTIME = 1;
 
   serPort->setCommTimeouts(commTimeouts);
   serPort->setPortName(serPortName);
@@ -143,7 +143,7 @@ FreeEMS_LoaderComms::loadDevice()
 
   vector<string> lineArray;
   string line;
-  int i;
+  //int i;
   ifstream ifs(loadFilename.toAscii());
   if (ifs.fail())
     {
@@ -152,7 +152,7 @@ FreeEMS_LoaderComms::loadDevice()
     }
   while (getline(ifs, line))
     {
-      i = 0;
+      //i = 0;
       lineArray.push_back(line);
     }
   generateRecords(lineArray);
@@ -376,7 +376,9 @@ FreeEMS_LoaderComms::writeString(const std::string& s)
 void
 FreeEMS_LoaderComms::read(char *data, size_t size)
 {
- serPort->read(data, size);
+	if(serPort->waitForReadyRead(5000)){// for testing
+		serPort->read(data, size);
+	}
 }
 
 std::vector<char>

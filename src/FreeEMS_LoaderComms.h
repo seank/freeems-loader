@@ -3,7 +3,6 @@
  *
  *  Created on: Oct 29, 2010
  *      Author: seank
- *  serial asio wrappers heavily copied from Terraneo Federico
  */
 
 #ifndef FREEEMS_LOADERCOMMS_H_
@@ -15,6 +14,12 @@
 #include <iostream>
 #include <QSerialPort>
 #include <QString>
+#include <QThread>
+#include <QObject>
+#include <QDebug>
+#include <QMutex>
+#include <QTimer>
+
 #include "FreeEMS_LoaderSREC.h"
 
 #include <QObject>
@@ -252,9 +257,7 @@ public:
   bool verifyLastWrite;
   bool verifyACKs;
 
-
-
-  ~FreeEMS_LoaderComms();
+~FreeEMS_LoaderComms();
 
 signals:
   void

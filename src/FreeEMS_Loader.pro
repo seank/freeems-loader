@@ -13,7 +13,6 @@ QT *= core \
     network \
     opengl
 HEADERS += about.h \
-    FreeEMS_LoaderThreads.h \
     FreeEMS_LoaderParsing.h \
     FreeEMS_LoaderComms.h \
     FreeEMS_LoaderSREC.h \
@@ -27,7 +26,6 @@ HEADERS += about.h \
     freeems_loader.h \
     freeems_loader.h
 SOURCES += about.cpp \
-    FreeEMS_LoaderThreads.cpp \
     freeems_loader_types.cpp \
     FreeEMS_LoaderParsing.cpp \
     FreeEMS_LoaderSREC.cpp \
@@ -52,13 +50,15 @@ mac {
     message("Mac OS-X Build")
     unix:INCLUDEPATH *= /opt/local/include
     unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
-    unix:LIBS *= -L/opt/local/lib -lQtSerialPort
+    unix:LIBS *= -L/opt/local/lib \
+        -lQtSerialPort
 }
 linux-g++ { 
     # Straight Linux
     message("Linux Build")
     unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
-    unix:LIBS *= -lQtSerialPort
+    unix:LIBS *= -L/usr/local/qserialport/lib/ \
+        -lQtSerialPort
 }
 win32 { 
     message("Straight compile on windows (seank only)")

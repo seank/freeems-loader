@@ -14,7 +14,7 @@
 
 #include "ui_freeems_loader.h"
 #include "FreeEMS_LoaderComms.h"
-#include "FreeEMS_LoaderThreads.h"
+//#include "FreeEMS_LoaderThreads.h"
 #include "qdebug.h"
 #include "stdio.h"
 #include <iostream>
@@ -88,7 +88,7 @@ private:
   Ui::FreeEMS_LoaderClass ui;
 
   FreeEMS_LoaderComms *serialConnection;
-  FreeEMS_LoaderThreads *heapThreads;
+  //FreeEMS_LoaderThreads *heapThreads;
 
   bool unattended;
 

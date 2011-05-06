@@ -20,7 +20,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   ui.setupUi(this);
   qRegisterMetaType<string> ("string");
   serialConnection = new FreeEMS_LoaderComms;
-  heapThreads = new FreeEMS_LoaderThreads(serialConnection);
+  //heapThreads = new FreeEMS_LoaderThreads(serialConnection);
   fillBaud();
   fillDataBits();
   fillStopBits();
@@ -29,8 +29,8 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   //redirectCLI();
   //TODO move to a seperate function
   loadFileName.clear();
-  QObject::connect(heapThreads, SIGNAL( WOInfo(string) ), this,
-      SLOT( writeText(string) ));
+  //QObject::connect(heapThreads, SIGNAL( WOInfo(string) ), this,
+  //    SLOT( writeText(string) ));
   //QObject::connect(heapThreads, SIGNAL( closeReset() ), this,
   //      SLOT( closeReset() ));
   QObject::connect(serialConnection, SIGNAL( WOInfo(string) ), this,
@@ -323,14 +323,16 @@ QString portName = ui.comboDevice->currentText();
   if (!serialConnection->isReady())
     {
       //setFlashType();
-      serialConnection->open(portName,
-          ui.comboBaud->currentText().toUInt());
       //serialConnection->close();
       //serialConnection->open(portName,
       //    ui.comboBaud->currentText().toUInt());
       //serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
       for(unsigned int retries = 0; retries < 5; retries++){
-          serialConnection->setSM();
+    	  serialConnection->open(portName,
+    	            ui.comboBaud->currentText().toUInt());
+    	  //if(!serialConnection->isOpen())
+    		//  break;
+    	  serialConnection->setSM();
           serialConnection->setFlashType(defFlashType);
           if(serialConnection->isReady() == true){
               setGUIState(CONNECTED);
@@ -363,8 +365,8 @@ FreeEMS_Loader::rip()
       cout << "error opening file";
     }
   serialConnection->setRipFilename(ripFileName);
-  heapThreads->setAction(EXECUTE_RIP);
-  heapThreads->start();
+  //heapThreads->setAction(EXECUTE_RIP);
+  //heapThreads->start();
 }
 
 void
@@ -430,8 +432,9 @@ FreeEMS_Loader::test()
 void
 FreeEMS_Loader::eraseFlash()
 {
-  heapThreads->setAction(EXECUTE_ERASE);
-  heapThreads->start();
+  serialConnection->eraseDevice();
+  //heapThreads->setAction(EXECUTE_ERASE);
+  //heapThreads->start();
 }
 
 void
@@ -477,13 +480,13 @@ FreeEMS_Loader::load()
   serialConnection->setRipFilename(ripFileName);
   if(ui.chkRip->isChecked())
     {
-      heapThreads->setAction(EXECUTE_RIP_ERASE_LOAD);
+      //heapThreads->setAction(EXECUTE_RIP_ERASE_LOAD);
     }
   else
     {
-      heapThreads->setAction(EXECUTE_LOAD);
+      //heapThreads->setAction(EXECUTE_LOAD);
     }
-  heapThreads->start();
+  //heapThreads->start();
 
   QSettings settings("FreeEMS", "Loader"); //TODO make saveSettings fuction
   settings.setValue("lastDirectory", loadDirectory);
