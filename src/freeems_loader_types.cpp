@@ -42,7 +42,7 @@ const char *defFlashType = "S12XDP512";
 const char PPageRegister = 0x30;
 const char Zero = 0x00;
 const char SMReturn = 0x0D;
-const char SMRDY[3] = {0xe1,0x00,0x3e};
+const char SMRDY[3] = {0xe0,0x00,0x3e};
 
 const char SMReadByte = 0xA1; //  — Read_Byte  A1/AAAA/RD — Reads a byte of data from the specified 16-bit address and
 // sends the 8-bit data back to the host PC. This routine assumes that accesses

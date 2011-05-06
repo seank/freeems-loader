@@ -12,7 +12,7 @@
 #include <iostream>
 
 //using namespace std;
-//using namespace boost;
+//using namespace boost; closing port
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
 QWidget(parent), showHelp(false), fileArg(false), unattended(false)
@@ -327,23 +327,20 @@ QString portName = ui.comboDevice->currentText();
       //serialConnection->open(portName,
       //    ui.comboBaud->currentText().toUInt());
       //serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
-      for(unsigned int retries = 0; retries < 5; retries++){
-    	  loaderComms->open(portName,
+
+      loaderComms->open(portName,
     	            ui.comboBaud->currentText().toUInt());
     	  //if(!serialConnection->isOpen())
     		//  break;
+      sleep(1); //port takes a second to init after the open function
     	  loaderComms->setSM();
           loaderComms->setFlashType(defFlashType);
+
           if(loaderComms->isReady() == true){
               setGUIState(CONNECTED);
+          }else{
+        	  loaderComms->close();
           }
-          if(loaderComms->isReady() == true){
-              return;
-          }else if(retries > 0){
-          cout<<"Serial Monitor Not Found Retry: "<< retries << " of 5"<<endl;
-          sleep(1);
-          }
-      }
     }
   else
     {
@@ -484,11 +481,13 @@ FreeEMS_Loader::load()
   loaderComms->setRipFilename(ripFileName);
   if(ui.chkRip->isChecked())
     {
-      //heapThreads->setAction(EXECUTE_RIP_ERASE_LOAD);
+      loaderComms->setAction(EXECUTE_RIP_ERASE_LOAD);
+      loaderComms->start();
     }
   else
     {
-      //heapThreads->setAction(EXECUTE_LOAD);
+      loaderComms->setAction(EXECUTE_LOAD);
+      loaderComms->start();
     }
   //heapThreads->start();
 

@@ -64,7 +64,7 @@ FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
 
   TNX::CommTimeouts commTimeouts;
   commTimeouts.PosixVMIN = 0;
-  commTimeouts.PosixVTIME = 2;
+  commTimeouts.PosixVTIME = 20;
 
   serPort->setCommTimeouts(commTimeouts);
       //serPort->setCommTimeouts(40);
@@ -272,10 +272,10 @@ FreeEMS_LoaderComms::SMSetPPage(char PPage)
   //asio::write(port, asio::buffer(&Zero, ONE_BYTE));
   //asio::write(port, asio::buffer(&PPageRegister, ONE_BYTE));
   //asio::write(port, asio::buffer(&page, ONE_BYTE));
-  write(&SMWriteByte);
-  write(&Zero);
-  write(&PPageRegister);
-  write(&page);
+  write(&SMWriteByte, 1);
+  write(&Zero, 1);
+  write(&PPageRegister, 1);
+  write(&page, 1);
 
   //if(verifyACKs == true)
   //  {
@@ -303,7 +303,7 @@ FreeEMS_LoaderComms::resetSM()
 {
  // try
  //    {
-       write(&SMReset);
+       write(&SMReset, 1);
        //asio::write(port, asio::buffer(&SMReset, ONE_BYTE));
 //     }
 //   catch (/*boost::system::system_error& e*/)
@@ -318,42 +318,49 @@ FreeEMS_LoaderComms::resetSM()
 void
 FreeEMS_LoaderComms::setSM()
 {
-  char response[4];
+  //char response[4];
+  write(&SMReset,1);
   serPort->flushInBuffer();
   serPort->flushOutBuffer();
+
   //QByteArray response;
-  write(&SMReturn);
+  write(&SMReturn, 1);
   //response = serPort->read(3); //todo write a new read()
-  read(response, 3);
+  //read(response, 3);
   //QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
 
-  if ((response[0] == (const char)0xE0) && (response[2] == (const char)0x3E))
-    {
-      cout << "SM READY: code "<<response[1]<<endl; //todo properly parse code
-      smIsReady = true;
-    }
-  else
-    {
-      cout<<"SM Not Found ";//<<response.count()<<endl;
-      printf("%s", response);
-      smIsReady = false;
-    }
+  if(verifyReturn() > 0){
+	  smIsReady = true;
+  } else{
+	  smIsReady = false;
+  }
+
   return;
+
 }
 
 void
 FreeEMS_LoaderComms::write(const char *data, size_t size)
 {
   //asio::write(port, asio::buffer(data, size));
+  unsigned int i;
+  cout<<endl;
+  for(i = 0; i < size; i++){
+	  printf("about to write %x to the port \n",(unsigned char)*(data+i));
+  }
+  //sleep(1);
+  usleep(1);
   serPort->write(data, size);
 }
-
+/*
 void
 FreeEMS_LoaderComms::write(const char *data)
 {
   //asio::write(port, asio::buffer(data, size));
+  printf("about to write %x to the port /n",*data);
   serPort->write(data);
 }
+*/
 
 void
 FreeEMS_LoaderComms::write(const std::vector<char>& data)
@@ -362,7 +369,7 @@ FreeEMS_LoaderComms::write(const std::vector<char>& data)
   char d;
   for(i = 0; i < data.size(); i++){
       d = data[i];
-      write(&d);
+      write(&d, 1);
   }
   //asio::write(port, asio::buffer(&data[0], data.size()));
 }
@@ -374,7 +381,7 @@ FreeEMS_LoaderComms::writeString(const std::string& s)
   char d;
   for(i = 0; i < s.size(); i++){
       d = s[i];
-      write(&d);
+      write(&d, 1);
   }
   //asio::write(port, asio::buffer(s.c_str(), s.size()));
 }
@@ -448,22 +455,22 @@ FreeEMS_LoaderComms::verifyReturn()
   //QByteArray resp;
   //resp = serPort->read(3); //todo use wrapper
   //QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
-  char response[4];
+  char response[4] = {0};
   read(response, 3);
-	if ( ((response[1] == 0 && (response[2] == (const char)0x3E ) ) ) ) // we got a response
+	if ( (response[2] == (const char)0x3E ) ) // we got a response
 	    {
 	      if(response[0] != (char) 0xe0){
 	    	  cout << "SM verify error code: ";
 	    	  printf("%x",(unsigned char)response[0]);
 	    	  cout<<endl; //todo properly parse code
 	      }else{
-		  cout << "verify code: "<<(unsigned char)response[0]<<endl; //todo properly parse code
+		  cout << "SM Returned Success!"<<(unsigned char)response[0]<<endl; //todo properly parse code
 	      }
 	      return 1;
 	    }
 	  else
 	    {
-	      cout<<"Error Verifying Return ";//<<response.count()<<endl;
+		  cout<<"Error Verifying Return ";//<<response.count()<<endl;
 	      printf("%s", response);
 	      cout<<endl;
 	      return -1;
@@ -482,10 +489,10 @@ FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
   //asio::write(port, asio::buffer(&highByte, ONE_BYTE));
   //asio::write(port, asio::buffer(&lowByte, ONE_BYTE));
   //asio::write(port, asio::buffer(&bytesRequested, ONE_BYTE));
-  write(&SMReadBlock);
-  write(&highByte);
-  write(&lowByte);
-  write(&bytesRequested);
+  write(&SMReadBlock, 1);
+  write(&highByte, 1);
+  write(&lowByte, 1);
+  write(&bytesRequested, 1);
   buffer = read(plusBytes);
   if (verifyReturn() < 0) // you must always verify a return to "clear" the buffer
          cout << "error validating return from SMRequestByteBlock";
@@ -497,7 +504,7 @@ void
 FreeEMS_LoaderComms::erasePage(char PPage)
 {
   SMSetPPage(PPage);
-  write(&SMErasePage);
+  write(&SMErasePage, 1);
   //if(verifyACKs == true)
   //  {
       if(verifyReturn() < 0)
@@ -528,7 +535,7 @@ FreeEMS_LoaderComms::eraseDevice()
                   (unsigned char) dataVectorTable[i].stopPage);
               for (PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--)
                 {
-                  SMSetPPage(PPageIndex); //set Ppage register
+                  //SMSetPPage(PPageIndex); //set Ppage register
                   erasePage(PPageIndex); // TODO put signal here
                   emit udProgress((unsigned char) PPageIndex);
                 }
