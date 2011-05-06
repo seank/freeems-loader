@@ -19,7 +19,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
 {
   ui.setupUi(this);
   qRegisterMetaType<string> ("string");
-  serialConnection = new FreeEMS_LoaderComms;
+  loaderComms = new FreeEMS_LoaderComms;
   //heapThreads = new FreeEMS_LoaderThreads(serialConnection);
   fillBaud();
   fillDataBits();
@@ -33,11 +33,11 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   //    SLOT( writeText(string) ));
   //QObject::connect(heapThreads, SIGNAL( closeReset() ), this,
   //      SLOT( closeReset() ));
-  QObject::connect(serialConnection, SIGNAL( WOInfo(string) ), this,
+  QObject::connect(loaderComms, SIGNAL( WOInfo(string) ), this,
       SLOT( writeText(string) ));
-  QObject::connect(serialConnection, SIGNAL( udProgress(int) ), this,
+  QObject::connect(loaderComms, SIGNAL( udProgress(int) ), this,
       SLOT( updateProgress(int) ));
-  QObject::connect(serialConnection, SIGNAL( configureProgress(int, int) ),
+  QObject::connect(loaderComms, SIGNAL( configureProgress(int, int) ),
       this, SLOT( configureProgress(int, int) ));
 
   /* restore settings */
@@ -132,8 +132,8 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
 
 FreeEMS_Loader::~FreeEMS_Loader()
 {
-  serialConnection->close();
-  delete serialConnection;
+  loaderComms->close();
+  delete loaderComms;
   QSettings settings("FreeEMS", "Loader");
   settings.setValue("pos", pos());
   settings.setValue("size", size());
@@ -320,7 +320,7 @@ QFile file(portName);
 #endif
 */
 QString portName = ui.comboDevice->currentText();
-  if (!serialConnection->isReady())
+  if (!loaderComms->isReady())
     {
       //setFlashType();
       //serialConnection->close();
@@ -328,16 +328,16 @@ QString portName = ui.comboDevice->currentText();
       //    ui.comboBaud->currentText().toUInt());
       //serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
       for(unsigned int retries = 0; retries < 5; retries++){
-    	  serialConnection->open(portName,
+    	  loaderComms->open(portName,
     	            ui.comboBaud->currentText().toUInt());
     	  //if(!serialConnection->isOpen())
     		//  break;
-    	  serialConnection->setSM();
-          serialConnection->setFlashType(defFlashType);
-          if(serialConnection->isReady() == true){
+    	  loaderComms->setSM();
+          loaderComms->setFlashType(defFlashType);
+          if(loaderComms->isReady() == true){
               setGUIState(CONNECTED);
           }
-          if(serialConnection->isReady() == true){
+          if(loaderComms->isReady() == true){
               return;
           }else if(retries > 0){
           cout<<"Serial Monitor Not Found Retry: "<< retries << " of 5"<<endl;
@@ -347,9 +347,9 @@ QString portName = ui.comboDevice->currentText();
     }
   else
     {
-      serialConnection->resetSM();
-      serialConnection->close();
-      serialConnection->isReady() ? setGUIState(CONNECTED) : setGUIState(
+      loaderComms->resetSM();
+      loaderComms->close();
+      loaderComms->isReady() ? setGUIState(CONNECTED) : setGUIState(
           NOTCONNECTED);
     }
 }
@@ -364,7 +364,9 @@ FreeEMS_Loader::rip()
     {
       cout << "error opening file";
     }
-  serialConnection->setRipFilename(ripFileName);
+  loaderComms->setRipFilename(ripFileName);
+  loaderComms->setAction(EXECUTE_RIP);
+  loaderComms->start();
   //heapThreads->setAction(EXECUTE_RIP);
   //heapThreads->start();
 }
@@ -432,9 +434,11 @@ FreeEMS_Loader::test()
 void
 FreeEMS_Loader::eraseFlash()
 {
-  serialConnection->eraseDevice();
-  //heapThreads->setAction(EXECUTE_ERASE);
+  //loaderComms->eraseDevice();
+  loaderComms->setAction(EXECUTE_ERASE);
+  loaderComms->start();
   //heapThreads->start();
+  //loaderComms->start();
 }
 
 void
@@ -456,13 +460,13 @@ FreeEMS_Loader::load()
 
   if(ui.chkVerify->isChecked())
     {
-      serialConnection->verifyLastWrite = true; //todo make set function
-      serialConnection->verifyACKs = true;
+      loaderComms->verifyLastWrite = true; //todo make set function
+      loaderComms->verifyACKs = true;
     }
   else
     {
-      serialConnection->verifyLastWrite = false; //todo make set function
-      serialConnection->verifyACKs = true; //todo make settable
+      loaderComms->verifyLastWrite = false; //todo make set function
+      loaderComms->verifyACKs = true; //todo make settable
     }
   loadDirectory = loadFileName;
   QString name = loadFileName.section( '/', -1 );
@@ -476,8 +480,8 @@ FreeEMS_Loader::load()
   ripFileName += time.toString("H-m-s-");
   ripFileName += name;
   writeText("Ripping as "); writeText(ripFileName.toStdString());
-  serialConnection->setLoadFilename(loadFileName);
-  serialConnection->setRipFilename(ripFileName);
+  loaderComms->setLoadFilename(loadFileName);
+  loaderComms->setRipFilename(ripFileName);
   if(ui.chkRip->isChecked())
     {
       //heapThreads->setAction(EXECUTE_RIP_ERASE_LOAD);
@@ -531,3 +535,4 @@ FreeEMS_Loader::closeReset()
 {
 
 }
+

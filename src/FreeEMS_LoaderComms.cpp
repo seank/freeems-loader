@@ -61,11 +61,13 @@ FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
   TNX::QPortSettings settings;
    //serPortSettings.setBaudRate(TNX::QPortSettings::BAUDR_115200);
   //serPortSettings->set("115200,8,n,1");
+
   TNX::CommTimeouts commTimeouts;
-   commTimeouts.PosixVMIN = 0;
-   commTimeouts.PosixVTIME = 1;
+  commTimeouts.PosixVMIN = 0;
+  commTimeouts.PosixVTIME = 2;
 
   serPort->setCommTimeouts(commTimeouts);
+      //serPort->setCommTimeouts(40);
   serPort->setPortName(serPortName);
   settings.set("115200,8,n,1");
   //settings.
@@ -279,7 +281,7 @@ FreeEMS_LoaderComms::SMSetPPage(char PPage)
   //  {
       if(verifyReturn() < 0)
          {
-           cout << "cannot verify return string after setting ppage";
+           cout << "cannot verify return string after setting ppage"<<endl;
          }
   //  }
 }
@@ -316,19 +318,24 @@ FreeEMS_LoaderComms::resetSM()
 void
 FreeEMS_LoaderComms::setSM()
 {
+  char response[4];
   serPort->flushInBuffer();
-  QByteArray response;
+  serPort->flushOutBuffer();
+  //QByteArray response;
   write(&SMReturn);
-  response = serPort->read(3); //todo write a new read()
-  QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
-  if (response.contains(tester))
+  //response = serPort->read(3); //todo write a new read()
+  read(response, 3);
+  //QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
+
+  if ((response[0] == (const char)0xE0) && (response[2] == (const char)0x3E))
     {
-      cout << "SM READY";
+      cout << "SM READY: code "<<response[1]<<endl; //todo properly parse code
       smIsReady = true;
     }
   else
     {
-      cout<<"SM Not Found"<<response.count();
+      cout<<"SM Not Found ";//<<response.count()<<endl;
+      printf("%s", response);
       smIsReady = false;
     }
   return;
@@ -376,10 +383,21 @@ FreeEMS_LoaderComms::writeString(const std::string& s)
 void
 FreeEMS_LoaderComms::read(char *data, size_t size)
 {
-	if(serPort->waitForReadyRead(5000)){// for testing
+	//if(serPort->waitForReadyRead(5000)){// for testing
 		serPort->read(data, size);
-	}
+	//}
 }
+
+//TODO add parity "double read" option
+/*
+void
+FreeEMS_LoaderComms::read(unsigned char *data, size_t size)
+{
+	//if(serPort->waitForReadyRead(5000)){// for testing
+		serPort->read(data, size);
+	//}
+}
+*/
 
 std::vector<char>
 FreeEMS_LoaderComms::read(size_t size)
@@ -426,21 +444,30 @@ FreeEMS_LoaderComms::returnFlashType(char *responce)
 
 int
 FreeEMS_LoaderComms::verifyReturn()
-{
-  QByteArray resp;
-  resp = serPort->read(3); //todo use wrapper
-  QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
-  if(resp.contains(tester)){
-      return 1;
-  }else{
-      return -1;
-  }
-
-//  if(verifyACKs == true)
-//    {
-//      std::cout<<"Error verifying return buffer reads "<<data;
-//    }
-//  return -1;
+{ //TODO this should iterate though a list of possible returns, citing specific errors
+  //QByteArray resp;
+  //resp = serPort->read(3); //todo use wrapper
+  //QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
+  char response[4];
+  read(response, 3);
+	if ( ((response[1] == 0 && (response[2] == (const char)0x3E ) ) ) ) // we got a response
+	    {
+	      if(response[0] != (char) 0xe0){
+	    	  cout << "SM verify error code: ";
+	    	  printf("%x",(unsigned char)response[0]);
+	    	  cout<<endl; //todo properly parse code
+	      }else{
+		  cout << "verify code: "<<(unsigned char)response[0]<<endl; //todo properly parse code
+	      }
+	      return 1;
+	    }
+	  else
+	    {
+	      cout<<"Error Verifying Return ";//<<response.count()<<endl;
+	      printf("%s", response);
+	      cout<<endl;
+	      return -1;
+	    }
 }
 
 void
@@ -459,7 +486,6 @@ FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
   write(&highByte);
   write(&lowByte);
   write(&bytesRequested);
-
   buffer = read(plusBytes);
   if (verifyReturn() < 0) // you must always verify a return to "clear" the buffer
          cout << "error validating return from SMRequestByteBlock";
@@ -482,6 +508,7 @@ FreeEMS_LoaderComms::erasePage(char PPage)
 void
 FreeEMS_LoaderComms::eraseDevice()
 {
+  serPort->flushInBuffer();
   int i;
   int nPages;
   char PPageIndex;
@@ -678,4 +705,48 @@ FreeEMS_LoaderComms::flushRXStream()
           return;
         }
     }
+}
+
+void
+FreeEMS_LoaderComms::setAction(int action)
+{
+  threadAction = action;
+}
+
+void
+FreeEMS_LoaderComms::run()
+{
+	 switch (threadAction)
+	    {
+	  case EXECUTE_RIP_ERASE_LOAD:
+	    emit WOInfo("Executing rip, erase and load");
+	    emit WOInfo("Ripping...");
+	    ripDevice();
+	    emit WOInfo("Erasing...");
+	    eraseDevice();
+	    emit WOInfo("Loading...");
+	    loadDevice();
+	    emit WOInfo("DONE!");
+	    break;
+	  case EXECUTE_LOAD:
+	    emit WOInfo("Erasing...");
+	    eraseDevice();
+	    emit WOInfo("Executing load");
+	    loadDevice();
+	    emit WOInfo("DONE!");
+	    break;
+	  case EXECUTE_ERASE:
+	    emit WOInfo("Executing erase");
+	    eraseDevice();
+	    break;
+	  case EXECUTE_RIP:
+	    emit WOInfo("Executing rip");
+	    ripDevice();
+	    break;
+	  case NONE:
+	    emit WOInfo("Action for thread not set!");
+	    break;
+	  default:
+	    break;
+	    }
 }

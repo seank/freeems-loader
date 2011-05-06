@@ -87,7 +87,7 @@ protected:
 private:
   Ui::FreeEMS_LoaderClass ui;
 
-  FreeEMS_LoaderComms *serialConnection;
+  FreeEMS_LoaderComms *loaderComms;
   //FreeEMS_LoaderThreads *heapThreads;
 
   bool unattended;

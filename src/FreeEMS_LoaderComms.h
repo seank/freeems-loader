@@ -18,7 +18,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QMutex>
-#include <QTimer>
+//#include <QTimer>
 
 #include "FreeEMS_LoaderSREC.h"
 
@@ -45,7 +45,7 @@ public:
 /**
  * Serial port class, with timeout on read operations.
  */
-class FreeEMS_LoaderComms : public QObject
+class FreeEMS_LoaderComms : public QThread //public QObject
 {
 Q_OBJECT
 public:
@@ -208,6 +208,8 @@ public:
   void
   read(char *data, size_t size);
 
+  void
+  read(unsigned char *data, size_t size);
   /**
    * Read some data, blocking
    * \param size how much data to read
@@ -253,6 +255,12 @@ public:
 
   void
   setSM();
+
+  void
+  setAction(int action);
+
+  void
+  run();
 
   bool verifyLastWrite;
   bool verifyACKs;
