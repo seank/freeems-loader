@@ -349,8 +349,7 @@ FreeEMS_LoaderComms::write(const char *data, size_t size)
 	  printf("about to write %x to the port \n",(unsigned char)*(data+i));
   }
   //sleep(1);
-  usleep(5);
-  serPort->write(data, size);
+   serPort->write(data, size);
 }
 /*
 void
@@ -391,7 +390,8 @@ void
 FreeEMS_LoaderComms::read(char *data, size_t size)
 {
 	//if(serPort->waitForReadyRead(5000)){// for testing
-		serPort->read(data, size);
+	usleep(5);
+	serPort->read(data, size);
 	//}
 }
 
