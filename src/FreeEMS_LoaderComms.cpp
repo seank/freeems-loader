@@ -349,7 +349,7 @@ FreeEMS_LoaderComms::write(const char *data, size_t size)
 	  printf("about to write %x to the port \n",(unsigned char)*(data+i));
   }
   //sleep(1);
-  usleep(1);
+  usleep(5);
   serPort->write(data, size);
 }
 /*
