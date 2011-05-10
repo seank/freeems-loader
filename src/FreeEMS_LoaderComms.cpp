@@ -8,11 +8,11 @@
 
 #include "FreeEMS_LoaderComms.h"
 #include "FreeEMS_LoaderParsing.h"
-#include <algorithm>
+//#include <algorithm>
 //#include <boost/bind.hpp>
 #include <freeems_loader_types.h>
 #include <fstream>
-#include <ostream>
+//#include <ostream>
 
 using namespace std;
 
@@ -30,7 +30,7 @@ FreeEMS_LoaderComms::openTest(QString serPortName)
   //const char SMRDY = 0x0D;
   TNX::CommTimeouts commTimeouts;
   commTimeouts.PosixVMIN = 0;
-  commTimeouts.PosixVTIME = 2;
+  commTimeouts.PosixVTIME = .2;
   TNX::QSerialPort serPorttest(serPortName, "115200,8,n,1");
   serPorttest.setPortName(serPortName);
   serPorttest.open();
@@ -64,7 +64,7 @@ FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
 
   TNX::CommTimeouts commTimeouts;
   commTimeouts.PosixVMIN = 0;
-  commTimeouts.PosixVTIME = 20;
+  commTimeouts.PosixVTIME = 100;
 
   serPort->setCommTimeouts(commTimeouts);
       //serPort->setCommTimeouts(40);
@@ -176,7 +176,7 @@ FreeEMS_LoaderComms::ripDevice()
   unsigned int firstAddress;
   unsigned int lastAddress;
   unsigned int bytesPerRecord = 16; //read 16 bytes TODO make configurable, same as default hcs12mem tool
-  unsigned int bytesInRange;
+//  unsigned int bytesInRange;
   unsigned int pagedAddress = 0;
 
   //setSM(); //Incase the SM has been reset by the user
@@ -204,7 +204,7 @@ FreeEMS_LoaderComms::ripDevice()
 
                   firstAddress = dataVectorTable[i].startAddress;
                   lastAddress = dataVectorTable[i].stopAddress;
-                  bytesInRange = lastAddress - firstAddress;
+//                  bytesInRange = lastAddress - firstAddress;
                   s19Record->setRecordAddress(firstAddress);
                   numSectors = (lastAddress - firstAddress) / bytesPerRecord
                       + 1;
@@ -351,6 +351,7 @@ FreeEMS_LoaderComms::write(const char *data, size_t size)
   for(i = 0; i < size; i++){
 	  printf("about to write %x to the port \n",(unsigned char)*(data+i));
   }
+  usleep(5);
   //sleep(1);
    serPort->write(data, size);
 }
@@ -461,7 +462,7 @@ FreeEMS_LoaderComms::verifyReturn()
 	    {
 	      if(response[0] != (char) 0xe0){
 	    	  cout << "SM verify error code: ";
-	    	  printf("%x",(unsigned char)response[0]);
+	    	  printf("%x ",(unsigned char)response[0]);
 	    	  cout<<endl; //todo properly parse code
 	      }else{
 		  cout << "SM Returned Success!"<<(unsigned char)response[0]<<endl; //todo properly parse code
