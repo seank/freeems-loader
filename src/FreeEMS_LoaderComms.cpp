@@ -244,8 +244,8 @@ FreeEMS_LoaderComms::ripDevice()
     {
       cout << "error SM not ready";
     }
-  delete s19Record;
-  outFile.close();
+   outFile.close();
+   delete s19Record;
 }
 
 void
@@ -319,6 +319,7 @@ void
 FreeEMS_LoaderComms::setSM()
 {
   //char response[4];
+  if(serPort->isOpen()){
   write(&SMReset,1);
   serPort->flushInBuffer();
   serPort->flushOutBuffer();
@@ -334,9 +335,11 @@ FreeEMS_LoaderComms::setSM()
   } else{
 	  smIsReady = false;
   }
+  }else {
+	  WOInfo("Error: Serial port is not open");
+  }
 
   return;
-
 }
 
 void
@@ -388,11 +391,8 @@ FreeEMS_LoaderComms::writeString(const std::string& s)
 //TODO add parity "double read" option
 void
 FreeEMS_LoaderComms::read(char *data, size_t size)
-{
-	//if(serPort->waitForReadyRead(5000)){// for testing
-	usleep(5);
+{	usleep(5);
 	serPort->read(data, size);
-	//}
 }
 
 //TODO add parity "double read" option
@@ -750,10 +750,33 @@ FreeEMS_LoaderComms::run()
 	    emit WOInfo("Executing rip");
 	    ripDevice();
 	    break;
+	  case TEST:
+	    emit WOInfo("Executing Test");
+		test();
+		break;
 	  case NONE:
 	    emit WOInfo("Action for thread not set!");
 	    break;
 	  default:
 	    break;
 	    }
+}
+
+void
+FreeEMS_LoaderComms::test()
+{
+	unsigned long i;
+	if(isReady()){
+		for(i = 0;  ; i++){
+			write(&SMReturn, 1);
+			if(!verifyReturn() > 0){
+				break;
+			}
+			WOInfo("Wrote one byte and read three");
+		}
+		WOInfo("Serial stress test failed see cli for iteration number");
+		cout<<i<<endl;
+	}else {
+		WOInfo("Error: SM NOT READY");
+	}
 }

@@ -345,6 +345,7 @@ QString portName = ui.comboDevice->currentText();
   else
     {
       loaderComms->resetSM();
+      sleep(1);
       loaderComms->close();
       loaderComms->isReady() ? setGUIState(CONNECTED) : setGUIState(
           NOTCONNECTED);
@@ -416,16 +417,35 @@ FreeEMS_Loader::setGUIState(int state)
 void
 FreeEMS_Loader::test()
 {
-  //serialConnection->setSM();
-  //FreeEMS_LoaderThreads test(serialConnection, EXECUTE_ERASE);
-  //test.run(serialConnection);
-  //test.start();
-  //heapThreads->start();
-  //heapThreads->wait();
-  //test.wait();
-  //serialConnection->setLoadFilename();
-  string test = "Yo MOFO you ready to get loaded or what?";
-  writeText(test);
+	loaderComms->setAction(TEST);
+	loaderComms->start();
+	/*
+	unsigned long i;
+	if(loaderComms->isReady()){
+	for(i = 0;  ; i++){
+		loaderComms->write(&SMReturn, 1);
+		if(!loaderComms->verifyReturn() > 0){
+			break;
+		}
+		writeText("Wrote one byte and read three");
+	}
+	writeText("Serial stress test failed see cli for iteration number");
+	cout<<i<<endl;
+	}else {
+		writeText("Error: SM NOT READY");
+	}
+*/
+
+	//serialConnection->setSM();
+	//FreeEMS_LoaderThreads test(serialConnection, EXECUTE_ERASE);
+	//test.run(serialConnection);
+	//test.start();
+	//heapThreads->start();
+	//heapThreads->wait();
+	//test.wait();
+	//serialConnection->setLoadFilename();
+	//  string test = "Yo MOFO you ready to get loaded or what?";
+//  writeText(test);
 }
 
 void

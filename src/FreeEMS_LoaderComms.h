@@ -197,6 +197,7 @@ public:
   void
   writeString(const std::string& s);
 
+  void test();
   /**
    * Read some data, blocking
    * \param data array of char to be read through the serial device

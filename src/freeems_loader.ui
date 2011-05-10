@@ -118,7 +118,7 @@
     <rect>
      <x>20</x>
      <y>10</y>
-     <width>351</width>
+     <width>331</width>
      <height>141</height>
     </rect>
    </property>
@@ -359,9 +359,9 @@ p, li { white-space: pre-wrap; }
     <widget class="QPushButton" name="pushConnect_2">
      <property name="geometry">
       <rect>
-       <x>250</x>
-       <y>10</y>
-       <width>92</width>
+       <x>20</x>
+       <y>60</y>
+       <width>121</width>
        <height>36</height>
       </rect>
      </property>
@@ -369,7 +369,7 @@ p, li { white-space: pre-wrap; }
       <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
      </property>
      <property name="text">
-      <string>TestConnect</string>
+      <string>SerialStressTest</string>
      </property>
     </widget>
    </widget>
@@ -457,6 +457,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>432</x>
      <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushConnect_2</sender>
+   <signal>released()</signal>
+   <receiver>FreeEMS_LoaderClass</receiver>
+   <slot>test()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>317</x>
+     <y>60</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>159</y>
     </hint>
    </hints>
   </connection>
