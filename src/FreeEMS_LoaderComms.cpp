@@ -105,6 +105,7 @@ FreeEMS_LoaderComms::init()
   serPort = new TNX::QSerialPort("115200,8,n,1");
   s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   //s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
+  lastLoadAddress = 0;
   clearSets();
   s19SetOneCount = 0;
 }
@@ -665,6 +666,7 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
         Ppage = address >> 16;
         SMSetPPage((char) Ppage); //change page if necessary
       }
+    lastLoadAddress = address; // save address
     highByte = (address & 0xFF00) >> 8;
     lowByte = address & 0x00FF;
     bytesToWrite = (char) numBytes - 1;
