@@ -168,13 +168,13 @@ FreeEMS_Loader::fillDevice()
 void
 FreeEMS_Loader::redirectCLI()
 {
-  StdRedirector<char>* coutRedirector = new StdRedirector<char> (std::cout,
-      outCallBack, ui.textOutput);
+  //StdRedirector<char>* coutRedirector = new StdRedirector<char> (std::cout,
+  //    outCallBack, ui.textOutput);
   //StdRedirector<char>* perrorRedirector = new StdRedirector <char>(&perror, outCallBack, ui.textOutput);
-  coutRedirector->compileWarning();
+  //coutRedirector->compileWarning();
   //int *compileWarning = &coutRedirector;
   //compileWarning++;
-  std::cout << "CLI output redirected";
+  //std::cout << "CLI output redirected";
 }
 
 void

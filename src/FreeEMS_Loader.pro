@@ -4,15 +4,18 @@ QMAKE_CXXFLAGS *= -Wall
 QMAKE_CXXFLAGS *= -Werror
 CONFIG *= qt \
     warn_on \
+    thread \
     release \
     debug
 QT *= core \
-    gui \
-    xml \
-    xmlpatterns \
-    network \
-    opengl
-HEADERS += about.h \
+    gui
+
+# xml \
+# xmlpatterns \
+# network \
+# opengl
+HEADERS += FreeEMS_SerialPort.h \
+    about.h \
     FreeEMS_LoaderParsing.h \
     FreeEMS_LoaderComms.h \
     FreeEMS_LoaderSREC.h \
@@ -25,7 +28,8 @@ HEADERS += about.h \
     freeems_loader.h \
     freeems_loader.h \
     freeems_loader.h
-SOURCES += about.cpp \
+SOURCES += FreeEMS_SerialPort.cpp \
+    about.cpp \
     freeems_loader_types.cpp \
     FreeEMS_LoaderParsing.cpp \
     FreeEMS_LoaderSREC.cpp \
@@ -65,4 +69,7 @@ win32 {
     win32:INCLUDEPATH *= $$quote(C:/boost/include/boost-1_45)
     win32:LIBS *= -Lc:/mingw/lib \
         -lwsock32
+    win32:DEFINES = _TTY_WIN_ \
+        QWT_DLL \
+        QT_DLL
 }

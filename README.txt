@@ -76,3 +76,10 @@ http://valgrind.org/
 GDB
 
 
+ G_SLICE=always-malloc G_DEBUG=gc-friendly,resident-modules valgrind --show-reachable=yes --tool=memcheck --num-callers=45 -v --leak-check=full --log-file=/tmp/log  --track-origins=yes ./FreeEMS_Loader
+ it'll make it run about 100x slower,  so be extra patient
+ it'll seem like its locked up,  but its really not
+ the main log will be /tmp/log
+ view it AFTER 
+ the  --track-origins=yes   makes it go really really slow,  so you may wish to omit that option
+

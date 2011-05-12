@@ -13,6 +13,7 @@
 #include <sstream>
 #include <iostream>
 #include <QSerialPort>
+//#include <qextserialport.h>
 #include <QString>
 #include <QThread>
 #include <QObject>

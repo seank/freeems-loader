@@ -56,6 +56,7 @@ FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
 {
   if (isOpen())
     close();
+
   //TODO move else where
    baud_rate = baud_rate;//delete
   TNX::QPortSettings settings;
@@ -85,6 +86,7 @@ FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
   //serPort.setBaudRate(BAUDR_115200);
   //serPort.portSettings_ = "115200,8,n,1"; //TODO dynamic config
   serPort->open();
+
 }
 
 bool
@@ -103,7 +105,8 @@ void
 FreeEMS_LoaderComms::init()
 {
   serPort = new TNX::QSerialPort("115200,8,n,1");
-  s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
+
+	s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   //s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   lastLoadAddress = 0;
   clearSets();
