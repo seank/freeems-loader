@@ -7,25 +7,9 @@
 
 #include "FreeEMS_SerialPort.h"
 
+//using namespace std;
 
-#ifndef B115200
-#define B115200 115200
-#endif
-
-//#include <config.h>
-//#include <defines.h>
-#include <errno.h>
-#include <fcntl.h>
-//#include <getfiles.h>
-//#include <glib.h>
-//#include <glib/gstdio.h>
-//#include <getfiles.h>
-//#include <loader_common.h>
-//#include <ms1_loader.h>
-//#include <serialio.h>
-
-
-FreeEMS_SerialPort::FreeEMS_SerialPort(): fd(0) {
+FreeEMS_SerialPort::FreeEMS_SerialPort(): _fd(0), _isOpenFlag(false) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -34,26 +18,27 @@ FreeEMS_SerialPort::~FreeEMS_SerialPort() {
 	// TODO Auto-generated destructor stub
 }
 
-int FreeEMS_SerialPort::open_port(char * port_name)
+void
+FreeEMS_SerialPort::openPort(char * port_name)
 {
 #ifdef __WIN32__
-	fd = open(port_name, O_RDWR | O_BINARY );
+	_fd = open(port_name, O_RDWR | O_BINARY );
 #else
-	fd = open(port_name, O_RDWR | O_NOCTTY );
+	_fd = open(port_name, O_RDWR | O_NOCTTY );
 #endif
-	return fd;
+	_isOpenFlag = _fd > 0 ? true:false;
 }
 
-int FreeEMS_SerialPort::setup_port(int fd, int baud)
+int FreeEMS_SerialPort::setupPort(int baud)
 {
 #ifdef __WIN32__
 
-	win32_setup_serial_params(fd, baud, 8, NONE, 1);
+	win32_setup_serial_params(_fd, baud, 8, NONE, 1);
 #else
 	int _baud = 0;
 
 	/* Save serial port status */
-	tcgetattr(fd,&oldtio);
+	tcgetattr(_fd,&oldtio);
 	//flush_serial(fd, TCIOFLUSH);
 
 	memset(&newtio, 0, sizeof(newtio));
@@ -107,9 +92,8 @@ int FreeEMS_SerialPort::setup_port(int fd, int baud)
 	newtio.c_cc[VEOL]     = 0;     /* '\0' */
 	newtio.c_cc[VMIN]     = 0;
 	newtio.c_cc[VTIME]    = 1;     /* 100ms timeout */
-	/* MS2 quirk */
 
-	tcsetattr(fd,TCSANOW,&newtio);
+	tcsetattr(_fd,TCSANOW,&newtio);
 
 #endif
 	return 0;
@@ -117,39 +101,42 @@ int FreeEMS_SerialPort::setup_port(int fd, int baud)
 }
 
 
-void FreeEMS_SerialPort::close_port(int fd)
+void FreeEMS_SerialPort::closePort()
 {
 #ifndef __WIN32__
-	tcsetattr(fd,TCSAFLUSH,&oldtio);
+	tcsetattr(_fd,TCSAFLUSH,&oldtio);
 #endif
-	close(fd);
+	close(_fd);
 	return;
 }
 
 //
-//void FreeEMS_SerialPort::flush_serial(int fd, FlushDirection direction)
-//{
-//#ifdef __WIN32__
-//	if (fd)
-//		win32_flush_serial(fd, type);
-//#else
-//	if (fd)
-//	{
-//		switch (direction)
-//		{
-//			case INBOUND:
-//				tcflush(fd, TCIFLUSH);
-//				break;
-//			case OUTBOUND:
-//				tcflush(fd, TCOFLUSH);
-//				break;
-//			case BOTH:
-//				tcflush(fd, TCIOFLUSH);
-//				break;
-//		}
-//	}
-//#endif
-//}
+void FreeEMS_SerialPort::flushSerial(FlushDirection direction)
+{
+#ifdef __WIN32__
+	if (_fd)
+		win32_flush_serial(_fd, type);
+#else
+	if (_fd)
+	{
+		switch (direction)
+		{
+			case INBOUND:
+				tcflush(_fd, TCIFLUSH);
+				break;
+			case OUTBOUND:
+				tcflush(_fd, TCOFLUSH);
+				break;
+			case BOTH:
+				tcflush(_fd, TCIOFLUSH);
+				break;
+		}
+	}
+	else{
+		std::cout<<"Error: Serial port not open";
+	}
+#endif
+}
 
 //
 //void unlock_port()
@@ -233,3 +220,29 @@ void FreeEMS_SerialPort::close_port(int fd)
 //#endif
 //	return TRUE;
 //}
+bool FreeEMS_SerialPort::isOpen(){
+	return _isOpenFlag;
+}
+
+void FreeEMS_SerialPort::flushInBuffer(){
+	flushSerial(INBOUND);
+}
+
+void FreeEMS_SerialPort::flushOutBuffer(){
+	flushSerial(OUTBOUND);
+}
+
+void FreeEMS_SerialPort::readData(char *data, size_t size){
+	if(isOpen()){
+		read(_fd, data, size);
+	}else
+		std::cout<<"Error: Port is not open";
+}
+
+void FreeEMS_SerialPort::writeData(const char *data, size_t size){
+	if(isOpen()){
+		write(_fd, data, size);
+
+	}else
+		std::cout<<"Error: Port is not open";
+}

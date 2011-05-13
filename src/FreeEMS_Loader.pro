@@ -45,31 +45,30 @@ RESOURCES += resource-root.qrc \
 # Cross compilation
 win32-x-g++ { 
     message("Crosscompiling on Unix to Windows")
-    unix:INCLUDEPATH *= /opt/crossroot/boost/include/
-    unix:LIBS *= -lQtSerialPort
+    #unix:INCLUDEPATH *= /opt/crossroot/boost/include/
+    #unix:LIBS *= -lQtSerialPort
     QMAKE_CXXFLAGS -= -Werror
 }
 mac { 
     # Straight Mac-OS (OS-X)
     message("Mac OS-X Build")
     unix:INCLUDEPATH *= /opt/local/include
-    unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
-    unix:LIBS *= -L/opt/local/lib \
-        -lQtSerialPort
+    #unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
+    #unix:LIBS *= -L/opt/local/lib \
+    #    -lQtSerialPort
 }
 linux-g++ { 
     # Straight Linux
     message("Linux Build")
-    unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
-    unix:LIBS *= -L/usr/local/qserialport/lib/ \
-        -lQtSerialPort
+    #unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
+    #unix:LIBS *=
+    # -L/usr/local/qserialport/lib/ \
+    #    -lQtSerialPort
 }
 win32 { 
     message("Straight compile on windows (seank only)")
-    win32:INCLUDEPATH *= $$quote(C:/boost/include/boost-1_45)
+    #win32:INCLUDEPATH *= $$quote(C:/boost/include/boost-1_45)
     win32:LIBS *= -Lc:/mingw/lib \
         -lwsock32
-    win32:DEFINES = _TTY_WIN_ \
-        QWT_DLL \
-        QT_DLL
+
 }

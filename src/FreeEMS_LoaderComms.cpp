@@ -16,7 +16,7 @@
 
 using namespace std;
 
-FreeEMS_LoaderComms::FreeEMS_LoaderComms() : verifyLastWrite(false), verifyACKs(false),
+FreeEMS_LoaderComms::FreeEMS_LoaderComms() : verifyLastWrite(false), verifyACKs(true),
       flashTypeIndex(0), fDeviceIsSet(false), smIsReady(false)
 {
   init();
@@ -27,28 +27,28 @@ void
 FreeEMS_LoaderComms::openTest(QString serPortName)
 {
   serPortName = serPortName;
-  //const char SMRDY = 0x0D;
-  TNX::CommTimeouts commTimeouts;
-  commTimeouts.PosixVMIN = 0;
-  commTimeouts.PosixVTIME = .2;
-  TNX::QSerialPort serPorttest(serPortName, "115200,8,n,1");
-  serPorttest.setPortName(serPortName);
-  serPorttest.open();
-  serPorttest.flushInBuffer();
-  serPorttest.setCommTimeouts(commTimeouts);
-  serPorttest.write(SMRDY, sizeof(SMRDY));
-  //write(SMRDY, sizeof(SMRDY));
-  //TODO user return verify instead
-  QByteArray resp;
-  //resp = serPorttest.read(3);
-  QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
-  if(resp.contains(tester)){
-      WOInfo("Found String");
-  }else{
-  WOInfo("NONBOOST Serial Port Read/Write Complete: SM NOT FOUND");
-  }
-  //serPorttest.close();
-  //delete(serPort);
+//
+//  TNX::CommTimeouts commTimeouts;
+//  commTimeouts.PosixVMIN = 0;
+//  commTimeouts.PosixVTIME = .2;
+//  TNX::QSerialPort serPorttest(serPortName, "115200,8,n,1");
+//  serPorttest.setPortName(serPortName);
+//  serPorttest.open();
+//  serPorttest.flushInBuffer();
+//  serPorttest.setCommTimeouts(commTimeouts);
+//  serPorttest.write(SMRDY, sizeof(SMRDY));
+//
+//  //TODO user return verify instead
+//  QByteArray resp;
+//  //resp = serPorttest.read(3);
+//  QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
+//  if(resp.contains(tester)){
+//      WOInfo("Found String");
+//  }else{
+//  WOInfo("NONBOOST Serial Port Read/Write Complete: SM NOT FOUND");
+//  }
+//  //serPorttest.close();
+//  //delete(serPort);
 }
 
 void
@@ -57,35 +57,41 @@ FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
   if (isOpen())
     close();
 
-  //TODO move else where
-   baud_rate = baud_rate;//delete
-  TNX::QPortSettings settings;
-   //serPortSettings.setBaudRate(TNX::QPortSettings::BAUDR_115200);
-  //serPortSettings->set("115200,8,n,1");
+//  //TODO move else where
+//   baud_rate = baud_rate;//delete
+//  TNX::QPortSettings settings;
+//   //serPortSettings.setBaudRate(TNX::QPortSettings::BAUDR_115200);
+//  //serPortSettings->set("115200,8,n,1");
+//
+//  TNX::CommTimeouts commTimeouts;
+//  commTimeouts.PosixVMIN = 0;
+//  commTimeouts.PosixVTIME = 100;
+//
+//  serPort->setCommTimeouts(commTimeouts);
+//      //serPort->setCommTimeouts(40);
+//  serPort->setPortName(serPortName);
+//  settings.set("115200,8,n,1");
+//  //settings.
+////  TNX::QSerialPort test;
+////  test.portSettings()
+//  //serPortSettings->setBaudRate((TNX::QPortSettings::BaudRate)baud_rate);
+//  //serPortSettings->setBaudRate();
+//  //serPortSettings->setPortName(serPortName);
+//  //serPortSettings->setBaudRate(baud_rate);
+//
+//  serPort->setPortSettings(settings);
+//  //serPort->portSettings(serPortSettings);
+//  //serPort->setPortSettings(&serPortSettings);l
+//  //serPort.setBaudRate(baud_rate);
+//  //serPort.setBaudRate(BAUDR_115200);
+//  //serPort.portSettings_ = "115200,8,n,1"; //TODO dynamic config
+//  serPort->open();
 
-  TNX::CommTimeouts commTimeouts;
-  commTimeouts.PosixVMIN = 0;
-  commTimeouts.PosixVTIME = 100;
+// nat port inplimentation
 
-  serPort->setCommTimeouts(commTimeouts);
-      //serPort->setCommTimeouts(40);
-  serPort->setPortName(serPortName);
-  settings.set("115200,8,n,1");
-  //settings.
-//  TNX::QSerialPort test;
-//  test.portSettings()
-  //serPortSettings->setBaudRate((TNX::QPortSettings::BaudRate)baud_rate);
-  //serPortSettings->setBaudRate();
-  //serPortSettings->setPortName(serPortName);
-  //serPortSettings->setBaudRate(baud_rate);
-
-  serPort->setPortSettings(settings);
-  //serPort->portSettings(serPortSettings);
-  //serPort->setPortSettings(&serPortSettings);
-  //serPort.setBaudRate(baud_rate);
-  //serPort.setBaudRate(BAUDR_115200);
-  //serPort.portSettings_ = "115200,8,n,1"; //TODO dynamic config
-  serPort->open();
+  serPort->openPort(serPortName.toAscii().data());
+  serPort->setupPort(baud_rate);
+  sleep(1);
 
 }
 
@@ -104,9 +110,10 @@ FreeEMS_LoaderComms::isOpen() const
 void
 FreeEMS_LoaderComms::init()
 {
-  serPort = new TNX::QSerialPort("115200,8,n,1");
+  //serPort = new TNX::QSerialPort("115200,8,n,1");
+ serPort = new FreeEMS_SerialPort;
 
-	s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
+  s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   //s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   lastLoadAddress = 0;
   clearSets();
@@ -131,7 +138,7 @@ FreeEMS_LoaderComms::close()
   if (isOpen() == false)
     return;
   cout<<"Comms: closing port ";
-  serPort->close();
+  serPort->closePort();
   smIsReady = false;
 }
 
@@ -280,12 +287,13 @@ FreeEMS_LoaderComms::SMSetPPage(char PPage)
   write(&Zero, 1);
   write(&PPageRegister, 1);
   write(&page, 1);
+  usleep(50000);
 
   //if(verifyACKs == true)
   //  {
       if(verifyReturn() < 0)
          {
-           cout << "cannot verify return string after setting ppage"<<endl;
+           cout << "Error: cannot verify return string after setting ppage"<<endl;
          }
   //  }
 }
@@ -350,14 +358,13 @@ void
 FreeEMS_LoaderComms::write(const char *data, size_t size)
 {
   //asio::write(port, asio::buffer(data, size));
-  unsigned int i;
-  cout<<endl;
-  for(i = 0; i < size; i++){
-	  printf("about to write %x to the port \n",(unsigned char)*(data+i));
-  }
-  usleep(5);
+//  unsigned int i;
+//  cout<<endl;
+//  for(i = 0; i < size; i++){
+//	  printf("about to write %x to the port \n",(unsigned char)*(data+i));
+//  }
   //sleep(1);
-   serPort->write(data, size);
+   serPort->writeData(data, size);
 }
 /*
 void
@@ -396,8 +403,8 @@ FreeEMS_LoaderComms::writeString(const std::string& s)
 //TODO add parity "double read" option
 void
 FreeEMS_LoaderComms::read(char *data, size_t size)
-{	usleep(5);
-	serPort->read(data, size);
+{	usleep(5000);
+	serPort->readData(data, size);
 }
 
 //TODO add parity "double read" option
@@ -469,7 +476,7 @@ FreeEMS_LoaderComms::verifyReturn()
 	    	  printf("%x ",(unsigned char)response[0]);
 	    	  cout<<endl; //todo properly parse code
 	      }else{
-		  cout << "SM Returned Success!"<<(unsigned char)response[0]<<endl; //todo properly parse code
+		  //cout << "SM Returned Success!"<<(unsigned char)response[0]<<endl; //todo properly parse code
 	      }
 	      return 1;
 	    }
@@ -510,10 +517,11 @@ FreeEMS_LoaderComms::erasePage(char PPage)
 {
   SMSetPPage(PPage);
   write(&SMErasePage, 1);
+  usleep(5*500000);
   //if(verifyACKs == true)
   //  {
       if(verifyReturn() < 0)
-         cout<< "Error validating SMErasePage confirmation, page may already be erased";
+         cout<< "Error validating SMErasePage confirmation"<<endl;
   //  }
 }
 

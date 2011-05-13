@@ -9,7 +9,8 @@
 #define FREEEMS_SERIALPORT_H_
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+//#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -20,12 +21,54 @@
 #include <termios.h>
 #endif
 
+#include <fcntl.h> // File control definitions
+#include <errno.h> // Error number definitions
+#include <termios.h> // POSIX terminal control definitionss
+#include <time.h>   // time calls
+
 #ifndef CRTSCTS
 #define CRTSCTS 0
 #endif
 
+#ifndef B115200
+#define B115200 115200
+#endif
+
+typedef enum
+{
+	NONE,
+	ODD,
+	EVEN
+}Parity;
+
+typedef enum
+{
+	INBOUND=0x2E0,
+	OUTBOUND,
+	BOTH
+}FlushDirection;
+
+class FreeEMS_SerialPort {
+public:
+	FreeEMS_SerialPort();
+	virtual ~FreeEMS_SerialPort();
+	bool isOpen();
+
+void openPort(char *port_name);
+int setupPort(int baud);
+void closePort();
+void flushInBuffer();
+void flushOutBuffer();
+void writeData(const char *data, size_t size);
+void readData(char *data, size_t size);
+void flushSerial(FlushDirection direction);
+
+private:
+int _fd;
+bool _isOpenFlag;
 
 /* Globals */
+
 #ifndef __WIN32__
 	struct termios oldtio;
 	struct termios newtio;
@@ -35,7 +78,7 @@
 #ifdef __WIN32__
 struct _Serial_Params
 {
-	int fd;		/*! File descriptor */
+	int _fd;		/*! File descriptor */
 	char *port_name;	/*! textual name of comm port */
 	bool open;		/*! flag, TRUE for open FALSE for closed */
 	int read_wait;		/*! time delay between each read */
@@ -59,43 +102,6 @@ struct _Serial_Params
 #endif
 };
 #endif
-
-typedef enum
-{
-	NONE,
-	ODD,
-	EVEN
-}Parity;
-
-typedef enum
-{
-	INBOUND=0x2E0,
-	OUTBOUND,
-	BOTH
-}FlushDirection;
-
-class FreeEMS_SerialPort {
-public:
-	FreeEMS_SerialPort();
-	virtual ~FreeEMS_SerialPort();
-
-int open_port(char *port_name);
-int setup_port(int fd, int baud);
-void close_port(int fd);
-//void flush_serial(int fd, FlushDirection direction);
-
-	/* Prototypes */
-	//bool open_serial(char *, bool);
-	//void close_serial(void);
-//	void setup_serial_params(void);
-//	void toggle_serial_control_lines(void );
-//	void flush_serial(int, FlushDirection);
-//	//void *serial_repair_thread(gpointer );
-//	bool parse_baud_str(char *, int *, int *, Parity *, int *);
-//	/* Prototypes */
-
-private:
-int fd;
 
 };
 

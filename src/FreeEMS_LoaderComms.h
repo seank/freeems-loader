@@ -12,13 +12,14 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-#include <QSerialPort>
+//#include <QSerialPort>
 //#include <qextserialport.h>
 #include <QString>
 #include <QThread>
 #include <QObject>
 #include <QDebug>
-#include <QMutex>
+//#include <QMutex>
+#include "FreeEMS_SerialPort.h"
 //#include <QTimer>
 
 #include "FreeEMS_LoaderSREC.h"
@@ -280,47 +281,50 @@ signals:
 private:
 
   // TNX STUFF
-  TNX::QSerialPort *serPort;
+  //TNX::QSerialPort *serPort;
   //TNX::QSerialPort *serPorttest;
   //TNX::QPortSettings *serPortSettings;
+
+  FreeEMS_SerialPort *serPort;
+
 
   /**
    * Parameters of performReadSetup.
    * Just wrapper class, no encapsulation provided
    */
-  class ReadSetupParameters
-  {
-  public:
-    ReadSetupParameters() :
-      fixedSize(false), delim(""), data(0), size(0)
-    {
-    }
-
-    explicit
-    ReadSetupParameters(const std::string& delim) :
-      fixedSize(false), delim(delim), data(0), size(0)
-    {
-    }
-
-    ReadSetupParameters(char *data, size_t size) :
-      fixedSize(true), delim(""), data(data), size(size)
-    {
-    }
-
-    //Using default copy constructor, operator=
-
-    bool fixedSize; ///< True if need to read a fixed number of parameters
-    std::string delim; ///< String end delimiter (valid if fixedSize=false)
-    char *data; ///< Pointer to data array (valid if fixedSize=true)
-    size_t size; ///< Array size (valid if fixedSize=true)
-  };
+//  class ReadSetupParameters
+//  {
+//  public:
+//    ReadSetupParameters() :
+//      fixedSize(false), delim(""), data(0), size(0)
+//    {
+//    }
+//
+//    explicit
+//    ReadSetupParameters(const std::string& delim) :
+//      fixedSize(false), delim(delim), data(0), size(0)
+//    {
+//    }
+//
+//    ReadSetupParameters(char *data, size_t size) :
+//      fixedSize(true), delim(""), data(data), size(size)
+//    {
+//    }
+//
+//    //Using default copy constructor, operator=
+//
+//    bool fixedSize; ///< True if need to read a fixed number of parameters
+//    std::string delim; ///< String end delimiter (valid if fixedSize=false)
+//    char *data; ///< Pointer to data array (valid if fixedSize=true)
+//    size_t size; ///< Array size (valid if fixedSize=true)
+//  };
 
   /**
    * This member function sets up a read operation, both reading a specified
    * number of characters and reading until a delimiter string.
    */
-  void
-  performReadSetup(const ReadSetupParameters& param);
+//  void
+//  performReadSetup(const ReadSetupParameters& param);
 
   /**
    * Callack called either when the read timeout is expired or canceled.
