@@ -91,7 +91,7 @@ FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
 
   serPort->openPort(serPortName.toAscii().data());
   serPort->setupPort(baud_rate);
-  sleep(1);
+  //sleep(1);
 
 }
 
@@ -287,7 +287,7 @@ FreeEMS_LoaderComms::SMSetPPage(char PPage)
   write(&Zero, 1);
   write(&PPageRegister, 1);
   write(&page, 1);
-  usleep(50000);
+//  usleep(50000);
 
   //if(verifyACKs == true)
   //  {
@@ -403,7 +403,7 @@ FreeEMS_LoaderComms::writeString(const std::string& s)
 //TODO add parity "double read" option
 void
 FreeEMS_LoaderComms::read(char *data, size_t size)
-{	usleep(5000);
+{	//usleep(5000);
 	serPort->readData(data, size);
 }
 
@@ -467,7 +467,7 @@ FreeEMS_LoaderComms::verifyReturn()
   //QByteArray resp;
   //resp = serPort->read(3); //todo use wrapper
   //QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
-  usleep(5000);
+  //usleep(5000);
   char response[4] = {0};
   read(response, 3);
 	if ( (response[2] == (const char)0x3E ) ) // we got a response
@@ -518,7 +518,7 @@ FreeEMS_LoaderComms::erasePage(char PPage)
 {
   SMSetPPage(PPage);
   write(&SMErasePage, 1);
-  usleep(5*500000);
+  //usleep(5*500000);
   //if(verifyACKs == true)
   //  {
       if(verifyReturn() < 0)

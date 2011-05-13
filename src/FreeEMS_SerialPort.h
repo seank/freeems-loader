@@ -61,11 +61,13 @@ void flushInBuffer();
 void flushOutBuffer();
 void writeData(const char *data, size_t size);
 void readData(char *data, size_t size);
+int readWrapper(int, char *, size_t size);
 void flushSerial(FlushDirection direction);
 
 private:
 int _fd;
 bool _isOpenFlag;
+static const int _poll_attempts = 50;
 
 /* Globals */
 
