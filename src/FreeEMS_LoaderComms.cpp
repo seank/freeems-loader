@@ -467,6 +467,7 @@ FreeEMS_LoaderComms::verifyReturn()
   //QByteArray resp;
   //resp = serPort->read(3); //todo use wrapper
   //QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
+  usleep(5000);
   char response[4] = {0};
   read(response, 3);
 	if ( (response[2] == (const char)0x3E ) ) // we got a response
