@@ -112,11 +112,13 @@ int FreeEMS_SerialPort::setupPort(int baud)
 void FreeEMS_SerialPort::closePort()
 {
 #ifndef __WIN32__
-	tcsetattr(_fd,TCSAFLUSH,&oldtio);
+	//tcsetattr(_fd,TCSAFLUSH,&oldtio);
+	tcsetattr(_fd, TCSANOW, &oldtio);
 #endif
-	tcflush(_fd, TCIOFLUSH);
-	fcntl(_fd, O_NONBLOCK);
+//	tcflush(_fd, TCIOFLUSH);
+//	fcntl(_fd, O_NONBLOCK);
 	close(_fd);
+
 	return;
 }
 
