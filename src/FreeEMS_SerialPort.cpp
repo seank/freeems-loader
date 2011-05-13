@@ -25,7 +25,11 @@ FreeEMS_SerialPort::openPort(char * port_name)
 	_fd = open(port_name, O_RDWR | O_BINARY );
 #else
 	/* NON-block open, then turn to blocking via fcntl so it works
-	   nicely on linux and OS-X
+	   nicely on linux and OS-X.  this MUST be done this way because
+	   in OS-X some serial devices will BLOCK on open waiting for the 
+	   control lines to get into the state it wants, thus blocking
+	   open() indefinitely.  Thus we open nonblocking then flip the bit
+	   afterwards, as termios will set things up the way we want..
 	   */
 	_fd = open(port_name, O_RDWR | O_NOCTTY | O_NONBLOCK );
 	fcntl(_fd, ~O_NONBLOCK);
