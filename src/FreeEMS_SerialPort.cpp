@@ -24,7 +24,11 @@ FreeEMS_SerialPort::openPort(char * port_name)
 #ifdef __WIN32__
 	_fd = open(port_name, O_RDWR | O_BINARY );
 #else
-	_fd = open(port_name, O_RDWR | O_NOCTTY );
+	/* NON-block open, then turn to blocking via fcntl so it works
+	   nicely on linux and OS-X
+	   */
+	_fd = open(port_name, O_RDWR | O_NOCTTY | O_NONBLOCK );
+	fcntl(_fd, ~O_NONBLOCK);
 #endif
 	_isOpenFlag = _fd > 0 ? true:false;
 }
