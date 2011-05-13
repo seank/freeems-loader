@@ -114,6 +114,8 @@ void FreeEMS_SerialPort::closePort()
 #ifndef __WIN32__
 	tcsetattr(_fd,TCSAFLUSH,&oldtio);
 #endif
+	tcflush(_fd, TCIOFLUSH);
+	fcntl(_fd, O_NONBLOCK);
 	close(_fd);
 	return;
 }
