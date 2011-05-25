@@ -117,8 +117,19 @@ void FreeEMS_SerialPort::closePort()
 #endif
 //	tcflush(_fd, TCIOFLUSH);
 //	fcntl(_fd, O_NONBLOCK);
-	close(_fd);
 
+	//	close(_fd);
+
+	if (_fd!=-1)
+	{
+//		if (restoreSettings)
+//		{
+//			tcsetattr(_fd, TCSANOW, &m_oldtio);
+			tcsetattr(_fd, TCSANOW, &oldtio);
+//		}
+		::close(_fd);
+	}
+	_fd=-1;
 	return;
 }
 
