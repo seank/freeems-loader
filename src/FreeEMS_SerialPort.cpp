@@ -98,7 +98,7 @@ int FreeEMS_SerialPort::setupPort(int baud)
 	newtio.c_cc[VKILL]    = 0;     /* @ */
 	newtio.c_cc[VEOF]     = 0;     /* Ctrl-d */
 	newtio.c_cc[VEOL]     = 0;     /* '\0' */
-	newtio.c_cc[VMIN]     = 0;
+	newtio.c_cc[VMIN]     = 1;
 	newtio.c_cc[VTIME]    = 1;     /* 100ms timeout */
 
 	tcsetattr(_fd,TCSANOW,&newtio);
