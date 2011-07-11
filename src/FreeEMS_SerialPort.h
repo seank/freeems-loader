@@ -15,8 +15,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
 #ifdef __WIN32__
+//#include <winserialio.h>
+#include <serialio.h>
 #include <winserialio.h>
+#include <io.h>
+#include <windows.h>
 #else
 #include <termios.h>
 #endif
@@ -63,6 +68,12 @@ void writeData(const char *data, size_t size);
 void readData(char *data, size_t size);
 int readWrapper(int, char *, size_t size);
 void flushSerial(FlushDirection direction);
+
+#ifdef _WIN32_
+void win32_setup_serial_params(int, int, int, Parity, int);
+void win32_toggle_serial_control_lines(void);
+void win32_flush_serial(int, FlushDirection);
+#endif
 
 private:
 int _fd;
