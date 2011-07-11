@@ -111,10 +111,7 @@ int FreeEMS_SerialPort::setupPort(int baud)
 
 void FreeEMS_SerialPort::closePort()
 {
-#ifndef __WIN32__
-	//tcsetattr(_fd,TCSAFLUSH,&oldtio);
-	tcsetattr(_fd, TCSANOW, &oldtio);
-#endif
+
 //	tcflush(_fd, TCIOFLUSH);
 //	fcntl(_fd, O_NONBLOCK);
 
@@ -124,8 +121,11 @@ void FreeEMS_SerialPort::closePort()
 	{
 //		if (restoreSettings)
 //		{
-//			tcsetattr(_fd, TCSANOW, &m_oldtio);
-			tcsetattr(_fd, TCSANOW, &oldtio);
+		#ifndef __WIN32__
+		//tcsetattr(_fd,TCSAFLUSH,&oldtio);
+		int temp = tcsetattr(_fd, TCSANOW, &oldtio);
+		temp = temp; //TODO rectify
+    	#endif
 //		}
 		::close(_fd);
 	}
@@ -264,8 +264,8 @@ void FreeEMS_SerialPort::readData(char *data, size_t size){
 
 void FreeEMS_SerialPort::writeData(const char *data, size_t size){
 	if(isOpen()){
-		write(_fd, data, size);
-
+		int temp = write(_fd, data, size);
+		temp = temp; //TOOD rectify
 	}else
 		std::cout<<"Error: Port is not open";
 }
