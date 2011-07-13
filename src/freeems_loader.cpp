@@ -332,7 +332,7 @@ QString portName = ui.comboDevice->currentText();
     	            ui.comboBaud->currentText().toUInt());
     	  //if(!serialConnection->isOpen())
     		//  break;
-      sleep(1); //port takes a second to init after the open function
+      //sleep(1); // POSIX ONLY TODO port takes a second to init after the open function
     	  loaderComms->setSM();
           loaderComms->setFlashType(defFlashType);
 
@@ -345,7 +345,7 @@ QString portName = ui.comboDevice->currentText();
   else
     {
       loaderComms->resetSM();
-      sleep(1);
+      //sleep(1); // POSIX only TODO
       loaderComms->close();
       loaderComms->isReady() ? setGUIState(CONNECTED) : setGUIState(
           NOTCONNECTED);

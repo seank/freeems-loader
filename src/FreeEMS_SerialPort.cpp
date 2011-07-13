@@ -24,7 +24,7 @@ win32_setup_serial_params(int fd, int baud, int bits, Parity parity, int stop)
 {
 	DCB dcb;
 	WSADATA wsaData;
-	gint res = 0;
+	int res = 0;
 	COMMTIMEOUTS timeouts;
 
 	ZeroMemory(&dcb, sizeof(dcb));
@@ -98,8 +98,10 @@ win32_setup_serial_params(int fd, int baud, int bits, Parity parity, int stop)
 	SetCommTimeouts((HANDLE) _get_osfhandle (fd) ,&timeouts);
 
 	res = WSAStartup(MAKEWORD(2,2), &wsaData);
-	if (res != 0)
-		printf(_("WSAStartup failed: %d\n"),res);
+	if (res != 0) {
+		//printf(_("WSAStartup failed: %d\n"),res);
+		printf("WSAStartup failed: %d\n", res);
+	}
 	return;
 
 }
@@ -231,7 +233,7 @@ void FreeEMS_SerialPort::closePort()
 		#ifndef __WIN32__
 		//tcsetattr(_fd,TCSAFLUSH,&oldtio);
 		int temp = tcsetattr(_fd, TCSANOW, &oldtio);
-		temp = temp; //TODO rectify
+		temp += temp; //TODO rectify
     	#endif
 //		}
 		::close(_fd);
@@ -244,8 +246,10 @@ void FreeEMS_SerialPort::closePort()
 void FreeEMS_SerialPort::flushSerial(FlushDirection direction)
 {
 #ifdef __WIN32__
-	if (_fd)
-		win32_flush_serial(_fd, type);
+	if (_fd) {
+		//win32_flush_serial(_fd, type);
+		win32_flush_serial(_fd, direction);
+	}
 #else
 	if (_fd)
 	{

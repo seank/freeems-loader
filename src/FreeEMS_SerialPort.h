@@ -18,17 +18,15 @@
 
 #ifdef __WIN32__
 //#include <winserialio.h>
-#include <serialio.h>
-#include <winserialio.h>
+//#include <serialio.h>
 #include <io.h>
 #include <windows.h>
 #else
-#include <termios.h>
+#include <termios.h> // POSIX terminal control definitions
 #endif
 
 #include <fcntl.h> // File control definitions
 #include <errno.h> // Error number definitions
-#include <termios.h> // POSIX terminal control definitionss
 #include <time.h>   // time calls
 
 #ifndef CRTSCTS
