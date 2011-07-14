@@ -37,6 +37,8 @@
 #define B115200 115200
 #endif
 
+#define POLL_ATTEMPTS 15 //TODO make confgable
+
 typedef enum
 {
 	NONE,

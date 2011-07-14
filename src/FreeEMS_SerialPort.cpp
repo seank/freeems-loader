@@ -442,7 +442,8 @@ int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested
 		res = select (fd+1, &readfds,NULL,NULL, &t);
 		if (res == -1)
 		{
-			output("ERROR, select() failure!\n",FALSE);
+			//output("ERROR, select() failure!\n",FALSE);
+			printf("ERROR, select() failure!\n");
 			return -1;
 		}
 		if (res == 0) /* Timeout */
@@ -460,7 +461,8 @@ int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested
 			received = read(fd, &buf[read_pos], wanted);
 			if (received == -1)
 			{
-				output("Serial I/O Error, read failure\n",FALSE);
+				printf("Serial I/O Error, read failure\n");
+				//output("Serial I/O Error, read failure\n",FALSE);
 				return -1;
 			}
 			total += received;
