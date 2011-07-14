@@ -64,7 +64,7 @@ void flushInBuffer();
 void flushOutBuffer();
 void writeData(const char *data, size_t size);
 void readData(char *data, size_t size);
-int readWrapper(int, char *, size_t size);
+int readWrapper(unsigned int, char *, size_t size);
 void flushSerial(FlushDirection direction);
 
 #ifdef _WIN32_

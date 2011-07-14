@@ -20,7 +20,7 @@ FreeEMS_SerialPort::~FreeEMS_SerialPort() {
 
 #ifdef __WIN32__
 void
-win32_setup_serial_params(int fd, int baud, int bits, Parity parity, int stop)
+win32_setup_serial_params(unsigned int fd, int baud, int bits, Parity parity, int stop)
 {
 	DCB dcb;
 	WSADATA wsaData;
@@ -107,7 +107,7 @@ win32_setup_serial_params(int fd, int baud, int bits, Parity parity, int stop)
 }
 
 void
-win32_flush_serial(int fd, FlushDirection mode)
+win32_flush_serial(unsigned int fd, FlushDirection mode)
 {
 	switch (mode)
 	{
@@ -381,8 +381,49 @@ void FreeEMS_SerialPort::writeData(const char *data, size_t size){
 		std::cout<<"Error: Port is not open";
 }
 
-int FreeEMS_SerialPort::readWrapper(int fd, char *buf, size_t requested)
+int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested)
 {
+#ifdef __WIN32__
+	/* Windows can't do select() on anything but network sockets which
+	   is completely braindead, and thus yoou must do overlapped IO
+	   or uglier busylooped IO.  I'm lazy and hate windows and the
+	   overlapped IO stuff is ugly as hell, so I used the busylooped method
+	   instead...
+	   */
+	int received = 0;
+        int read_pos = 0;
+	int timeout = FALSE;
+	unsigned int tries = 0;
+	int wanted = requested;
+	unsigned int total = 0;
+
+	while (!timeout)
+	{
+		tries++;
+		read_pos = requested - wanted;
+		received = read(fd, &buf[read_pos], wanted);
+		printf("Try %i, requested %i, got %i\n",tries,wanted,received);
+		//TODO fix g_usleep(10000); /* 10ms rest */
+		if (received == -1)
+		{
+			//TODO FIX output("Serial I/O Error, read failure\n",FALSE);
+			printf("Serial I/O Error, read failure\n");
+			return -1;
+		}
+		total += received;
+		wanted -= received;
+		if (tries > requested)
+			timeout = TRUE;
+		if (total == requested)
+		{
+			printf("got what was requested, returning\n");
+			return total;
+		}
+	}
+	printf("timeout, returning only %i of %i bytes\n",total,requested);
+	return total;
+
+#else	/* Linux/OS-X where sane I/O lives */
 	fd_set readfds;
 	struct timeval t;
 	int attempts = 0;
@@ -400,12 +441,15 @@ int FreeEMS_SerialPort::readWrapper(int fd, char *buf, size_t requested)
 		FD_SET(fd,&readfds);
 		res = select (fd+1, &readfds,NULL,NULL, &t);
 		if (res == -1)
+		{
+			output("ERROR, select() failure!\n",FALSE);
 			return -1;
+		}
 		if (res == 0) /* Timeout */
 		{
 			/*printf("timeout!\n");*/
 			attempts++;
-			if (attempts > _poll_attempts)
+			if (attempts > POLL_ATTEMPTS)
 				return total;
 		}
 		/* OK we have something waiting for us, read it */
@@ -415,12 +459,16 @@ int FreeEMS_SerialPort::readWrapper(int fd, char *buf, size_t requested)
 			read_pos = requested - wanted;
 			received = read(fd, &buf[read_pos], wanted);
 			if (received == -1)
+			{
+				output("Serial I/O Error, read failure\n",FALSE);
 				return -1;
+			}
 			total += received;
 			/*printf("got %i bytes\n",received);*/
 			wanted -= received;
 		}
 	}
 	return total;
+#endif
 }
 
