@@ -1,18 +1,33 @@
-/*
- * FreeEMS_LoaderComms.cpp
+/* FreeEMS-Loader- the open source s19 loader with special features for FreeEMS
  *
- *  Created on: Oct 29, 2010
- *      Author: seank
+ * Copyright (C) 2008-2011 by Sean Keys <skeys@powerefi.com>
+ *
+ * This file is part of the FreeEMS-Loader project.
+ *
+ * FreeEMS-Loader software is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FreeEMS-Loader software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with any FreeEMS-Loader software.  If not, see http://www.gnu.org/licenses/
+ *
+ * We ask that if you make any changes to this file you email them upstream to
+ * us at info(at)powerefi(dot)com or, even better, fork the code on github.com!
+ *
+ * Thank you for choosing FreeEMS-Loader to load your firmware!
  *
  */
 
 #include "FreeEMS_LoaderComms.h"
 #include "FreeEMS_LoaderParsing.h"
-//#include <algorithm>
-//#include <boost/bind.hpp>
 #include <freeems_loader_types.h>
 #include <fstream>
-//#include <ostream>
 
 using namespace std;
 
@@ -56,39 +71,6 @@ FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate)
 {
   if (isOpen())
     close();
-
-//  //TODO move else where
-//   baud_rate = baud_rate;//delete
-//  TNX::QPortSettings settings;
-//   //serPortSettings.setBaudRate(TNX::QPortSettings::BAUDR_115200);
-//  //serPortSettings->set("115200,8,n,1");
-//
-//  TNX::CommTimeouts commTimeouts;
-//  commTimeouts.PosixVMIN = 0;
-//  commTimeouts.PosixVTIME = 100;
-//
-//  serPort->setCommTimeouts(commTimeouts);
-//      //serPort->setCommTimeouts(40);
-//  serPort->setPortName(serPortName);
-//  settings.set("115200,8,n,1");
-//  //settings.
-////  TNX::QSerialPort test;
-////  test.portSettings()
-//  //serPortSettings->setBaudRate((TNX::QPortSettings::BaudRate)baud_rate);
-//  //serPortSettings->setBaudRate();
-//  //serPortSettings->setPortName(serPortName);
-//  //serPortSettings->setBaudRate(baud_rate);
-//
-//  serPort->setPortSettings(settings);
-//  //serPort->portSettings(serPortSettings);
-//  //serPort->setPortSettings(&serPortSettings);l
-//  //serPort.setBaudRate(baud_rate);
-//  //serPort.setBaudRate(BAUDR_115200);
-//  //serPort.portSettings_ = "115200,8,n,1"; //TODO dynamic config
-//  serPort->open();
-
-// nat port inplimentation
-
   serPort->openPort(serPortName.toAscii().data());
   serPort->setupPort(baud_rate);
   //sleep(1);
@@ -110,9 +92,7 @@ FreeEMS_LoaderComms::isOpen() const
 void
 FreeEMS_LoaderComms::init()
 {
-  //serPort = new TNX::QSerialPort("115200,8,n,1");
- serPort = new FreeEMS_SerialPort;
-
+  serPort = new FreeEMS_SerialPort;
   s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   //s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
   lastLoadAddress = 0;
@@ -141,12 +121,6 @@ FreeEMS_LoaderComms::close()
   serPort->closePort();
   smIsReady = false;
 }
-
-//void //TODO reimpliment
-//FreeEMS_LoaderComms::setTimeout(const posix_time::time_duration& t)
-//{
-//  timeout = t;
-//}
 
 void
 FreeEMS_LoaderComms::loadDevice()
@@ -279,10 +253,6 @@ void
 FreeEMS_LoaderComms::SMSetPPage(char PPage)
 {
   char page = PPage;
-  //asio::write(port, asio::buffer(&SMWriteByte, ONE_BYTE));
-  //asio::write(port, asio::buffer(&Zero, ONE_BYTE));
-  //asio::write(port, asio::buffer(&PPageRegister, ONE_BYTE));
-  //asio::write(port, asio::buffer(&page, ONE_BYTE));
   write(&SMWriteByte, 1);
   write(&Zero, 1);
   write(&PPageRegister, 1);
@@ -307,7 +277,6 @@ FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size)
     {
       printf("-> %x", *(data + (i - 1)));
     }
-  //asio::write(port, asio::buffer(data, size));
 }
 
 void
@@ -357,12 +326,6 @@ FreeEMS_LoaderComms::setSM()
 void
 FreeEMS_LoaderComms::write(const char *data, size_t size)
 {
-  //asio::write(port, asio::buffer(data, size));
-//  unsigned int i;
-//  cout<<endl;
-//  for(i = 0; i < size; i++){
-//	  printf("about to write %x to the port \n",(unsigned char)*(data+i));
-//  }
   //sleep(1);
    serPort->writeData(data, size);
 }
@@ -385,7 +348,6 @@ FreeEMS_LoaderComms::write(const std::vector<char>& data)
       d = data[i];
       write(&d, 1);
   }
-  //asio::write(port, asio::buffer(&data[0], data.size()));
 }
 
 void
@@ -397,7 +359,6 @@ FreeEMS_LoaderComms::writeString(const std::string& s)
       d = s[i];
       write(&d, 1);
   }
-  //asio::write(port, asio::buffer(s.c_str(), s.size()));
 }
 
 //TODO add parity "double read" option
@@ -438,6 +399,7 @@ FreeEMS_LoaderComms::~FreeEMS_LoaderComms()
 {
 
 }
+
 /*
 void //TODO reimpliment
 FreeEMS_LoaderComms::timeoutExpired(const boost::system::error_code& error)
@@ -498,10 +460,6 @@ FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes,
   char highByte = (address & 0xFF00) >> 8;
   char lowByte = address & 0x00FF;
   char bytesRequested = plusBytes - 1;
-  //asio::write(port, asio::buffer(&SMReadBlock, ONE_BYTE));
-  //asio::write(port, asio::buffer(&highByte, ONE_BYTE));
-  //asio::write(port, asio::buffer(&lowByte, ONE_BYTE));
-  //asio::write(port, asio::buffer(&bytesRequested, ONE_BYTE));
   write(&SMReadBlock, 1);
   write(&highByte, 1);
   write(&lowByte, 1);
@@ -518,12 +476,8 @@ FreeEMS_LoaderComms::erasePage(char PPage)
 {
   SMSetPPage(PPage);
   write(&SMErasePage, 1);
-  //usleep(5*500000);
-  //if(verifyACKs == true)
-  //  {
-      if(verifyReturn() < 0)
+  if(verifyReturn() < 0)
          cout<< "Error validating SMErasePage confirmation"<<endl;
-  //  }
 }
 
 void
@@ -534,6 +488,7 @@ FreeEMS_LoaderComms::eraseDevice()
   int nPages;
   char PPageIndex;
   //setSM(); //change to checkSM Incase the SM has been reset by the user
+  // TODO change all errors to a SM check call back or something
   if (smIsReady)
     {
       //calculate total bytes in device
@@ -657,7 +612,6 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
   int typeID = S2; //TODO get from s19
   unsigned int Ppage;
   int i;
-
   std::vector<char> verifyString;
   std::vector<char> readString;
   char c;
@@ -714,7 +668,7 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
 void
 FreeEMS_LoaderComms::flushRXStream()
 {
- //check for open port
+ //check for open port TODO maybe call other flush function
   flushMode = true;
   char c;
   unsigned int bytes;

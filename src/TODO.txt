@@ -1,13 +1,3 @@
 Things that we might want to do:
 
-Fix regressions post boost lib change: connect/disconnect doesn't work as it used to at all.
-Fix 3 warnings, unused var, two case statements with enum value unhandled
-Add -Wall -Werror to g++ call so warnings don't slip in, helps keep code tidy
-Make it build on mac and windows
 Improve readme file
-Remove disused XDP radio button
-Remove GO button
-Listen for ctrl q and exit
-
-DONE Move all source to src/
-DONE Move char delay to advanced or remove it, do we need it?  NO not with boost.

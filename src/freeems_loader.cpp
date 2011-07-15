@@ -1,3 +1,29 @@
+/* FreeEMS-Loader- the open source s19 loader with special features for FreeEMS
+ *
+ * Copyright (C) 2008-2011 by Sean Keys <skeys@powerefi.com>
+ *
+ * This file is part of the FreeEMS-Loader project.
+ *
+ * FreeEMS-Loader software is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FreeEMS-Loader software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with any FreeEMS-Loader software.  If not, see http://www.gnu.org/licenses/
+ *
+ * We ask that if you make any changes to this file you email them upstream to
+ * us at info(at)powerefi(dot)com or, even better, fork the code on github.com!
+ *
+ * Thank you for choosing FreeEMS-Loader to load your firmware!
+ *
+ */
+
 #include "freeems_loader.h"
 #include "freeems_LoaderRedirector.h"
 #include "FreeEMS_LoaderComms.h"
@@ -6,13 +32,9 @@
 #include "string.h"
 #include <new>
 #include "freeems_loader_types.h"
-
 #include <string>
 #include <algorithm>
 #include <iostream>
-
-//using namespace std;
-//using namespace boost; closing port
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
 QWidget(parent), showHelp(false), fileArg(false), unattended(false)
@@ -20,7 +42,6 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   ui.setupUi(this);
   qRegisterMetaType<string> ("string");
   loaderComms = new FreeEMS_LoaderComms;
-  //heapThreads = new FreeEMS_LoaderThreads(serialConnection);
   fillBaud();
   fillDataBits();
   fillStopBits();
@@ -29,10 +50,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   //redirectCLI();
   //TODO move to a seperate function
   loadFileName.clear();
-  //QObject::connect(heapThreads, SIGNAL( WOInfo(string) ), this,
-  //    SLOT( writeText(string) ));
-  //QObject::connect(heapThreads, SIGNAL( closeReset() ), this,
-  //      SLOT( closeReset() ));
+
   QObject::connect(loaderComms, SIGNAL( WOInfo(string) ), this,
       SLOT( writeText(string) ));
   QObject::connect(loaderComms, SIGNAL( udProgress(int) ), this,
@@ -141,7 +159,6 @@ FreeEMS_Loader::~FreeEMS_Loader()
   settings.setValue("chkRip", ui.chkRip->isChecked());
   settings.setValue("chkVerify", ui.chkVerify->isChecked());
   settings.setValue("lastFileName", loadFileName);
-   //delete coutRedirector;
 }
 
 int
@@ -168,13 +185,15 @@ FreeEMS_Loader::fillDevice()
 void
 FreeEMS_Loader::redirectCLI()
 {
-  //StdRedirector<char>* coutRedirector = new StdRedirector<char> (std::cout,
-  //    outCallBack, ui.textOutput);
-  //StdRedirector<char>* perrorRedirector = new StdRedirector <char>(&perror, outCallBack, ui.textOutput);
-  //coutRedirector->compileWarning();
-  //int *compileWarning = &coutRedirector;
-  //compileWarning++;
-  //std::cout << "CLI output redirected";
+	/*
+  StdRedirector<char>* coutRedirector = new StdRedirector<char> (std::cout,
+      outCallBack, ui.textOutput);
+  StdRedirector<char>* perrorRedirector = new StdRedirector <char>(&perror, outCallBack, ui.textOutput);
+  coutRedirector->compileWarning();
+  int *compileWarning = &coutRedirector;
+  compileWarning++;
+  std::cout << "CLI output redirected";
+*/
 }
 
 void
@@ -192,7 +211,6 @@ FreeEMS_Loader::fillBaud()
   //#ifdef B0
   ui.comboBaud->addItem("0");
   //#endif
-
   //#ifdef B50
   ui.comboBaud->addItem("50");
   //#endif
@@ -365,8 +383,6 @@ FreeEMS_Loader::rip()
   loaderComms->setRipFilename(ripFileName);
   loaderComms->setAction(EXECUTE_RIP);
   loaderComms->start();
-  //heapThreads->setAction(EXECUTE_RIP);
-  //heapThreads->start();
 }
 
 void
@@ -451,11 +467,8 @@ FreeEMS_Loader::test()
 void
 FreeEMS_Loader::eraseFlash()
 {
-  //loaderComms->eraseDevice();
   loaderComms->setAction(EXECUTE_ERASE);
   loaderComms->start();
-  //heapThreads->start();
-  //loaderComms->start();
 }
 
 void
@@ -509,7 +522,6 @@ FreeEMS_Loader::load()
       loaderComms->setAction(EXECUTE_LOAD);
       loaderComms->start();
     }
-  //heapThreads->start();
 
   QSettings settings("FreeEMS", "Loader"); //TODO make saveSettings fuction
   settings.setValue("lastDirectory", loadDirectory);
@@ -554,4 +566,3 @@ FreeEMS_Loader::closeReset()
 {
 
 }
-
