@@ -203,7 +203,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>images/logos.png</pixmap>
+      <pixmap resource="resource-root.qrc">:/images/images/logos.png</pixmap>
      </property>
     </widget>
    </widget>
@@ -340,36 +340,7 @@ p, li { white-space: pre-wrap; }
       <string notr="true">font: 8pt &quot;Bitstream Charter&quot;;</string>
      </property>
      <property name="text">
-      <string>About</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="comboDevice_2">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>221</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushConnect_2">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>60</y>
-       <width>121</width>
-       <height>36</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
-     </property>
-     <property name="text">
-      <string>SerialStressTest</string>
+      <string>More</string>
      </property>
     </widget>
    </widget>
@@ -457,22 +428,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>432</x>
      <y>182</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushConnect_2</sender>
-   <signal>released()</signal>
-   <receiver>FreeEMS_LoaderClass</receiver>
-   <slot>test()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>317</x>
-     <y>60</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>159</y>
     </hint>
    </hints>
   </connection>
