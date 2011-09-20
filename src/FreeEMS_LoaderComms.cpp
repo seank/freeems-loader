@@ -317,7 +317,7 @@ FreeEMS_LoaderComms::setSM()
 	  smIsReady = false;
   }
   }else {
-	  WOInfo("Error: Serial port is not open");
+	  displayMessage(USER_INFO,"Serial port is not open");
   }
 
   return;
@@ -445,6 +445,10 @@ FreeEMS_LoaderComms::verifyReturn()
 	    }
 	  else
 	    {
+		  emit setGUI(ERROR);
+		  //this->thread();
+		  //kill thread
+		  //close port
 		  cout<<"Error Verifying Return ";//<<response.count()<<endl;
 	      printf("%s", response);
 	      cout<<endl;
@@ -504,7 +508,6 @@ FreeEMS_LoaderComms::eraseDevice()
                   (unsigned char) dataVectorTable[i].stopPage);
               for (PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--)
                 {
-                  //SMSetPPage(PPageIndex); //set Ppage register
                   erasePage(PPageIndex); // TODO put signal here
                   emit udProgress((unsigned char) PPageIndex);
                 }
@@ -557,7 +560,7 @@ FreeEMS_LoaderComms::getDeviceByteCount()
     }
   else
     {
-      emit WOInfo("Cannot get byte count, no device set");
+      emit displayMessage(USER_INFO, "Cannot get byte count, no device set");
       return 0;
     }
 }
@@ -646,7 +649,7 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
       {
         if(verifyReturn() < 0)
           {
-            emit WOInfo("Error: did not receive ACK after writing a block");
+            emit displayMessage(USER_INFO, "Error, did not receive ACK after writing a block");
             return;
           }
       }
@@ -655,7 +658,7 @@ FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes,
         SMReadByteBlock(address, numBytes, readString);
          if(verifyString != readString)
           {
-           emit WOInfo("Error: validating sector at TODO implement retry");
+           emit displayMessage(USER_INFO, "Error validating sector at TODO implement retry");
           }
       }
     break;
@@ -677,7 +680,7 @@ FreeEMS_LoaderComms::flushRXStream()
       read(&c, 1);
       if(bytes > 4096)
         {
-          emit WOInfo("Error: it seems there is a stream of data coming in the serial port, is the firmware running ?");
+          emit displayMessage(USER_INFO, "it seems there is a stream of data coming in the serial port, is the firmware running ?");
           return;
         }
     }
@@ -695,36 +698,44 @@ FreeEMS_LoaderComms::run()
 	 switch (threadAction)
 	    {
 	  case EXECUTE_RIP_ERASE_LOAD:
-	    emit WOInfo("Executing rip, erase and load");
-	    emit WOInfo("Ripping...");
+		emit setGUI(WORKING);
+		emit displayMessage(USER_INFO, "Executing rip, erase and load");
+	    emit displayMessage(USER_INFO, "Ripping...");
 	    ripDevice();
-	    emit WOInfo("Erasing...");
+	    emit displayMessage(USER_INFO, "Erasing...");
 	    eraseDevice();
-	    emit WOInfo("Loading...");
+	    emit displayMessage(USER_INFO, "Loading...");
 	    loadDevice();
-	    emit WOInfo("DONE!");
+	    emit displayMessage(USER_INFO, "DONE!");
+	    emit setGUI(CONNECTED);
 	    break;
 	  case EXECUTE_LOAD:
-	    emit WOInfo("Erasing...");
+		emit setGUI(WORKING);
+		emit displayMessage(USER_INFO, "Erasing...");
 	    eraseDevice();
-	    emit WOInfo("Executing load");
+	    emit displayMessage(USER_INFO, "Executing load");
 	    loadDevice();
-	    emit WOInfo("DONE!");
+	    emit displayMessage(USER_INFO, "DONE!");
+	    emit setGUI(CONNECTED);
 	    break;
 	  case EXECUTE_ERASE:
-	    emit WOInfo("Executing erase");
+		emit setGUI(WORKING);
+		emit displayMessage(USER_INFO, "Executing erase");
 	    eraseDevice();
+	    emit setGUI(CONNECTED);
 	    break;
 	  case EXECUTE_RIP:
-	    emit WOInfo("Executing rip");
+		emit setGUI(WORKING);
+		emit displayMessage(USER_INFO, "Executing rip");
 	    ripDevice();
+	    emit setGUI(CONNECTED);
 	    break;
 	  case TEST:
-	    emit WOInfo("Executing Test");
+	    emit displayMessage(USER_INFO, "Executing Test");
 		test();
 		break;
 	  case NONE:
-	    emit WOInfo("Action for thread not set!");
+	    emit displayMessage(USER_INFO, "Action for thread not set!");
 	    break;
 	  default:
 	    break;
@@ -741,11 +752,17 @@ FreeEMS_LoaderComms::test()
 			if(!verifyReturn() > 0){
 				break;
 			}
-			WOInfo("Wrote one byte and read three");
+//			WOInfo("Wrote one byte and read three");
 		}
-		WOInfo("Serial stress test failed see cli for iteration number");
+//		WOInfo("Serial stress test failed see cli for iteration number");
 		cout<<i<<endl;
 	}else {
-		WOInfo("Error: SM NOT READY");
+//		WOInfo("Error: SM NOT READY");
 	}
+}
+
+void
+FreeEMS_LoaderComms::abortOperation()
+{
+
 }

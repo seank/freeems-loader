@@ -81,10 +81,15 @@ public:
    *  HCS12 device ID register. Please refer to selected device guides for device ID
    *  register contents.
    */
+
+  void
+  abortOperation();
+
   void
   ripDevice();
 
-  void openTest(QString serPortName);
+  void
+  openTest(QString serPortName);
 
   void
   loadDevice();
@@ -131,6 +136,9 @@ public:
    */
   void
   returnFlashType(char *responce);
+
+  void
+  setAbort(bool abortOperation);
 
   void
   setFlashType(const char *commonName);
@@ -291,76 +299,16 @@ public:
 
 signals:
   void
-  WOInfo(string text);
+  displayMessage(int type, QString text);
   void
   udProgress(int percent);
   void
   configureProgress(int min, int max);
+  void
+  setGUI(int);
 
 private:
-
-  // TNX STUFF
-  //TNX::QSerialPort *serPort;
-  //TNX::QSerialPort *serPorttest;
-  //TNX::QPortSettings *serPortSettings;
-
   FreeEMS_SerialPort *serPort;
-
-
-  /**
-   * Parameters of performReadSetup.
-   * Just wrapper class, no encapsulation provided
-   */
-//  class ReadSetupParameters
-//  {
-//  public:
-//    ReadSetupParameters() :
-//      fixedSize(false), delim(""), data(0), size(0)
-//    {
-//    }
-//
-//    explicit
-//    ReadSetupParameters(const std::string& delim) :
-//      fixedSize(false), delim(delim), data(0), size(0)
-//    {
-//    }
-//
-//    ReadSetupParameters(char *data, size_t size) :
-//      fixedSize(true), delim(""), data(data), size(size)
-//    {
-//    }
-//
-//    //Using default copy constructor, operator=
-//
-//    bool fixedSize; ///< True if need to read a fixed number of parameters
-//    std::string delim; ///< String end delimiter (valid if fixedSize=false)
-//    char *data; ///< Pointer to data array (valid if fixedSize=true)
-//    size_t size; ///< Array size (valid if fixedSize=true)
-//  };
-
-  /**
-   * This member function sets up a read operation, both reading a specified
-   * number of characters and reading until a delimiter string.
-   */
-//  void
-//  performReadSetup(const ReadSetupParameters& param);
-
-  /**
-   * Callack called either when the read timeout is expired or canceled.
-   * If called because timeout expired, sets result to resultTimeoutExpired
-   */
-//  void
-//  timeoutExpired(const boost::system::error_code& error); //TODO reimpliment
-
-  /**
-   * Callback called either if a read complete or read error occurs
-   * If called because of read complete, sets result to resultSuccess
-   * If called because read error, sets result to resultError
-   */
-//  void
-//  readCompleted(const boost::system::error_code& error,
-//      const size_t bytesTransferred);
-
   /**
    * Possible outcome of a read. Set by callbacks, read from main code
    */
@@ -370,7 +318,6 @@ private:
   };
   enum ReadResult result; ///< Used by read with timeout
   size_t bytesTransferred; ///< Used by async read callback
-//  ReadSetupParameters setupParameters; ///< Global because used in the OSX fix
 
   FreeEMS_LoaderSREC *s19SetOne;
   FreeEMS_LoaderSREC *s19SetTwo;

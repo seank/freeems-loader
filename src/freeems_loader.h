@@ -54,9 +54,6 @@
 
 using namespace std;
 
-#define NOTCONNECTED	1
-#define CONNECTED	2
-
 class FreeEMS_Loader : public QWidget
 {
 Q_OBJECT
@@ -97,8 +94,10 @@ protected:
   redirectCLI();
   static void
   outCallBack(const char* ptr, std::streamsize count, void* pTextBox);
+//  void
+//sad  changeGUIState(int state);
   void
-  setGUIState(int state);
+  updateGUIState();
   void
   initGUI();
   int
@@ -109,6 +108,8 @@ protected:
   setFlashType();
   bool
   isUnattended();
+  void
+  setLoaderState();
 
 private:
   Ui::FreeEMS_LoaderClass ui;
@@ -124,6 +125,7 @@ private:
   QStringList cmdline_args;
 
   int flashTypeIndex;
+  int _loaderState; /* holds the current state of the loader see LOADER_STATES enum */
 
 public slots:
   void
@@ -146,6 +148,10 @@ public slots:
   showAbout();
   void
   closeReset();
+  void
+  changeGUIState(int);
+  void
+  displayMessage(int MESSAGE_TYPE, QString message);
 };
 
 #endif // FREEEMS_LOADER_H

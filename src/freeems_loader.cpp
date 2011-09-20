@@ -51,8 +51,10 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   //TODO move to a seperate function
   loadFileName.clear();
 
-  QObject::connect(loaderComms, SIGNAL( WOInfo(string) ), this,
-      SLOT( writeText(string) ));
+  QObject::connect(loaderComms, SIGNAL( displayMessage(int, QString) ), this,
+      SLOT( displayMessage(int, QString) ));
+  QObject::connect(loaderComms, SIGNAL( setGUI(int) ), this,
+        SLOT( changeGUIState(int) ));
   QObject::connect(loaderComms, SIGNAL( udProgress(int) ), this,
       SLOT( updateProgress(int) ));
   QObject::connect(loaderComms, SIGNAL( configureProgress(int, int) ),
@@ -67,7 +69,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   ui.chkVerify->setChecked(settings.value("chkVerify").toBool());
   //loadFileName = settings.value("lastFileName").toString();
   loadDirectory = settings.value("lastDirectory").toString();
-  cout<<"load name is: "<<loadFileName.toStdString();
+  //TODO FIX displayMessage(USER_INFO, "Load file is: "<<loadFileName.toStdString() );
 
   QString arg;
   cmdline_args = QCoreApplication::arguments();
@@ -96,7 +98,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
           {
             if (arg.contains("--unattended")) //TODO use nested if and detect invalid args
               {
-                cout << " connect and load ";
+                cout << endl << "Argument: unattended connect and load ";
                 unattended = true;
               }
             else if (arg.contains("--file"))
@@ -106,37 +108,38 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
               }
             else if (arg.contains("--verify"))
               {
-                cout << " Verify Set True ";
+                cout << endl <<"Argument: Verify True ";
                 ui.chkVerify->setChecked(true);
               }
             else if (arg.contains("--device"))
             {
               isDevice = true;
+              cout << endl <<"Argument: Serial Device Specified";
             }
             else if (arg.contains("--rip"))
               {
-                cout << " Rip Set True ";
+                cout << endl << "Argument: Rip Set True ";
                 ui.chkRip->setChecked(true);
               }
             else if (arg.contains("--norip"))
               {
-                cout << " Rip Before Load Set False ";
+                cout << endl << "Argument: Rip Before Load Set False ";
                 ui.chkRip->setChecked(false);
               }
             else if (arg.contains("--noverify"))
               {
-                cout << " Verify Set False ";
+                cout << endl << "Argument: Verify Set False ";
                 ui.chkVerify->setChecked(false);
               }
             else if (arg.contains("--help"))
             {
-              cout << " valid arguments are: --rip, --norip, --verify, --noverify, --file <path to file>, --device, --unattended"
+              cout << endl << "Help: Valid arguments are: --rip, --norip, --verify, --noverify, --file <path to file>, --device, --unattended"
               " --help";
               showHelp = true;
             }
             else
               {
-                cout << " invalid argument: " << arg.toStdString();
+                cout << endl << "Help: Invalid argument: " << arg.toStdString();
               }
           }
       }
@@ -177,6 +180,7 @@ FreeEMS_Loader::fillDevice()
 #endif
 #ifdef __WIN32__
   ui.comboDevice->addItem("COM1");
+  //TODO scan the windows registry for valid ports
 #endif
 
   return 0;
@@ -304,48 +308,22 @@ FreeEMS_Loader::fillParity()
   ui.comboParity->addItem("SPACE");
 }
 
+//TODO combine setGUIState code into this function
 void
 FreeEMS_Loader::connect()
 {
-/*
-if(!ui.comboDevice_2->currentText().isEmpty()){
-    serialConnection->open(ui.comboDevice_2->currentText());
-    return;
-}
-#ifdef __APPLE__
-         cout<<"Fred is gay, didnt you know";
-#endif //__APPLE__
-
-//  if(!QDir(ui.comboDevice->currentText()).exists(ui.comboDevice->currentText()))
-//     {
-//       writeText("ERROR: Serial device file does not exist!");
-//       return;
-//     }
-
 QString portName = ui.comboDevice->currentText();
-#ifdef __WIN32__
-  portName.toUpper();
-#endif
-
-#ifndef __WIN32__
-QFile file(portName);
-  if (!file.open(QIODevice::ReadWrite))
+  if(_loaderState == WORKING)
     {
-      writeText("ERROR: Cannot open serial deivce "+portName.toStdString());
-      return;
+	  //TODO stop com thread
+	  loaderComms->terminate();
+	  changeGUIState(CONNECTED);
+	  return;
     }
-  file.close();
-#endif
-*/
-QString portName = ui.comboDevice->currentText();
   if (!loaderComms->isReady())
     {
       //setFlashType();
       //serialConnection->close();
-      //serialConnection->open(portName,
-      //    ui.comboBaud->currentText().toUInt());
-      //serialConnection->setTimeout(boost::posix_time::seconds(5)); //TODO make configable
-
       loaderComms->open(portName,
     	            ui.comboBaud->currentText().toUInt());
     	  //if(!serialConnection->isOpen())
@@ -355,7 +333,7 @@ QString portName = ui.comboDevice->currentText();
           loaderComms->setFlashType(defFlashType);
 
           if(loaderComms->isReady() == true){
-              setGUIState(CONNECTED);
+              changeGUIState(CONNECTED);
           }else{
         	  loaderComms->close();
           }
@@ -365,7 +343,7 @@ QString portName = ui.comboDevice->currentText();
       loaderComms->resetSM();
       //sleep(1); // POSIX only TODO
       loaderComms->close();
-      loaderComms->isReady() ? setGUIState(CONNECTED) : setGUIState(
+      loaderComms->isReady() ? changeGUIState(CONNECTED) : changeGUIState(
           NOTCONNECTED);
     }
 }
@@ -378,7 +356,7 @@ FreeEMS_Loader::rip()
       QDir::currentPath(), tr("s19 (*.s19)"));
   if (ripFileName.isNull())
     {
-      cout << "error opening file";
+      cout << endl << "error opening file";
     }
   loaderComms->setRipFilename(ripFileName);
   loaderComms->setAction(EXECUTE_RIP);
@@ -401,7 +379,7 @@ FreeEMS_Loader::initGUI()
 {
   ui.chkVerify->setChecked(true);
   ui.chkRip->setChecked(true);
-  setGUIState(NOTCONNECTED);
+  changeGUIState(NOTCONNECTED);
   ui.progressBar->setValue(0);
   ui.radioRX->setEnabled(false);
   ui.radioTX->setEnabled(false);
@@ -410,9 +388,16 @@ FreeEMS_Loader::initGUI()
 }
 
 void
-FreeEMS_Loader::setGUIState(int state)
+FreeEMS_Loader::changeGUIState(int state)
 {
-  switch (state)
+	_loaderState = state;
+	updateGUIState();
+}
+
+void
+FreeEMS_Loader::updateGUIState()
+{
+  switch (_loaderState)
     {
   case NOTCONNECTED:
     ui.pushLoad->setEnabled(0);
@@ -425,6 +410,22 @@ FreeEMS_Loader::setGUIState(int state)
     ui.pushRip->setEnabled(1);
     ui.pushConnect->setText("Close/Rst");
     ui.pushErase->setEnabled(1);
+    break;
+  case WORKING:
+	ui.pushConnect->setText("Abort");
+	ui.pushLoad->setEnabled(0);
+	ui.pushRip->setEnabled(0);
+	ui.pushErase->setEnabled(0);
+	break;
+  case ERROR:
+	 //TODO stop com thread and close port
+	 //loaderComms->st
+	 //loaderComms->close();
+	 ui.pushLoad->setEnabled(0);
+	 ui.pushRip->setEnabled(0);
+	 ui.pushConnect->setText("Connect");
+	 ui.pushErase->setEnabled(0);
+	 break;
   default:
     break;
     }
@@ -565,4 +566,24 @@ void
 FreeEMS_Loader::closeReset()
 {
 
+}
+
+void
+FreeEMS_Loader::displayMessage(int MESSAGE_TYPE, QString message) //TODO add eumu
+{
+	switch(MESSAGE_TYPE)
+	{
+	case USER_INFO:
+		cout<<endl<<"Info: "<<message.toStdString();
+		writeText(message.toStdString());
+		break;
+	case ARGUMENT:
+		cout<<endl<<"Argument: "<<message.toStdString();
+	case GENERIC:
+		cout<<message.toStdString();
+	default:
+		cout<<endl<<"Error Unknown Message Type";
+		break;
+
+	}
 }
