@@ -65,6 +65,9 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   resize(settings.value("size", QSize(400, 320)).toSize());
   move(settings.value("pos", QPoint(50, 50)).toPoint());
   ui.comboDevice->addItem(settings.value("serialDevice").toString());
+  ui.comboDataBits->setCurrentIndex(settings.value("dataBits").toUInt());
+  ui.comboStopBits->setCurrentIndex((settings.value("stopBits").toUInt()));
+  ui.comboParity->setCurrentIndex((settings.value("parity").toUInt()));
   ui.chkRip->setChecked(settings.value("chkRip").toBool());
   ui.chkVerify->setChecked(settings.value("chkVerify").toBool());
   //loadFileName = settings.value("lastFileName").toString();
@@ -159,6 +162,9 @@ FreeEMS_Loader::~FreeEMS_Loader()
   settings.setValue("pos", pos());
   settings.setValue("size", size());
   settings.setValue("serialDevice", ui.comboDevice->currentText());
+  settings.setValue("parity", ui.comboParity->currentIndex());
+  settings.setValue("stopBits", ui.comboStopBits->currentIndex());
+  settings.setValue("dataBits", ui.comboDataBits->currentIndex());
   settings.setValue("chkRip", ui.chkRip->isChecked());
   settings.setValue("chkVerify", ui.chkVerify->isChecked());
   settings.setValue("lastFileName", loadFileName);
@@ -277,15 +283,18 @@ FreeEMS_Loader::fillBaud()
   //#endif
   // this one is the default
   ui.comboBaud->addItem("115200");
+
   ui.comboBaud->setCurrentIndex(ui.comboBaud->count() - 1);
 }
 
 void
 FreeEMS_Loader::fillStopBits()
 {
-  ui.comboStopBits->addItem("1");
-  ui.comboStopBits->addItem("1.5");
   ui.comboStopBits->addItem("2");
+  ui.comboStopBits->addItem("1.5");
+  ui.comboStopBits->addItem("1");
+
+  ui.comboStopBits->setCurrentIndex(ui.comboStopBits->count() - 1);
 }
 
 void
@@ -295,17 +304,21 @@ FreeEMS_Loader::fillDataBits()
   ui.comboDataBits->addItem("6");
   ui.comboDataBits->addItem("7");
   ui.comboDataBits->addItem("8");
+
   ui.comboDataBits->setCurrentIndex(ui.comboDataBits->count() - 1);
 }
 
 void
 FreeEMS_Loader::fillParity()
 {
-  ui.comboParity->addItem("NONE");
+
   ui.comboParity->addItem("ODD");
   ui.comboParity->addItem("EVEN");
   ui.comboParity->addItem("MARK");
   ui.comboParity->addItem("SPACE");
+  ui.comboParity->addItem("NONE");
+
+  ui.comboDataBits->setCurrentIndex(ui.comboParity->count() - 1);
 }
 
 //TODO combine setGUIState code into this function
@@ -320,24 +333,21 @@ QString portName = ui.comboDevice->currentText();
 	  changeGUIState(CONNECTED);
 	  return;
     }
-  if (!loaderComms->isReady())
-    {
-      //setFlashType();
-      //serialConnection->close();
-      loaderComms->open(portName,
-    	            ui.comboBaud->currentText().toUInt());
-    	  //if(!serialConnection->isOpen())
-    		//  break;
-      //sleep(1); // POSIX ONLY TODO port takes a second to init after the open function
-    	  loaderComms->setSM();
-          loaderComms->setFlashType(defFlashType);
+  if (!loaderComms->isReady()) {
+		//setFlashType();
+		//serialConnection->close();
+		loaderComms->open(portName, ui.comboBaud->currentText().toUInt());
 
-          if(loaderComms->isReady() == true){
-              changeGUIState(CONNECTED);
-          }else{
-        	  loaderComms->close();
-          }
-    }
+		//sleep(1); // POSIX ONLY TODO port takes a second to init after the open function
+		loaderComms->setSM();
+		loaderComms->setFlashType(defFlashType);
+
+		if (loaderComms->isReady() == true) {
+			changeGUIState(CONNECTED);
+		} else {
+			loaderComms->close();
+		}
+	}
   else
     {
       loaderComms->resetSM();
