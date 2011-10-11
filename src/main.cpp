@@ -24,7 +24,7 @@
  *
  */
 
-#include "freeems_loader.h"
+#include "inc/freeems_loader.h"
 
 #include <QtGui>
 #include <QApplication>

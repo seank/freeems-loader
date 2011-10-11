@@ -38,10 +38,10 @@
 #include <QObject>
 #include <QDebug>
 //#include <QMutex>
-#include "FreeEMS_SerialPort.h"
+#include "inc/serialPort.h"
 //#include <QTimer>
 
-#include "FreeEMS_LoaderSREC.h"
+#include "inc/sRecord.h"
 
 #include <QObject>
 

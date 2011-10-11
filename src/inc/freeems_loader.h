@@ -39,8 +39,7 @@
 #include <QObject>
 
 #include "ui_freeems_loader.h"
-#include "FreeEMS_LoaderComms.h"
-//#include "FreeEMS_LoaderThreads.h"
+#include "inc/comms.h"
 #include "qdebug.h"
 #include "stdio.h"
 #include <iostream>
@@ -50,7 +49,7 @@
 #include <errno.h>
 #include <vector>
 #include <string>
-#include <about.h>
+#include "inc/about.h"
 
 using namespace std;
 

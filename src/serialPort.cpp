@@ -26,7 +26,7 @@
  *
  */
 
-#include "FreeEMS_SerialPort.h"
+#include "inc/serialPort.h"
 
 FreeEMS_SerialPort::FreeEMS_SerialPort(): _fd(0), _isOpenFlag(false) {
 	// TODO Auto-generated constructor stub

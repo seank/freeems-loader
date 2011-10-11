@@ -24,7 +24,7 @@
  *
  */
 
-#include "freeems_loader_types.h"
+#include "inc/loaderTypes.h"
 #include <string>
 
 const struct dataVector_tag dataVectorTable[] =

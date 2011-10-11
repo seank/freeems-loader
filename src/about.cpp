@@ -24,7 +24,7 @@
  *
  */
 
-#include "about.h"
+#include "inc/about.h"
 
 About::About(QWidget *parent)
     : QWidget(parent)

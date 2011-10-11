@@ -24,9 +24,9 @@
  *
  */
 
-#include "FreeEMS_LoaderComms.h"
-#include "FreeEMS_LoaderParsing.h"
-#include <freeems_loader_types.h>
+#include "inc/comms.h"
+#include "inc/parsing.h"
+#include <inc/loaderTypes.h>
 #include <fstream>
 
 using namespace std;

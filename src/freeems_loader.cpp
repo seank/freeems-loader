@@ -24,14 +24,13 @@
  *
  */
 
-#include "freeems_loader.h"
-#include "freeems_LoaderRedirector.h"
-#include "FreeEMS_LoaderComms.h"
-#include "FreeEMS_LoaderParsing.h"
-#include "FreeEMS_LoaderSREC.h"
+#include "inc/freeems_loader.h"
+#include "inc/redirector.h"
+#include "inc/parsing.h"
+#include "inc/sRecord.h"
 #include "string.h"
 #include <new>
-#include "freeems_loader_types.h"
+#include "inc/loaderTypes.h"
 #include <string>
 #include <algorithm>
 #include <iostream>

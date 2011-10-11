@@ -24,8 +24,8 @@
  *
  */
 
-#include "FreeEMS_LoaderSREC.h"
-#include "freeems_loader_types.h"
+#include "inc/sRecord.h"
+#include "inc/loaderTypes.h"
 
 /*
  +-------------------//------------------//-----------------------------+

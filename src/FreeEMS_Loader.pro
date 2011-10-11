@@ -1,4 +1,4 @@
-#/* FreeEMS-Loader- the open source s19 loader with special features for FreeEMS
+# /* FreeEMS-Loader- the open source s19 loader with special features for FreeEMS
 # *
 # * Copyright (C) 2008-2011 by Sean Keys <skeys@powerefi.com>
 # *
@@ -20,10 +20,9 @@
 # * We ask that if you make any changes to this file you email them upstream to
 # * us at info(at)powerefi(dot)com or, even better, fork the code on github.com!
 # *
-# * Thank you for choosing FreeEMS-Loader to load your firmware! 
+# * Thank you for choosing FreeEMS-Loader to load your firmware!
 # *
 # */
- 
 TEMPLATE = app
 TARGET = FreeEMS_Loader
 QMAKE_CXXFLAGS *= -Wall
@@ -40,28 +39,22 @@ QT *= core \
 # xmlpatterns \
 # network \
 # opengl
-HEADERS += FreeEMS_SerialPort.h \
-    about.h \
-    FreeEMS_LoaderParsing.h \
-    FreeEMS_LoaderComms.h \
-    FreeEMS_LoaderSREC.h \
-    freeems_LoaderRedirector.h \
-    freeems_loader.h \
-    FreeEMS_LoaderSREC.h \
-    freeems_LoaderRedirector.h \
-    freeems_loader_types.h \
-    FreeEMS_LoaderComms.h \
-    freeems_loader.h \
-    freeems_loader.h \
-    freeems_loader.h
-SOURCES += FreeEMS_SerialPort.cpp \
+HEADERS += inc/about.h \
+    inc/freeems_loader.h \
+    inc/sRecord.h \
+    inc/serialPort.h \
+    inc/redirector.h \
+    inc/parsing.h \
+    inc/comms.h \
+    inc/loaderTypes.h
+SOURCES += main.cpp \
+    serialPort.cpp \
+    sRecord.cpp \
+    parsing.cpp \
+    comms.cpp \
+    types.cpp \
     about.cpp \
-    freeems_loader_types.cpp \
-    FreeEMS_LoaderParsing.cpp \
-    FreeEMS_LoaderSREC.cpp \
-    FreeEMS_LoaderComms.cpp \
-    freeems_loader.cpp \
-    main.cpp
+    freeems_loader.cpp
 FORMS *= about.ui \
     freeems_loader.ui
 RESOURCES += resource-root.qrc \
@@ -71,29 +64,31 @@ RESOURCES += resource-root.qrc \
 # Cross compilation
 win32-x-g++ { 
     message("Crosscompiling on Unix to Windows")
-    #unix:INCLUDEPATH *= /opt/crossroot/boost/include/
-    #unix:LIBS *= -lQtSerialPort
+    
+    # unix:INCLUDEPATH *= /opt/crossroot/boost/include/
+    # unix:LIBS *= -lQtSerialPort
     QMAKE_CXXFLAGS -= -Werror
 }
 mac { 
     # Straight Mac-OS (OS-X)
     message("Mac OS-X Build")
     unix:INCLUDEPATH *= /opt/local/include
-    #unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
-    #unix:LIBS *= -L/opt/local/lib \
-    #    -lQtSerialPort
 }
-linux-g++ { 
-    # Straight Linux
-    message("Linux Build")
-    #unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
-    #unix:LIBS *=
-    # -L/usr/local/qserialport/lib/ \
-    #    -lQtSerialPort
-}
+
+# unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
+# unix:LIBS *= -L/opt/local/lib \
+# -lQtSerialPort
+linux-g++:# Straight Linux
+message("Linux Build")
+
+# unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
+# unix:LIBS *=
+# -L/usr/local/qserialport/lib/ \
+# -lQtSerialPort
 win32 { 
     message("Straight compile on windows (seank only)")
-    #win32:INCLUDEPATH *= $$quote(C:/boost/include/boost-1_45)
+    
+    # win32:INCLUDEPATH *= $$quote(C:/boost/include/boost-1_45)
     win32:LIBS *= -Lc:/mingw/lib \
         -lwsock32
 }
