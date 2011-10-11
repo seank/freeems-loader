@@ -44,7 +44,6 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   fillParity();
   initGUI();
   //redirectCLI();
-  //TODO move to a seperate function
   loadFileName.clear();
 
   QObject::connect(loaderComms, SIGNAL( displayMessage(int, QString) ), this,
@@ -68,8 +67,8 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
   ui.chkVerify->setChecked(settings.value("chkVerify").toBool());
   //loadFileName = settings.value("lastFileName").toString();
   loadDirectory = settings.value("lastDirectory").toString();
-  //TODO FIX displayMessage(USER_INFO, "Load file is: "<<loadFileName.toStdString() );
 
+  /* process arguments */
   QString arg;
   cmdline_args = QCoreApplication::arguments();
   fillDevice();
@@ -82,16 +81,14 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false)
       {
         loadFileName = arg;
         isFileName = false;
-        writeText("using filename: ");
-        writeText(loadFileName.toStdString());
+        displayMessage(USER_INFO,"using filename: " + loadFileName);
       }
     else if(isDevice)
       {
         isDevice = false;
         ui.comboDevice->clear();
         ui.comboDevice->addItem(arg);
-        writeText("using device: ");
-        writeText(arg.toStdString());
+        displayMessage(USER_INFO,"using device: " + arg);
       }
         if (arg.contains("--"))
           {
@@ -376,7 +373,7 @@ FreeEMS_Loader::getFileName(QString name)
       QDir::currentPath(), tr("s19 (*.s19)"));
   if (!name.isNull())
     {
-      writeText("error opening file");
+      displayMessage(ERROR,"error opening file");
     }
 }
 
