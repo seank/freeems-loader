@@ -24,15 +24,14 @@
  *
  */
 
-#ifndef FREEEMS_LOADERPARSING_H_
-#define FREEEMS_LOADERPARSING_H_
+#ifndef PARSING_H
+#define PARSING_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 
 using namespace std;
-//using namespace boost;
 
 class FreeEMS_LoaderParsing
 {
@@ -55,4 +54,9 @@ public:
   calcuateNumRecordsNeeded(int flashBytes, int bytesInRecord);
 };
 
-#endif /* FREEEMS_LOADERPARSING_H_ */
+#else
+	/* let us know if we are being untidy with headers */
+	#warning "Header file PARSING_H seen before, sort it out!"
+/* end of the wrapper ifdef from the very top */
+#endif
+

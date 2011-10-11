@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef FREEEMS_LOADER_TYPES_H
-#define FREEEMS_LOADER_TYPES_H
+#ifndef LOADERTYPES_H
+#define LOADERTYPES_H
 
 #define ODD	1
 #define EVEN	2
@@ -118,4 +118,9 @@ extern const char SMReturn;
 extern const char SMReset;
 extern const char SMRDY[3];
 
+#else
+	/* let us know if we are being untidy with headers */
+	#warning "Header file LOADERTYPES_H seen before, sort it out!"
+/* end of the wrapper ifdef from the very top */
 #endif
+

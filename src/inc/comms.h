@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef FREEEMS_LOADERCOMMS_H_
-#define FREEEMS_LOADERCOMMS_H_
+#ifndef COMMS_H
+#define COMMS_H
 
 #include <stdexcept>
 #include <string>
@@ -336,4 +336,8 @@ private:
   bool flushMode;
 };
 
-#endif /* FREEEMS_LOADERCOMMS_H_ */
+#else
+	/* let us know if we are being untidy with headers */
+	#warning "Header file COMMS_H seen before, sort it out!"
+/* end of the wrapper ifdef from the very top */
+#endif

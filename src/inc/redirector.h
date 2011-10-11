@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef FREEEMS_LOADERREDIRECTOR_H_
-#define FREEEMS_LOADERREDIRECTOR_H_
+#ifndef REDIRECTOR_H
+#define REDIRECTOR_H
 
 
 #endif /* FREEEMS_LOADERREDIRECTOR_H_ */
@@ -94,3 +94,9 @@ template< class Elem = char, class Tr = std::char_traits< Elem > >
     pfncb                         m_pCbFunc;
     void*                         m_pUserData;
   };
+
+#else
+	/* let us know if we are being untidy with headers */
+	#warning "Header file REDIRECTOR_H seen before, sort it out!"
+/* end of the wrapper ifdef from the very top */
+#endif

@@ -24,11 +24,10 @@
  *
  */
 
-#ifndef FREEEMS_LOADERSREC_H_
-#define FREEEMS_LOADERSREC_H_
+#ifndef SRECORD_H
+#define SRECORD_H
 
 #include <string>
-#include "inc/parsing.h"
 #include <stdio.h>
 #include <memory>
 #include <string.h>
@@ -37,6 +36,8 @@
 #include <string>
 #include <QString>
 #include <QObject>
+
+#include "inc/parsing.h"
 
 using namespace std;
 
@@ -149,4 +150,8 @@ private:
 
 };
 
-#endif /* FREEEMS_LOADERSREC_H_ */
+#else
+	/* let us know if we are being untidy with headers */
+	#warning "Header file SRECORD_H seen before, sort it out!"
+/* end of the wrapper ifdef from the very top */
+#endif

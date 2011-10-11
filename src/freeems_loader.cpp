@@ -25,9 +25,6 @@
  */
 
 #include "inc/freeems_loader.h"
-#include "inc/redirector.h"
-#include "inc/parsing.h"
-#include "inc/sRecord.h"
 #include "string.h"
 #include <new>
 #include "inc/loaderTypes.h"

@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef FREEEMS_SERIALPORT_H_
-#define FREEEMS_SERIALPORT_H_
+#ifndef SERIALPORT_H
+#define SERIALPORT_H
 
 #include <stdio.h>
 #include <iostream>
@@ -134,4 +134,8 @@ struct _Serial_Params
 
 };
 
-#endif /* FREEEMS_SERIALPORT_H_ */
+#else
+	/* let us know if we are being untidy with headers */
+	#warning "Header file SERIALPORT_H seen before, sort it out!"
+/* end of the wrapper ifdef from the very top */
+#endif

@@ -42,4 +42,9 @@ private:
     Ui::AboutClass ui;
 };
 
-#endif // ABOUT_H
+
+#else
+	/* let us know if we are being untidy with headers */
+	#warning "Header file ABOUT_H seen before, sort it out!"
+/* end of the wrapper ifdef from the very top */
+#endif

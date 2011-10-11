@@ -153,4 +153,8 @@ public slots:
   displayMessage(int MESSAGE_TYPE, QString message);
 };
 
-#endif // FREEEMS_LOADER_H
+#else
+	/* let us know if we are being untidy with headers */
+	#warning "Header file FREEEMS_LOADER_H seen before, sort it out!"
+/* end of the wrapper ifdef from the very top */
+#endif
