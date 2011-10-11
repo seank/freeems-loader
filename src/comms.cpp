@@ -241,7 +241,7 @@ FreeEMS_LoaderComms::setFlashType(const char *commonName)
       if (!strcmp(flashModuleTable[i].name, commonName))
         {
           flashTypeIndex = i;
-          cout << "set flash type to " << commonName; //TODO MAKE THREAD SAFE
+          //cout << " set flash type to " << commonName; //TODO MAKE THREAD SAFE
           fDeviceIsSet = true;
           return;
         }
@@ -298,25 +298,14 @@ FreeEMS_LoaderComms::resetSM()
 void
 FreeEMS_LoaderComms::setSM()
 {
-  //char response[4];
-  if(serPort->isOpen()){
   write(&SMReset,1);
   serPort->flushInBuffer();
   serPort->flushOutBuffer();
-
-  //QByteArray response;
   write(&SMReturn, 1);
-  //response = serPort->read(3); //todo write a new read()
-  //read(response, 3);
-  //QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
-
   if(verifyReturn() > 0){
 	  smIsReady = true;
   } else{
 	  smIsReady = false;
-  }
-  }else {
-	  displayMessage(USER_INFO,"Serial port is not open");
   }
 
   return;

@@ -20,7 +20,7 @@
  * We ask that if you make any changes to this file you email them upstream to
  * us at info(at)powerefi(dot)com or, even better, fork the code on github.com!
  *
- * Thank you for choosing FreeEMS-Loader to load your firmware!
+ * Thank you for choosing FreeEMS-Loader to load your firmware! is not open
  *
  */
 
@@ -319,28 +319,37 @@ void
 FreeEMS_Loader::connect()
 {
 QString portName = ui.comboDevice->currentText();
+  QFile file;
+  file.setFileName(ui.comboDevice->currentText());
+  bool fileIsOpen = 0;
   if(_loaderState == WORKING)
     {
-	  //TODO stop com thread
-	  loaderComms->terminate();
+	  loaderComms->terminate(); //TODO terminate should be used with caution review the pitfalls
 	  changeGUIState(CONNECTED);
 	  return;
     }
   if (!loaderComms->isReady()) {
 		//setFlashType();
 		//serialConnection->close();
+	  fileIsOpen = file.open(QIODevice::ReadWrite ); //TODO further try to detect the problem
+	  file.close();
+	  if(fileIsOpen)
+	   {
 		loaderComms->open(portName, ui.comboBaud->currentText().toUInt());
-
 		//sleep(1); // POSIX ONLY TODO port takes a second to init after the open function
 		loaderComms->setSM();
 		loaderComms->setFlashType(defFlashType);
-
 		if (loaderComms->isReady() == true) {
 			changeGUIState(CONNECTED);
 		} else {
 			loaderComms->close();
 		}
 	}
+	  else
+		 {
+		  displayMessage(USER_INFO,"Unable to open port " + ui.comboDevice->currentText());
+		 }
+  }
   else
     {
       loaderComms->resetSM();

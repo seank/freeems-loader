@@ -390,7 +390,7 @@ void FreeEMS_SerialPort::readData(char *data, size_t size){
 	if(isOpen()){
 		FreeEMS_SerialPort::readWrapper(_fd, data, size);
 	}else
-		std::cout<<"Error: Port is not open";
+		std::cout<<"Error: Port is not open ";
 }
 
 void FreeEMS_SerialPort::writeData(const char *data, size_t size){
@@ -398,7 +398,7 @@ void FreeEMS_SerialPort::writeData(const char *data, size_t size){
 		int temp = write(_fd, data, size);
 		temp = temp; //TOOD rectify
 	}else
-		std::cout<<"Error: Port is not open";
+		std::cout<<"Error: Port is not open ";
 }
 
 int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested)
