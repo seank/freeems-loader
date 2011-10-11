@@ -1,6 +1,3 @@
-TODO
-add stuff
-
 Welcome to FreeEMS-Loader!
 
 ##########################  LINUX USERS #################################
@@ -8,12 +5,10 @@ To build and run this application please run the following commands:
 
 1. "apt-get update && apt-get install  qt4-qmake libqt4-dev"
 
-2.  Download, build and install QSerialPort.  It can be found here http://gitorious.org/inbiza-labs/qserialport
+2. Simply type "qmake && make -f Release" and hit enter!
+2a. For Fedora users type "qmake-qt4 && make -f Release"
 
-3. Simply type "qmake && make all" and hit enter!
-3a. For Fedora users type "qmake-qt4 && make all"
-
-3. To execute your freshly built loader type "./FreeEMS_Loader"
+3. execute your freshly built loader by typing "./FreeEMS_Loader"
 
 It's as easy as that!
 
@@ -28,29 +23,13 @@ Install MinGW
 
 	3. Add c:\mingw\bin to your PATH enviornment variable.
 
-
-
-
-
 Install QTLibs
 
 	1. Download QT(MinGW-4.x)
 
 		http://get.qt.nokia.com/qt/source/qt-win-opensource-4.7.1-mingw.exe
 
-	2. Run installer and install to
-
-
-
-Install/Build QSerialPort
-
-	1. Clone the repo available here
-
-		http://gitorious.org/inbiza-labs/qserialport
-
-	2. Follow the build/installation instruction
-
- 	3. Simply type "qmake && make all" and hit enter!
+	2. Run installer and install to c:\Qt\$ver\
 
 ######################### MAC USERS #####################################
 
