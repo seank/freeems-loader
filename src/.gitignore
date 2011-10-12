@@ -9,3 +9,4 @@
 /qrc_resource-root.cpp
 /moc_freeems_loader.cpp
 /*.o
+/*.out
