@@ -53,105 +53,103 @@ using namespace std;
 
 //enum BOOL {READONLY, READWRITE}
 
-class FreeEMS_LoaderSREC
-{
+class FreeEMS_LoaderSREC {
 public:
-  FreeEMS_LoaderSREC(int type);
-  FreeEMS_LoaderSREC();
-  FreeEMS_LoaderSREC(char *input, int numBytes, int type,
-      unsigned int recordAddress);
-  virtual
-  ~FreeEMS_LoaderSREC();
-  //	bool verifyFile(int *file);
-  int
-  fillRecord(std::vector<char> binaryChars);
-  /*
-   * calculate a records checksum and compre it to the stored value.
-   */
-  bool
-  verifyRecord();
-  int
-  getRecordAddress();
-  char
-  getNextByte();
-  char
-  getRecordType();
-  void
-  buildRecord();
-  void
-  printRecord();
-  void
-  createFromString(string* lineIn);
-  std::string
-  retRecordString();
+	FreeEMS_LoaderSREC(int type);
+	FreeEMS_LoaderSREC();
+	FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress);
+	virtual
+	~FreeEMS_LoaderSREC();
+	//	bool verifyFile(int *file);
+	int
+	fillRecord(std::vector<char> binaryChars);
+	/*
+	 * calculate a records checksum and compre it to the stored value.
+	 */
+	bool
+	verifyRecord();
+	int
+	getRecordAddress();
+	char
+	getNextByte();
+	char
+	getRecordType();
+	void
+	buildRecord();
+	void
+	printRecord();
+	void
+	createFromString(string* lineIn);
+	std::string
+	retRecordString();
 
-  /*
-   These characters when paired and interpreted as a hexadecimal value display
-   the least significant byte of the ones complement of the sum of the byte values
-   represented by the pairs of characters making up the count, the address, and
-   the data fields.
-   */
-  void
-  calculateCheckSum();
+	/*
+	 These characters when paired and interpreted as a hexadecimal value display
+	 the least significant byte of the ones complement of the sum of the byte values
+	 represented by the pairs of characters making up the count, the address, and
+	 the data fields.
+	 */
+	void
+	calculateCheckSum();
 
-  int
-  putNextByte(char byte);
-  int
-  setRecordAddress(unsigned int address);
-  int
-  setRecordAddress(char* address);
-  int
-  setRecordType(int type);
-  int
-  setTypeIndex(int type);
-  void
-  setNumPairsInRecord();
-  void
-  initVariables();
-  int
-  retRecordSize();
-  bool
-  lineIsLoadable(string* line);
+	int
+	putNextByte(char byte);
+	int
+	setRecordAddress(unsigned int address);
+	int
+	setRecordAddress(char* address);
+	int
+	setRecordType(int type);
+	int
+	setTypeIndex(int type);
+	void
+	setNumPairsInRecord();
+	void
+	initVariables();
+	int
+	retRecordSize();
+	bool
+	lineIsLoadable(string* line);
 
-  bool recordIsNull;
-  char recordPayload[512]; //ascii pair representaion of the payload
+	bool recordIsNull;
+	char recordPayload[512]; //ascii pair representaion of the payload
 
-  unsigned int payloadAddress;
-  int recordPayloadBytes;
-  char recordBytes[256]; //char string representaion of the payload  according to the s-rec specs 256 is the max TODO maybe vector this
+	unsigned int payloadAddress;
+	int recordPayloadBytes;
+	char recordBytes[256]; //char string representaion of the payload  according to the s-rec specs 256 is the max TODO maybe vector this
 
-signals:
-  void
-  WOInfo(string text);
+	signals:
+	void
+	WOInfo(string text);
 
 private:
-  string record;
+	string record;
 
-  char recordAddressChars[12]; //ascii pair representation of the address
-  char recordTypeIdChars[TWO_BYTES];
-  char recordPayloadPairCountChars[TWO_BYTES];
-  char recordCheckSumChars[TWO_BYTES];
+	char recordAddressChars[12]; //ascii pair representation of the address
+	char recordTypeIdChars[TWO_BYTES];
+	char recordPayloadPairCountChars[TWO_BYTES];
+	char recordCheckSumChars[TWO_BYTES];
 
-  unsigned char recordChkSum;
-  unsigned char recordLoadedChkSum;
-  //char checksum;
+	unsigned char recordChkSum;
+	unsigned char recordLoadedChkSum;
+	//char checksum;
 
-  int charsInAddress;
-  int recordIndex;
+	int charsInAddress;
+	int recordIndex;
 
-  int typeIndex;
-  int numHexValues;
+	int typeIndex;
+	int numHexValues;
 
-  bool writeAccess;
-  bool recordStatus;
-  bool addressIsSet;
-  bool typeIsSet;
-  bool numPairsSet;
+	bool writeAccess;
+	bool recordStatus;
+	bool addressIsSet;
+	bool typeIsSet;
+	bool numPairsSet;
 
 };
 
 #else
-	/* let us know if we are being untidy with headers */
-	#warning "Header file SRECORD_H seen before, sort it out!"
+/* let us know if we are being untidy with headers */
+#warning "Header file SRECORD_H seen before, sort it out!"
 /* end of the wrapper ifdef from the very top */
 #endif

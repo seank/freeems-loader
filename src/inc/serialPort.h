@@ -44,7 +44,6 @@
 #include <fcntl.h> // File control definitions
 #include <errno.h> // Error number definitions
 #include <time.h>   // time calls
-
 #ifndef CRTSCTS
 #define CRTSCTS 0
 #endif
@@ -54,20 +53,13 @@
 #endif
 
 #define POLL_ATTEMPTS 15 //TODO make confgable
+typedef enum {
+	NONE, ODD, EVEN
+} Parity;
 
-typedef enum
-{
-	NONE,
-	ODD,
-	EVEN
-}Parity;
-
-typedef enum
-{
-	INBOUND=0x2E0,
-	OUTBOUND,
-	BOTH
-}FlushDirection;
+typedef enum {
+	INBOUND = 0x2E0, OUTBOUND, BOTH
+} FlushDirection;
 
 class FreeEMS_SerialPort {
 public:
@@ -75,28 +67,28 @@ public:
 	virtual ~FreeEMS_SerialPort();
 	bool isOpen();
 
-void openPort(char *port_name);
-int setupPort(int baud);
-void closePort();
-void flushInBuffer();
-void flushOutBuffer();
-void writeData(const char *data, size_t size);
-void readData(char *data, size_t size);
-int readWrapper(unsigned int, char *, size_t size);
-void flushSerial(FlushDirection direction);
+	void openPort(char *port_name);
+	int setupPort(int baud);
+	void closePort();
+	void flushInBuffer();
+	void flushOutBuffer();
+	void writeData(const char *data, size_t size);
+	void readData(char *data, size_t size);
+	int readWrapper(unsigned int, char *, size_t size);
+	void flushSerial(FlushDirection direction);
 
 #ifdef _WIN32_
-void win32_setup_serial_params(int, int, int, Parity, int);
-void win32_toggle_serial_control_lines(void);
-void win32_flush_serial(int, FlushDirection);
+	void win32_setup_serial_params(int, int, int, Parity, int);
+	void win32_toggle_serial_control_lines(void);
+	void win32_flush_serial(int, FlushDirection);
 #endif
 
 private:
-int _fd;
-bool _isOpenFlag;
-static const int _poll_attempts = 50;
+	int _fd;
+	bool _isOpenFlag;
+	static const int _poll_attempts = 50;
 
-/* Globals */
+	/* Globals */
 
 #ifndef __WIN32__
 	struct termios oldtio;
@@ -105,37 +97,36 @@ static const int _poll_attempts = 50;
 	//static char * serial_lockfile = NULL;
 
 #ifdef __WIN32__
-struct _Serial_Params
-{
-	int _fd;		/*! File descriptor */
-	char *port_name;	/*! textual name of comm port */
-	bool open;		/*! flag, TRUE for open FALSE for closed */
-	int read_wait;		/*! time delay between each read */
-	int errcount;		/*! Serial I/O errors read error count */
-	bool net_mode;	/*! When using TCP/IP socket mode */
-};
+	struct _Serial_Params
+	{
+		int _fd; /*! File descriptor */
+		char *port_name; /*! textual name of comm port */
+		bool open; /*! flag, TRUE for open FALSE for closed */
+		int read_wait; /*! time delay between each read */
+		int errcount; /*! Serial I/O errors read error count */
+		bool net_mode; /*! When using TCP/IP socket mode */
+	};
 #else
-struct _Serial_Params
-{
-	int fd;		/*! File descriptor */
-	char *port_name;	/*! textual name of comm port */
-	bool open;		/*! flag, TRUE for open FALSE for closed */
-	int read_wait;		/*! time delay between each read */
-	int errcount;		/*! Serial I/O errors read error count */
-	bool net_mode;	/*! When using TCP/IP socket mode */
-	struct termios oldtio;	/*! serial port settings before we touch it */
-	struct termios newtio;	/*! serial port settings we use when running */
+	struct _Serial_Params {
+		int fd; /*! File descriptor */
+		char *port_name; /*! textual name of comm port */
+		bool open; /*! flag, TRUE for open FALSE for closed */
+		int read_wait; /*! time delay between each read */
+		int errcount; /*! Serial I/O errors read error count */
+		bool net_mode; /*! When using TCP/IP socket mode */
+		struct termios oldtio; /*! serial port settings before we touch it */
+		struct termios newtio; /*! serial port settings we use when running */
 #ifdef __PIS_SUPPORT__
-	struct serial_struct oldctl;
-	struct serial_struct newctl;
+		struct serial_struct oldctl;
+		struct serial_struct newctl;
 #endif
-};
+	};
 #endif
 
 };
 
 #else
-	/* let us know if we are being untidy with headers */
-	#warning "Header file SERIALPORT_H seen before, sort it out!"
+/* let us know if we are being untidy with headers */
+#warning "Header file SERIALPORT_H seen before, sort it out!"
 /* end of the wrapper ifdef from the very top */
 #endif

@@ -30,21 +30,19 @@
 #include <QtGui/QWidget>
 #include "ui_about.h"
 
-class About : public QWidget
-{
-    Q_OBJECT
+class About: public QWidget {
+	Q_OBJECT
 
 public:
-    About(QWidget *parent = 0);
-    ~About();
+	About(QWidget *parent = 0);
+	~About();
 
 private:
-    Ui::AboutClass ui;
+	Ui::AboutClass ui;
 };
 
-
 #else
-	/* let us know if we are being untidy with headers */
-	#warning "Header file ABOUT_H seen before, sort it out!"
+/* let us know if we are being untidy with headers */
+#warning "Header file ABOUT_H seen before, sort it out!"
 /* end of the wrapper ifdef from the very top */
 #endif

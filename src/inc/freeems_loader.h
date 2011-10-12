@@ -53,108 +53,77 @@
 
 using namespace std;
 
-class FreeEMS_Loader : public QWidget
-{
-Q_OBJECT
+class FreeEMS_Loader: public QWidget {
+	Q_OBJECT
 
 public:
-  FreeEMS_Loader(QWidget *parent = 0);
-  ~FreeEMS_Loader();
+	FreeEMS_Loader(QWidget *parent = 0);
+	~FreeEMS_Loader();
 
-  bool showHelp;
-  bool fileArg;
+	bool showHelp;
+	bool fileArg;
 
-  virtual bool
-  notify(QObject *rec, QEvent *ev)
-  {
-    qDebug() << "MyApplication::notify";
-    try
-      {
-        return QApplication::instance()->notify(rec, ev);
-      }
-    catch (...)
-      {
-        qDebug() << "Unknown Exception: Terminating!";
-        exit(0);
-      }
-    return false;
-  }
+	virtual bool notify(QObject *rec, QEvent *ev) {
+		qDebug() << "MyApplication::notify";
+		try {
+			return QApplication::instance()->notify(rec, ev);
+		} catch (...) {
+			qDebug() << "Unknown Exception: Terminating!";
+			exit(0);
+		}
+		return false;
+	}
 
 protected:
-  void
-  fillBaud();
-  void
-  fillStopBits();
-  void
-  fillDataBits();
-  void
-  fillParity();
-  void
-  redirectCLI();
-  static void
-  outCallBack(const char* ptr, std::streamsize count, void* pTextBox);
-//  void
-//sad  changeGUIState(int state);
-  void
-  updateGUIState();
-  void
-  initGUI();
-  int
-  fillDevice();
-  void
-  getFileName(QString name);
-  void
-  setFlashType();
-  bool
-  isUnattended();
-  void
-  setLoaderState();
+	void fillBaud();
+	void fillStopBits();
+	void fillDataBits();
+	void fillParity();
+	void redirectCLI();
+	static void outCallBack(const char* ptr, std::streamsize count, void* pTextBox);
+	//  void
+	//sad  changeGUIState(int state);
+	void updateGUIState();
+	void initGUI();
+	int fillDevice();
+	void getFileName(QString name);
+	void setFlashType();
+	bool isUnattended();
+	void setLoaderState();
 
 private:
-  Ui::FreeEMS_LoaderClass ui;
+	Ui::FreeEMS_LoaderClass ui;
 
-  FreeEMS_LoaderComms *loaderComms;
-  //FreeEMS_LoaderThreads *heapThreads;
+	FreeEMS_LoaderComms *loaderComms;
+	//FreeEMS_LoaderThreads *heapThreads;
 
-  bool unattended;
+	bool unattended;
 
-  QString ripFileName;
-  QString loadFileName;
-  QString loadDirectory;
-  QStringList cmdline_args;
+	QString ripFileName;
+	QString loadFileName;
+	QString loadDirectory;
+	QStringList cmdline_args;
 
-  int flashTypeIndex;
-  int _loaderState; /* holds the current state of the loader see LOADER_STATES enum */
+	int flashTypeIndex;
+	int _loaderState; /* holds the current state of the loader see LOADER_STATES enum */
 
 public slots:
-  void
-  connect();
-  void
-  rip();
-  void
-  eraseFlash();
-  void
-  test();
-  void
-  load();
-  void
-  writeText(string message);
-  void
-  updateProgress(int percent);
-  void
-  configureProgress(int min, int max);
-  void
-  showAbout();
-  void
-  closeReset();
-  void
-  changeGUIState(int);
-  void
-  displayMessage(int MESSAGE_TYPE, QString message);
+void connect();
+void rip();
+void eraseFlash();
+void test();
+void load();
+void writeText(string message);
+void updateProgress(int percent);
+void configureProgress(int min, int max);
+void showAbout();
+void closeReset();
+void changeGUIState(int);
+void displayMessage(int MESSAGE_TYPE, QString message);
 };
 
 #else
-	/* let us know if we are being untidy with headers */
-	#warning "Header file FREEEMS_LOADER_H seen before, sort it out!"
+/* let us know if we are being untidy with headers */
+#warning "Header file FREEEMS_LOADER_H seen before, sort it out!"
 /* end of the wrapper ifdef from the very top */
 #endif

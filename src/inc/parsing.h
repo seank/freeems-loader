@@ -33,30 +33,22 @@
 
 using namespace std;
 
-class FreeEMS_LoaderParsing
-{
+class FreeEMS_LoaderParsing {
 public:
-  FreeEMS_LoaderParsing();
-  virtual
-  ~FreeEMS_LoaderParsing();
-  static unsigned char
-  asciiPairToChar(char *ascii_pair);
-  //static unsigned char asciiPairsToChars(char *ascii_pair, char *buffer);
-  static unsigned char
-  asciiPairToChar(const char *ascii_pair);
-  static void
-  asciiPairToArray(string* inString, unsigned char* destBuffer, int numChars);
-  static void
-  asciiPairToArray(char* inString, char* destBuffer, int numChars);
-  static void
-  intToHexAscii(int number, char* buffer, unsigned char numBitsToConvert);
-  static int
-  calcuateNumRecordsNeeded(int flashBytes, int bytesInRecord);
+	FreeEMS_LoaderParsing();
+	virtual ~FreeEMS_LoaderParsing();
+	static unsigned char asciiPairToChar(char *ascii_pair);
+	//static unsigned char asciiPairsToChars(char *ascii_pair, char *buffer);
+	static unsigned char asciiPairToChar(const char *ascii_pair);
+	static void asciiPairToArray(string* inString, unsigned char* destBuffer, int numChars);
+	static void asciiPairToArray(char* inString, char* destBuffer, int numChars);
+	static void intToHexAscii(int number, char* buffer, unsigned char numBitsToConvert);
+	static int calcuateNumRecordsNeeded(int flashBytes, int bytesInRecord);
 };
 
 #else
-	/* let us know if we are being untidy with headers */
-	#warning "Header file PARSING_H seen before, sort it out!"
+/* let us know if we are being untidy with headers */
+#warning "Header file PARSING_H seen before, sort it out!"
 /* end of the wrapper ifdef from the very top */
 #endif
 

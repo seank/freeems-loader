@@ -28,7 +28,8 @@
 
 #include "inc/serialPort.h"
 
-FreeEMS_SerialPort::FreeEMS_SerialPort(): _fd(0), _isOpenFlag(false) {
+FreeEMS_SerialPort::FreeEMS_SerialPort() :
+_fd(0), _isOpenFlag(false) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -59,37 +60,36 @@ win32_setup_serial_params(unsigned int fd, int baud, int bits, Parity parity, in
 	dcb.ByteSize = bits;
 	switch (parity)
 	{
-		case NONE:
-			dcb.Parity   = NOPARITY;
-			dcb.fParity = FALSE;            /* Disabled */
-			break;
-		case ODD:
-			dcb.Parity   = ODDPARITY;
-			dcb.fParity = TRUE;             /* Enabled */
-			break;
-		case EVEN:
-			dcb.Parity   = EVENPARITY;
-			dcb.fParity = TRUE;             /* Enabled */
-			break;
+	case NONE:
+		dcb.Parity = NOPARITY;
+		dcb.fParity = FALSE; /* Disabled */
+		break;
+	case ODD:
+		dcb.Parity = ODDPARITY;
+		dcb.fParity = TRUE; /* Enabled */
+		break;
+	case EVEN:
+		dcb.Parity = EVENPARITY;
+		dcb.fParity = TRUE; /* Enabled */
+		break;
 	}
 	if (stop == 2)
-		dcb.StopBits = TWOSTOPBITS;      /* #defined in windows.h */
+		dcb.StopBits = TWOSTOPBITS; /* #defined in windows.h */
 	else
-		dcb.StopBits = ONESTOPBIT;      /* #defined in windows.h */
+		dcb.StopBits = ONESTOPBIT; /* #defined in windows.h */
 
-
-	dcb.fBinary = TRUE;		/* Enable binary mode */
-	dcb.fOutxCtsFlow = FALSE;	/* don't monitor CTS line */
-	dcb.fOutxDsrFlow = FALSE;	/* don't monitor DSR line */
-	dcb.fDsrSensitivity = FALSE;	/* ignore Dsr line */
-	dcb.fDtrControl = DTR_CONTROL_DISABLE;  /* Disable DTR line */
-	dcb.fRtsControl = RTS_CONTROL_DISABLE;  /* Disable RTS line */
-	dcb.fOutX = FALSE;		/* Disable Xoff */
-	dcb.fInX  = FALSE;		/* Disable Xin */
-	dcb.fErrorChar = FALSE;		/* Don't replace bad chars */
-	dcb.fNull = FALSE;		/* don't drop NULL bytes */
-	dcb.fAbortOnError = FALSE;	/* Don't abort */
-	dcb.wReserved = FALSE;		/* as per msdn */
+	dcb.fBinary = TRUE; /* Enable binary mode */
+	dcb.fOutxCtsFlow = FALSE; /* don't monitor CTS line */
+	dcb.fOutxDsrFlow = FALSE; /* don't monitor DSR line */
+	dcb.fDsrSensitivity = FALSE; /* ignore Dsr line */
+	dcb.fDtrControl = DTR_CONTROL_DISABLE; /* Disable DTR line */
+	dcb.fRtsControl = RTS_CONTROL_DISABLE; /* Disable RTS line */
+	dcb.fOutX = FALSE; /* Disable Xoff */
+	dcb.fInX = FALSE; /* Disable Xin */
+	dcb.fErrorChar = FALSE; /* Don't replace bad chars */
+	dcb.fNull = FALSE; /* don't drop NULL bytes */
+	dcb.fAbortOnError = FALSE; /* Don't abort */
+	dcb.wReserved = FALSE; /* as per msdn */
 
 	/* Set the port properties and write the string out the port. */
 	if(SetCommState((HANDLE) _get_osfhandle (fd) ,&dcb) == 0)
@@ -99,19 +99,19 @@ win32_setup_serial_params(unsigned int fd, int baud, int bits, Parity parity, in
 
 	GetCommTimeouts((HANDLE) _get_osfhandle (fd), &timeouts);
 	/*
-	   if (baud == 112500)
-	   timeouts.ReadTotalTimeoutConstant    = 250;
-	   else
-	   timeouts.ReadTotalTimeoutConstant    = 100;
-	   timeouts.ReadTotalTimeoutMultiplier  = 1;
-	   timeouts.WriteTotalTimeoutMultiplier = 1;
-	   timeouts.WriteTotalTimeoutConstant   = 25;
+	 if (baud == 112500)
+	 timeouts.ReadTotalTimeoutConstant    = 250;
+	 else
+	 timeouts.ReadTotalTimeoutConstant    = 100;
+	 timeouts.ReadTotalTimeoutMultiplier  = 1;
+	 timeouts.WriteTotalTimeoutMultiplier = 1;
+	 timeouts.WriteTotalTimeoutConstant   = 25;
 	 */
 
-	timeouts.ReadIntervalTimeout         = 0;
-	timeouts.ReadTotalTimeoutConstant    = 100;
-	timeouts.ReadTotalTimeoutMultiplier  = 1;
-	timeouts.WriteTotalTimeoutConstant   = 100;
+	timeouts.ReadIntervalTimeout = 0;
+	timeouts.ReadTotalTimeoutConstant = 100;
+	timeouts.ReadTotalTimeoutMultiplier = 1;
+	timeouts.WriteTotalTimeoutConstant = 100;
 	timeouts.WriteTotalTimeoutMultiplier = 1;
 
 	SetCommTimeouts((HANDLE) _get_osfhandle (fd) ,&timeouts);
@@ -130,43 +130,40 @@ win32_flush_serial(unsigned int fd, FlushDirection mode)
 {
 	switch (mode)
 	{
-		case INBOUND:
-			PurgeComm((HANDLE) _get_osfhandle (fd),PURGE_RXCLEAR);
-			break;
-		case OUTBOUND:
-			FlushFileBuffers((HANDLE) _get_osfhandle (fd));
-			PurgeComm((HANDLE) _get_osfhandle (fd),PURGE_TXCLEAR);
-			break;
-		case BOTH:
-			FlushFileBuffers((HANDLE) _get_osfhandle (fd));
-			PurgeComm((HANDLE) _get_osfhandle (fd),PURGE_TXCLEAR|PURGE_RXCLEAR);
-			break;
+	case INBOUND:
+		PurgeComm((HANDLE) _get_osfhandle (fd),PURGE_RXCLEAR);
+		break;
+	case OUTBOUND:
+		FlushFileBuffers((HANDLE) _get_osfhandle (fd));
+		PurgeComm((HANDLE) _get_osfhandle (fd),PURGE_TXCLEAR);
+		break;
+	case BOTH:
+		FlushFileBuffers((HANDLE) _get_osfhandle (fd));
+		PurgeComm((HANDLE) _get_osfhandle (fd),PURGE_TXCLEAR|PURGE_RXCLEAR);
+		break;
 	}
-    return;
+	return;
 }
 #endif
 
-void
-FreeEMS_SerialPort::openPort(char * port_name)
-{
+void FreeEMS_SerialPort::openPort(char * port_name) {
 #ifdef __WIN32__
 	_fd = open(port_name, O_RDWR | O_BINARY );
 #else
 	/* NON-block open, then turn to blocking via fcntl so it works
-	   nicely on linux and OS-X.  this MUST be done this way because
-	   in OS-X some serial devices will BLOCK on open waiting for the 
-	   control lines to get into the state it wants, thus blocking
-	   open() indefinitely.  Thus we open nonblocking then flip the bit
-	   afterwards, as termios will set things up the way we want..
-	   */
-	_fd = open(port_name, O_RDWR | O_NOCTTY | O_NONBLOCK );
+	 nicely on linux and OS-X.  this MUST be done this way because
+	 in OS-X some serial devices will BLOCK on open waiting for the
+	 control lines to get into the state it wants, thus blocking
+	 open() indefinitely.  Thus we open nonblocking then flip the bit
+	 afterwards, as termios will set things up the way we want..
+	 */
+	_fd = open(port_name, O_RDWR | O_NOCTTY | O_NONBLOCK);
 	fcntl(_fd, ~O_NONBLOCK);
 #endif
-	_isOpenFlag = _fd > 0 ? true:false;
+	_isOpenFlag = _fd > 0 ? true : false;
 }
 
-int FreeEMS_SerialPort::setupPort(int baud)
-{
+int FreeEMS_SerialPort::setupPort(int baud) {
 #ifdef __WIN32__
 
 	win32_setup_serial_params(_fd, baud, 8, NONE, 1);
@@ -174,7 +171,7 @@ int FreeEMS_SerialPort::setupPort(int baud)
 	int _baud = 0;
 
 	/* Save serial port status */
-	tcgetattr(_fd,&oldtio);
+	tcgetattr(_fd, &oldtio);
 	//flush_serial(fd, TCIOFLUSH);
 
 	memset(&newtio, 0, sizeof(newtio));
@@ -195,13 +192,13 @@ int FreeEMS_SerialPort::setupPort(int baud)
 	else if (baud == 115200)
 		_baud = B115200;
 	else
-		printf("INVALID BAUD RATE %i\n",baud);
+		printf("INVALID BAUD RATE %i\n", baud);
 
 	cfsetispeed(&newtio, _baud);
 	cfsetospeed(&newtio, _baud);
 
 	/* Mask and set to 8N1 mode... */
-	newtio.c_cflag &= ~( PARENB | CSTOPB | CSIZE);
+	newtio.c_cflag &= ~(PARENB | CSTOPB | CSIZE);
 	/* Set additional flags, note |= syntax.. */
 	/* Enable receiver, ignore modem ctrls lines, use 8 bits */
 	newtio.c_cflag |= CLOCAL | CREAD | CS8;
@@ -211,7 +208,7 @@ int FreeEMS_SerialPort::setupPort(int baud)
 	newtio.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 
 	/* Disable software flow control */
-	newtio.c_iflag &= ~(IXON | IXOFF );
+	newtio.c_iflag &= ~(IXON | IXOFF);
 
 	/* Set raw output */
 	newtio.c_oflag &= ~OPOST;
@@ -220,73 +217,66 @@ int FreeEMS_SerialPort::setupPort(int baud)
 	 default values can be found in /usr/include/termios.h, and are given
 	 in the comments, but we don't need them here
 	 *                                           */
-	newtio.c_cc[VINTR]    = 0;     /* Ctrl-c */
-	newtio.c_cc[VQUIT]    = 0;     /* Ctrl-\ */
-	newtio.c_cc[VERASE]   = 0;     /* del */
-	newtio.c_cc[VKILL]    = 0;     /* @ */
-	newtio.c_cc[VEOF]     = 0;     /* Ctrl-d */
-	newtio.c_cc[VEOL]     = 0;     /* '\0' */
-	newtio.c_cc[VMIN]     = 1;
-	newtio.c_cc[VTIME]    = 1;     /* 100ms timeout */
+	newtio.c_cc[VINTR] = 0; /* Ctrl-c */
+	newtio.c_cc[VQUIT] = 0; /* Ctrl-\ */
+	newtio.c_cc[VERASE] = 0; /* del */
+	newtio.c_cc[VKILL] = 0; /* @ */
+	newtio.c_cc[VEOF] = 0; /* Ctrl-d */
+	newtio.c_cc[VEOL] = 0; /* '\0' */
+	newtio.c_cc[VMIN] = 1;
+	newtio.c_cc[VTIME] = 1; /* 100ms timeout */
 
-	tcsetattr(_fd,TCSANOW,&newtio);
+	tcsetattr(_fd, TCSANOW, &newtio);
 
 #endif
 	return 0;
 
 }
 
+void FreeEMS_SerialPort::closePort() {
 
-void FreeEMS_SerialPort::closePort()
-{
-
-//	tcflush(_fd, TCIOFLUSH);
-//	fcntl(_fd, O_NONBLOCK);
+	//	tcflush(_fd, TCIOFLUSH);
+	//	fcntl(_fd, O_NONBLOCK);
 
 	//	close(_fd);
 
-	if (_fd!=-1)
-	{
-//		if (restoreSettings)
-//		{
-		#ifndef __WIN32__
+	if (_fd != -1) {
+		//		if (restoreSettings)
+		//		{
+#ifndef __WIN32__
 		//tcsetattr(_fd,TCSAFLUSH,&oldtio);
 		int temp = tcsetattr(_fd, TCSANOW, &oldtio);
 		temp += temp; //TODO rectify
-    	#endif
-//		}
+#endif
+		//		}
 		::close(_fd);
 	}
-	_fd=-1;
+	_fd = -1;
 	return;
 }
 
 //
-void FreeEMS_SerialPort::flushSerial(FlushDirection direction)
-{
+void FreeEMS_SerialPort::flushSerial(FlushDirection direction) {
 #ifdef __WIN32__
 	if (_fd) {
 		//win32_flush_serial(_fd, type);
 		win32_flush_serial(_fd, direction);
 	}
 #else
-	if (_fd)
-	{
-		switch (direction)
-		{
-			case INBOUND:
-				tcflush(_fd, TCIFLUSH);
-				break;
-			case OUTBOUND:
-				tcflush(_fd, TCOFLUSH);
-				break;
-			case BOTH:
-				tcflush(_fd, TCIOFLUSH);
-				break;
+	if (_fd) {
+		switch (direction) {
+		case INBOUND:
+			tcflush(_fd, TCIFLUSH);
+			break;
+		case OUTBOUND:
+			tcflush(_fd, TCOFLUSH);
+			break;
+		case BOTH:
+			tcflush(_fd, TCIOFLUSH);
+			break;
 		}
-	}
-	else{
-		std::cout<<"Error: Serial port not open";
+	} else {
+		std::cout << "Error: Serial port not open";
 	}
 #endif
 }
@@ -307,7 +297,6 @@ void FreeEMS_SerialPort::flushSerial(FlushDirection direction)
 //	}
 //#endif
 //}
-
 
 //bool lock_port(char * name)
 //{
@@ -374,44 +363,43 @@ void FreeEMS_SerialPort::flushSerial(FlushDirection direction)
 //	return TRUE;
 //}
 
-bool FreeEMS_SerialPort::isOpen(){
+bool FreeEMS_SerialPort::isOpen() {
 	return _isOpenFlag;
 }
 
-void FreeEMS_SerialPort::flushInBuffer(){
+void FreeEMS_SerialPort::flushInBuffer() {
 	flushSerial(INBOUND);
 }
 
-void FreeEMS_SerialPort::flushOutBuffer(){
+void FreeEMS_SerialPort::flushOutBuffer() {
 	flushSerial(OUTBOUND);
 }
 
-void FreeEMS_SerialPort::readData(char *data, size_t size){
-	if(isOpen()){
+void FreeEMS_SerialPort::readData(char *data, size_t size) {
+	if (isOpen()) {
 		FreeEMS_SerialPort::readWrapper(_fd, data, size);
-	}else
-		std::cout<<"Error: Port is not open ";
+	} else
+		std::cout << "Error: Port is not open ";
 }
 
-void FreeEMS_SerialPort::writeData(const char *data, size_t size){
-	if(isOpen()){
+void FreeEMS_SerialPort::writeData(const char *data, size_t size) {
+	if (isOpen()) {
 		int temp = write(_fd, data, size);
 		temp = temp; //TOOD rectify
-	}else
-		std::cout<<"Error: Port is not open ";
+	} else
+		std::cout << "Error: Port is not open ";
 }
 
-int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested)
-{
+int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested) {
 #ifdef __WIN32__
 	/* Windows can't do select() on anything but network sockets which
-	   is completely braindead, and thus yoou must do overlapped IO
-	   or uglier busylooped IO.  I'm lazy and hate windows and the
-	   overlapped IO stuff is ugly as hell, so I used the busylooped method
-	   instead...
-	   */
+	 is completely braindead, and thus yoou must do overlapped IO
+	 or uglier busylooped IO.  I'm lazy and hate windows and the
+	 overlapped IO stuff is ugly as hell, so I used the busylooped method
+	 instead...
+	 */
 	int received = 0;
-        int read_pos = 0;
+	int read_pos = 0;
 	int timeout = FALSE;
 	unsigned int tries = 0;
 	int wanted = requested;
@@ -453,15 +441,13 @@ int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested
 	int res = 0;
 	int total = 0;
 
-	while (wanted > 0)
-	{
+	while (wanted > 0) {
 		FD_ZERO(&readfds);
 		t.tv_sec = 0;
 		t.tv_usec = 200000;
-		FD_SET(fd,&readfds);
-		res = select (fd+1, &readfds,NULL,NULL, &t);
-		if (res == -1)
-		{
+		FD_SET(fd, &readfds);
+		res = select(fd + 1, &readfds, NULL, NULL, &t);
+		if (res == -1) {
 			//output("ERROR, select() failure!\n",FALSE);
 			printf("ERROR, select() failure!\n");
 			return -1;
@@ -474,13 +460,11 @@ int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested
 				return total;
 		}
 		/* OK we have something waiting for us, read it */
-		if (FD_ISSET(fd,&readfds))
-		{
+		if (FD_ISSET(fd,&readfds)) {
 			/*printf("data avail!\n");*/
 			read_pos = requested - wanted;
 			received = read(fd, &buf[read_pos], wanted);
-			if (received == -1)
-			{
+			if (received == -1) {
 				printf("Serial I/O Error, read failure\n");
 				//output("Serial I/O Error, read failure\n",FALSE);
 				return -1;

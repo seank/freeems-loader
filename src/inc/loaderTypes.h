@@ -46,60 +46,53 @@
 #define S2_ADDRESS_OFFSET       0x04
 #define S2_PAYLOAD_OFFSET       0x0A
 
-enum ACTION
-{
-  NO_ACTION, EXECUTE_ERASE, EXECUTE_RIP, EXECUTE_RIP_ERASE_LOAD, EXECUTE_LOAD, TEST
+enum ACTION {
+	NO_ACTION, EXECUTE_ERASE, EXECUTE_RIP, EXECUTE_RIP_ERASE_LOAD, EXECUTE_LOAD, TEST
 };
 
-enum LOADER_STATE
-{
-	NOTCONNECTED=1, CONNECTED, WORKING, ERROR
+enum LOADER_STATE {
+	NOTCONNECTED = 1, CONNECTED, WORKING, ERROR
 };
 
-enum MESSAGE_TYPE
-{
-	USER_INFO=1, DEBUG, ARGUMENT, GENERIC
+enum MESSAGE_TYPE {
+	USER_INFO = 1, DEBUG, ARGUMENT, GENERIC
 };
-enum s19ID
-{
-  S0, S1, // The type of record field is 'S1' (0x5331)
-  S2, // The type of record field is 'S2' (0x5332)
-  S3, // The type of record field is 'S3' (0x5333)
-  S4,
-  S5, // The type of record field is 'S5' (0x5335)
-  S6,
-  S7, // The type of record field is 'S7' (0x5337)
-  S8, // The type of record field is 'S8' (0x5338)
-  S9
-// The type of record field is 'S9' (0x5339)
+enum s19ID {
+	S0, S1, // The type of record field is 'S1' (0x5331)
+	S2, // The type of record field is 'S2' (0x5332)
+	S3, // The type of record field is 'S3' (0x5333)
+	S4,
+	S5, // The type of record field is 'S5' (0x5335)
+	S6,
+	S7, // The type of record field is 'S7' (0x5337)
+	S8, // The type of record field is 'S8' (0x5338)
+	S9
+	// The type of record field is 'S9' (0x5339)
 };
 
-struct dataVector_tag
-{
-  const char *association;
-  unsigned int startAddress;
-  unsigned int stopAddress;
-  unsigned int startPage;
-  unsigned int stopPage;
-  unsigned int memType;
-  unsigned int pageRegister;
+struct dataVector_tag {
+	const char *association;
+	unsigned int startAddress;
+	unsigned int stopAddress;
+	unsigned int startPage;
+	unsigned int stopPage;
+	unsigned int memType;
+	unsigned int pageRegister;
 };
 
-struct flashModuleInfo_tag
-{
-  const char *name;
-  unsigned int flashModule;
-  unsigned int EEPROMModule;
-  int numFlashBytes;
+struct flashModuleInfo_tag {
+	const char *name;
+	unsigned int flashModule;
+	unsigned int EEPROMModule;
+	int numFlashBytes;
 };
 
-struct s19Info
-{
-  int type;
-  const char *description;
-  const char *s19ID; // type in ascii
-  int addressBytes;
-  bool dataSequence;
+struct s19Info {
+	int type;
+	const char *description;
+	const char *s19ID; // type in ascii
+	int addressBytes;
+	bool dataSequence;
 };
 
 extern const struct dataVector_tag dataVectorTable[];
@@ -119,8 +112,8 @@ extern const char SMReset;
 extern const char SMRDY[3];
 
 #else
-	/* let us know if we are being untidy with headers */
-	#warning "Header file LOADERTYPES_H seen before, sort it out!"
+/* let us know if we are being untidy with headers */
+#warning "Header file LOADERTYPES_H seen before, sort it out!"
 /* end of the wrapper ifdef from the very top */
 #endif
 
