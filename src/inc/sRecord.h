@@ -119,8 +119,7 @@ public:
 	char recordBytes[256]; //char string representaion of the payload  according to the s-rec specs 256 is the max TODO maybe vector this
 
 	signals:
-	void
-	WOInfo(string text);
+	void WOInfo(string text);
 
 private:
 	string record;

@@ -81,8 +81,6 @@ protected:
 	void fillParity();
 	void redirectCLI();
 	static void outCallBack(const char* ptr, std::streamsize count, void* pTextBox);
-	//  void
-	//sad  changeGUIState(int state);
 	void updateGUIState();
 	void initGUI();
 	int fillDevice();
@@ -93,17 +91,12 @@ protected:
 
 private:
 	Ui::FreeEMS_LoaderClass ui;
-
 	FreeEMS_LoaderComms *loaderComms;
-	//FreeEMS_LoaderThreads *heapThreads;
-
 	bool unattended;
-
 	QString ripFileName;
 	QString loadFileName;
 	QString loadDirectory;
 	QStringList cmdline_args;
-
 	int flashTypeIndex;
 	int _loaderState; /* holds the current state of the loader see LOADER_STATES enum */
 
