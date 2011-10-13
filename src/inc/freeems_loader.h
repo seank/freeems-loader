@@ -99,6 +99,7 @@ private:
 	QStringList cmdline_args;
 	int flashTypeIndex;
 	int _loaderState; /* holds the current state of the loader see LOADER_STATES enum */
+	About *about;
 
 public slots:
 void connect();
