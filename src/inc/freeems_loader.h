@@ -49,7 +49,6 @@
 #include <errno.h>
 #include <vector>
 #include <string>
-#include "inc/about.h"
 
 using namespace std;
 

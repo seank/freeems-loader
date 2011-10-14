@@ -31,6 +31,7 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
+#include "inc/about.h"
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
 QWidget(parent), showHelp(false), fileArg(false), unattended(false) {
@@ -481,8 +482,8 @@ void FreeEMS_Loader::configureProgress(int min, int max) {
 }
 
 void FreeEMS_Loader::showAbout() {
-	About *message = new About;
-	message->show();
+	About about(this);
+	about.exec();
 }
 
 void FreeEMS_Loader::closeReset() {
