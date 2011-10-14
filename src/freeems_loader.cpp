@@ -31,6 +31,7 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
+#include "inc/about.h"
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
 QWidget(parent), showHelp(false), fileArg(false), unattended(false) {

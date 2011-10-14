@@ -29,15 +29,11 @@
 
 #include "ui_about.h"
 
-class About: public QDialog {
-	Q_OBJECT
-
+class About: public QDialog, public Ui::AboutForm 
+{
 public:
 	About(QWidget *parent = 0);
 	~About();
-
-private:
-	Ui::AboutForm ui;
 };
 
 #else
