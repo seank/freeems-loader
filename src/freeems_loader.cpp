@@ -128,6 +128,8 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false) {
 FreeEMS_Loader::~FreeEMS_Loader() {
 	loaderComms->close();
 	delete loaderComms;
+	assert( about );
+	delete about;
 	QSettings settings("FreeEMS", "Loader");
 	settings.setValue("pos", pos());
 	settings.setValue("size", size());
