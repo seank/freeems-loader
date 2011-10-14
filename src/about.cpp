@@ -24,10 +24,11 @@
  *
  */
 
+#include <Qt>
 #include "inc/about.h"
 
 About::About(QWidget *parent) :
-QWidget(parent) {
+QDialog(parent, Qt::Window | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint) {
 	static QString message = "freeems-loader: a freeems firmware(s19) loader\n\n"
 
 			"Copyright (C) 2010 Sean Keys skeys at ipdatasys\n\n"

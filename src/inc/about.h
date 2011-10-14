@@ -27,10 +27,9 @@
 #ifndef ABOUT_H
 #define ABOUT_H
 
-#include <QtGui/QWidget>
 #include "ui_about.h"
 
-class About: public QWidget {
+class About: public QDialog {
 	Q_OBJECT
 
 public:
@@ -38,7 +37,7 @@ public:
 	~About();
 
 private:
-	Ui::AboutClass ui;
+	Ui::AboutForm ui;
 };
 
 #else

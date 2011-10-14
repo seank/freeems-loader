@@ -31,15 +31,12 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
-#include <assert.h>
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
 QWidget(parent), showHelp(false), fileArg(false), unattended(false) {
 	ui.setupUi(this);
 	qRegisterMetaType<string>("string");
 	loaderComms = new FreeEMS_LoaderComms;
-	about = new About();
-	assert( about );
 	fillBaud();
 	fillDataBits();
 	fillStopBits();
@@ -128,8 +125,6 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false) {
 FreeEMS_Loader::~FreeEMS_Loader() {
 	loaderComms->close();
 	delete loaderComms;
-	assert( about );
-	delete about;
 	QSettings settings("FreeEMS", "Loader");
 	settings.setValue("pos", pos());
 	settings.setValue("size", size());
@@ -486,8 +481,8 @@ void FreeEMS_Loader::configureProgress(int min, int max) {
 }
 
 void FreeEMS_Loader::showAbout() {
-	assert( about );
-	about->show();
+	About about(this);
+	about.exec();
 }
 
 void FreeEMS_Loader::closeReset() {
