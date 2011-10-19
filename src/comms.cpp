@@ -50,6 +50,7 @@ void FreeEMS_LoaderComms::openTest(QString serPortName) {
 	//
 	//  //TODO user return verify instead
 	//  QByteArray resp;
+	//
 	//  //resp = serPorttest.read(3);
 	//  QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
 	//  if(resp.contains(tester)){
@@ -59,6 +60,7 @@ void FreeEMS_LoaderComms::openTest(QString serPortName) {
 	//  }
 	//  //serPorttest.close();
 	//  //delete(serPort);
+	// error validating return from SMRequestByteBlock
 }
 
 void FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate) {
@@ -139,7 +141,6 @@ void FreeEMS_LoaderComms::ripDevice() {
 	//  unsigned int bytesInRange;
 	unsigned int pagedAddress = 0;
 
-	//setSM(); //Incase the SM has been reset by the user
 	std::vector<char> rxBuffer(bytesPerRecord);
 	ofstream outFile(ripFilename.toAscii(), ios::out | ios::binary);
 	FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
@@ -175,9 +176,7 @@ void FreeEMS_LoaderComms::ripDevice() {
 						s19Record->setRecordAddress(pagedAddress);
 						s19Record->fillRecord(rxBuffer);
 						s19Record->buildRecord();
-						//Update Progress Bar
-						emit
-						udProgress(totalBytesTX);
+						emit udProgress(totalBytesTX); //Update Progress Bar
 						if (s19Record->recordIsNull == false) {
 							outFile.write(s19Record->retRecordString().c_str(), s19Record->retRecordSize());
 							outFile.write("\n", 1);
@@ -188,7 +187,8 @@ void FreeEMS_LoaderComms::ripDevice() {
 		}
 		emit udProgress(totalBytes);
 	} else {
-		cout << "error SM not ready";
+		//setGUI(ERROR)
+		emit displayMessage(MESSAGE_ERROR, "error SM not ready");
 	}
 	outFile.close();
 	delete s19Record;
@@ -384,7 +384,7 @@ int FreeEMS_LoaderComms::verifyReturn(SM_COMMAND_TYPE type) { //TODO this should
 	return -1;
 }
 
-void FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes, std::vector<char> &vec) {
+int FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes, std::vector<char> &vec) {
 	std::vector<char> buffer(plusBytes);
 	char highByte = (address & 0xFF00) >> 8;
 	char lowByte = address & 0x00FF;
@@ -394,10 +394,13 @@ void FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes, 
 	write(&lowByte, 1);
 	write(&bytesRequested, 1);
 	buffer = read(plusBytes);
-	if (verifyReturn(GENERIC) < 0) // you must always verify a return to "clear" the buffer
-		cout << "error validating return from SMRequestByteBlock";
+	if (verifyReturn(GENERIC) < 0){ // you must always verify a return to "clear" the buffer
+		emit displayMessage(MESSAGE_ERROR, "error validating return from SMRequestByteBlock");
+		return -1;
+		//cout << "error validating return from SMRequestByteBlock";
+	}
 	vec = buffer;
-	return;
+	return 1;
 }
 
 void FreeEMS_LoaderComms::erasePage(char PPage) {

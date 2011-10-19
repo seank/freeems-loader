@@ -322,7 +322,7 @@ void FreeEMS_Loader::rip() {
 	ui.chkRip->setEnabled(0);
 	ripFileName = QFileDialog::getSaveFileName(this, tr("Save s19 as"), loadRipDirectory, tr("s19 (*.s19)"));
 	if (ripFileName.isNull()) {
-		displayMessage(MESSAGE_INFO, "error opening file");
+		displayMessage(MESSAGE_INFO, "no file name specified");
 	}
 	loaderComms->setRipFilename(ripFileName);
 	loaderComms->setAction(EXECUTE_RIP);
@@ -432,16 +432,18 @@ void FreeEMS_Loader::load() {
 	_numBurnsPerformed++;
 	QDate date = QDate::currentDate();
 	QTime time = QTime::currentTime();
+	QFileDialog fileDialog;
+	fileDialog.setViewMode(QFileDialog::Detail);
 
 	if (!fileArg) //if no file was specified from the cmdline open browser
 	{
-		loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
+		//loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
+		loadFileName = fileDialog.getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
 	}
 	if (loadFileName.isNull()) {
 		writeText("no file selected");
 		return;
 	}
-
 	if (ui.chkVerify->isChecked()) {
 		loaderComms->verifyLastWrite = true; //todo make set function
 		loaderComms->verifyACKs = true;
@@ -459,8 +461,9 @@ void FreeEMS_Loader::load() {
 	ripFileName += date.toString("MM-dd-yyyy-");
 	ripFileName += time.toString("H-m-s-");
 	ripFileName += name;
-	writeText("Ripping as ");
-	writeText(ripFileName.toStdString());
+	if(ui.chkRip->isChecked()){
+		displayMessage(MESSAGE_INFO, "Ripping as '" + ripFileName + "'");
+	}
 	loaderComms->setLoadFilename(loadFileName);
 	loaderComms->setRipFilename(ripFileName);
 	if (ui.chkRip->isChecked()) {

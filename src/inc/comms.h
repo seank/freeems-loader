@@ -128,7 +128,7 @@ public:
 
 	void SMSetPPage(char PPage);
 
-	void SMReadByteBlock(unsigned int address, char plusBytes, std::vector<char> &vec);
+	int SMReadByteBlock(unsigned int address, char plusBytes, std::vector<char> &vec);
 
 	void SMReadChars(const char *data, size_t size);
 
