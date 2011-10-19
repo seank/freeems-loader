@@ -142,6 +142,7 @@ FreeEMS_Loader::~FreeEMS_Loader() {
 	settings.setValue("chkRip", ui.chkRip->isChecked());
 	settings.setValue("chkVerify", ui.chkVerify->isChecked());
 	settings.setValue("lastFileName", loadFileName);
+	settings.setValue("lastRipFileName", ripFileName);
 	settings.setValue("numBurnsPerformed", _numBurnsPerformed);
 }
 
@@ -322,7 +323,8 @@ void FreeEMS_Loader::rip() {
 	ui.chkRip->setEnabled(0);
 	ripFileName = QFileDialog::getSaveFileName(this, tr("Save s19 as"), loadRipDirectory, tr("s19 (*.s19)"));
 	if (ripFileName.isNull()) {
-		displayMessage(MESSAGE_INFO, "no file name specified");
+		displayMessage(MESSAGE_INFO, "no rip file name specified");
+		return;
 	}
 	loaderComms->setRipFilename(ripFileName);
 	loaderComms->setAction(EXECUTE_RIP);
@@ -365,12 +367,16 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.pushRip->setEnabled(1);
 		ui.pushConnect->setText("Close/Rst");
 		ui.pushErase->setEnabled(1);
+		ui.chkRip->setEnabled(1);
+		ui.chkRip->setEnabled(1);
 		break;
 	case WORKING:
 		ui.pushConnect->setText("Abort");
 		ui.pushLoad->setEnabled(0);
 		ui.pushRip->setEnabled(0);
 		ui.pushErase->setEnabled(0);
+		ui.chkRip->setEnabled(0);
+		ui.chkRip->setEnabled(0);
 		break;
 	case ERROR:
 		//TODO stop com thread and close port
@@ -441,7 +447,7 @@ void FreeEMS_Loader::load() {
 		loadFileName = fileDialog.getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
 	}
 	if (loadFileName.isNull()) {
-		writeText("no file selected");
+		writeText("no load file selected");
 		return;
 	}
 	if (ui.chkVerify->isChecked()) {
@@ -506,8 +512,7 @@ void FreeEMS_Loader::closeReset() {
 
 }
 
-void FreeEMS_Loader::displayMessage(MESSAGE_TYPE type, QString message) //TODO add eumu
-{
+void FreeEMS_Loader::displayMessage(MESSAGE_TYPE type, QString message) {
 	switch (type) {
 		case MESSAGE_INFO:
 			cout << endl << "Info: " << message.toStdString();

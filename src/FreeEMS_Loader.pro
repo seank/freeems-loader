@@ -79,7 +79,7 @@ mac {
 # unix:LIBS *= -L/opt/local/lib \
 # -lQtSerialPort
 linux-g++:# Straight Linux
-message("Linux Build")
+message("Straight Linux Build")
 
 # unix:INCLUDEPATH *= /usr/local/qserialport/include/QtSerialPort/
 # unix:LIBS *=

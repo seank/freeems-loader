@@ -47,7 +47,8 @@ void FreeEMS_LoaderComms::openTest(QString serPortName) {
 	//  serPorttest.flushInBuffer();
 	//  serPorttest.setCommTimeouts(commTimeouts);
 	//  serPorttest.write(SMRDY, sizeof(SMRDY));
-	//
+	//Problem communicating with the device
+	//Comms: closing port
 	//  //TODO user return verify instead
 	//  QByteArray resp;
 	//
@@ -100,7 +101,7 @@ void FreeEMS_LoaderComms::clearSets() {
 void FreeEMS_LoaderComms::close() {
 	if (isOpen() == false)
 		return;
-	cout << "Comms: closing port ";
+	emit displayMessage(MESSAGE_ERROR, "comms closing port");
 	serPort->closePort();
 	smIsReady = false;
 }
@@ -145,15 +146,16 @@ void FreeEMS_LoaderComms::ripDevice() {
 	ofstream outFile(ripFilename.toAscii(), ios::out | ios::binary);
 	FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
 	totalBytes = getDeviceByteCount();
-	emit
-	configureProgress(0, totalBytes);
+	emit configureProgress(0, totalBytes - 1);
+
+	serPort->flushInBuffer();
+	serPort->flushOutBuffer();
 
 	if (smIsReady) {
 		for (i = 0; i < numDataVectorTableEntries; i++) {
 			if (!strcmp(flashModuleTable[flashTypeIndex].name, dataVectorTable[i].association)) {
 				nPages = dataVectorTable[i].stopPage - dataVectorTable[i].startPage;
 				nPages++; //there is always 1 page to rip
-
 				for (PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--) {
 					SMSetPPage(PPageIndex); //set Ppage register
 
@@ -185,7 +187,7 @@ void FreeEMS_LoaderComms::ripDevice() {
 				}
 			}
 		}
-		emit udProgress(totalBytes);
+		//emit udProgress(totalBytes);
 	} else {
 		//setGUI(ERROR)
 		emit displayMessage(MESSAGE_ERROR, "error SM not ready");
@@ -212,14 +214,9 @@ void FreeEMS_LoaderComms::SMSetPPage(char PPage) {
 	write(&Zero, 1);
 	write(&PPageRegister, 1);
 	write(&page, 1);
-	//  usleep(50000);
-
-	//if(verifyACKs == true)
-	//  {
 	if (verifyReturn(GENERIC) < 0) {
-		cout << "Error: cannot verify return string after setting ppage" << endl;
+		emit displayMessage(MESSAGE_ERROR, "cannot verify ACK after setting ppage");
 	}
-	//  }
 }
 
 void FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size) {
@@ -231,17 +228,7 @@ void FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size) {
 }
 
 void FreeEMS_LoaderComms::resetSM() {
-	// try
-	//    {
 	write(&SMReset, 1);
-	//asio::write(port, asio::buffer(&SMReset, ONE_BYTE));
-	//     }
-	//   catch (/*boost::system::system_error& e*/)
-	//     {
-	//       cout << "Error trying to write SM Reset char to serial port: ";
-	//    << e.what() << endl;
-	//       return;
-	//     }
 	return;
 }
 
@@ -358,7 +345,7 @@ int FreeEMS_LoaderComms::verifyReturn(SM_COMMAND_TYPE type) { //TODO this should
 				return 1;
 			}
 			emit setGUI(ERROR);
-			emit displayMessage(MESSAGE_ERROR,"unable to verify serial monitor return code");
+			emit displayMessage(MESSAGE_ERROR, "unable to verify serial monitor return code");
 			return -1;
 		break;
 		case SETSM:
