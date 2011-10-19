@@ -33,7 +33,7 @@
 #include "inc/about.h"
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
-QWidget(parent), showHelp(false), fileArg(false), unattended(false) {
+QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPerformed(0) {
 	ui.setupUi(this);
 	qRegisterMetaType<string>("string");
 	qRegisterMetaType<unsigned int>("MESSAGE_TYPE");
@@ -63,6 +63,12 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false) {
 	ui.chkVerify->setChecked(settings.value("chkVerify").toBool());
 	//loadFileName = settings.value("lastFileName").toString();
 	loadDirectory = settings.value("lastDirectory").toString();
+	loadRipDirectory = settings.value("lastRipDirectory").toString();
+	_numBurnsPerformed = settings.value("numBurnsPerformed").toInt();
+
+	QString loadsNum;
+	loadsNum.setNum(_numBurnsPerformed, 10);
+	displayMessage(MESSAGE_INFO, "number of burns executed " + loadsNum);
 
 	/* process arguments */
 	QString arg;
@@ -136,6 +142,7 @@ FreeEMS_Loader::~FreeEMS_Loader() {
 	settings.setValue("chkRip", ui.chkRip->isChecked());
 	settings.setValue("chkVerify", ui.chkVerify->isChecked());
 	settings.setValue("lastFileName", loadFileName);
+	settings.setValue("numBurnsPerformed", _numBurnsPerformed);
 }
 
 int FreeEMS_Loader::fillDevice() {
@@ -313,9 +320,9 @@ void FreeEMS_Loader::connect() {
 
 void FreeEMS_Loader::rip() {
 	ui.chkRip->setEnabled(0);
-	ripFileName = QFileDialog::getSaveFileName(this, tr("Save s19 as"), QDir::currentPath(), tr("s19 (*.s19)"));
+	ripFileName = QFileDialog::getSaveFileName(this, tr("Save s19 as"), loadRipDirectory, tr("s19 (*.s19)"));
 	if (ripFileName.isNull()) {
-		cout << endl << "error opening file";
+		displayMessage(MESSAGE_INFO, "error opening file");
 	}
 	loaderComms->setRipFilename(ripFileName);
 	loaderComms->setAction(EXECUTE_RIP);
@@ -416,11 +423,13 @@ void FreeEMS_Loader::test() {
 }
 
 void FreeEMS_Loader::eraseFlash() {
+	_numBurnsPerformed++;
 	loaderComms->setAction(EXECUTE_ERASE);
 	loaderComms->start();
 }
 
 void FreeEMS_Loader::load() {
+	_numBurnsPerformed++;
 	QDate date = QDate::currentDate();
 	QTime time = QTime::currentTime();
 

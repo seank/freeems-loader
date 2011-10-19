@@ -96,9 +96,11 @@ private:
 	QString ripFileName;
 	QString loadFileName;
 	QString loadDirectory;
+	QString loadRipDirectory;
 	QStringList cmdline_args;
 	int flashTypeIndex;
 	int _loaderState; /* holds the current state of the loader see LOADER_STATES enum */
+	int _numBurnsPerformed;
 
 public slots:
 void connect();
