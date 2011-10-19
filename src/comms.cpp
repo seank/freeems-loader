@@ -25,7 +25,6 @@
  */
 
 #include "inc/comms.h"
-#include <inc/loaderTypes.h>
 #include <fstream>
 
 using namespace std;
@@ -67,8 +66,7 @@ void FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate) {
 		close();
 	serPort->openPort(serPortName.toAscii().data());
 	serPort->setupPort(baud_rate);
-	//sleep(1);
-
+	serPort->flushSerial(BOTH);
 }
 
 bool FreeEMS_LoaderComms::isReady() const {
@@ -218,7 +216,7 @@ void FreeEMS_LoaderComms::SMSetPPage(char PPage) {
 
 	//if(verifyACKs == true)
 	//  {
-	if (verifyReturn() < 0) {
+	if (verifyReturn(GENERIC) < 0) {
 		cout << "Error: cannot verify return string after setting ppage" << endl;
 	}
 	//  }
@@ -248,11 +246,11 @@ void FreeEMS_LoaderComms::resetSM() {
 }
 
 void FreeEMS_LoaderComms::setSM() {
-	write(&SMReset, 1);
+	//write(&SMReset, 1);
 	serPort->flushInBuffer();
 	serPort->flushOutBuffer();
 	write(&SMReturn, 1);
-	if (verifyReturn() > 0) {
+	if (verifyReturn(SETSM) > 0) {
 		smIsReady = true;
 	} else {
 		smIsReady = false;
@@ -345,33 +343,45 @@ void FreeEMS_LoaderComms::returnFlashType(char *responce) {
 	return;
 }
 
-int FreeEMS_LoaderComms::verifyReturn() { //TODO this should iterate though a list of possible returns, citing specific errors
+int FreeEMS_LoaderComms::verifyReturn(SM_COMMAND_TYPE type) { //TODO this should iterate though a list of possible returns, citing specific errors
 	//QByteArray resp;
 	//resp = serPort->read(3); //todo use wrapper
 	//QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
 	//usleep(5000);
-	char response[4] = { 0 };
-	read(response, 3);
-	if ((response[2] == (const char) 0x3E)) // we got a response
-	{
-		if (response[0] != (char) 0xe0) {
-			cout << "SM verify error code: ";
-			printf("%x ", (unsigned char) response[0]);
-			cout << endl; //todo properly parse code
-		} else {
-			//cout << "SM Returned Success!"<<(unsigned char)response[0]<<endl; //todo properly parse code
-		}
-		return 1;
-	} else {
-		emit setGUI(ERROR);
-		//this->thread();
-		//kill thread
-		//close port
-		cout << "Error Verifying Return "; //<<response.count()<<endl;
-		printf("%s", response);
-		cout << endl;
-		return -1;
+	char response[3] = { 0 };
+	char code = 0;
+	read(&code, 1);
+	switch (type){
+		case GENERIC:
+			read(response, 2);
+			if (code == (char) 0xe0 && response[1] == 0x3E) {
+				return 1;
+			}
+			emit setGUI(ERROR);
+			emit displayMessage(MESSAGE_ERROR,"unable to verify serial monitor return code");
+			return -1;
+		break;
+		case SETSM:
+			if(code == (char)0xE0){
+				read(response, 2);
+				if(response[1] != 0x3E){
+					emit setGUI(ERROR);
+					emit displayMessage(MESSAGE_ERROR, "unable to verify serial monitor presence");
+					return -1;
+				}
+				return 1;
+			}else if(code == (char)0xE1){
+				read(response, 1);
+				if(response[0] == (char)0x0){
+					emit displayMessage(MESSAGE_INFO, "serial monitor already running");
+					return 1;
+				}
+			}
+			emit displayMessage(MESSAGE_ERROR, "read unknown value from serial port");
+			return -1;
+		break;
 	}
+	return -1;
 }
 
 void FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes, std::vector<char> &vec) {
@@ -384,7 +394,7 @@ void FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes, 
 	write(&lowByte, 1);
 	write(&bytesRequested, 1);
 	buffer = read(plusBytes);
-	if (verifyReturn() < 0) // you must always verify a return to "clear" the buffer
+	if (verifyReturn(GENERIC) < 0) // you must always verify a return to "clear" the buffer
 		cout << "error validating return from SMRequestByteBlock";
 	vec = buffer;
 	return;
@@ -393,7 +403,7 @@ void FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes, 
 void FreeEMS_LoaderComms::erasePage(char PPage) {
 	SMSetPPage(PPage);
 	write(&SMErasePage, 1);
-	if (verifyReturn() < 0)
+	if (verifyReturn(GENERIC) < 0)
 		cout << "Error validating SMErasePage confirmation" << endl;
 }
 
@@ -447,7 +457,7 @@ int FreeEMS_LoaderComms::getDeviceByteCount() {
 		}
 		return totalBytes;
 	} else {
-		emit displayMessage(USER_INFO, "Cannot get byte count, no device set");
+		emit displayMessage(MESSAGE_INFO, "Cannot get byte count, no device set");
 		return 0;
 	}
 }
@@ -517,15 +527,15 @@ void FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes, in
 		write(&bytesToWrite, ONE_BYTE);
 		write(bytes, numBytes);
 		if (verifyACKs == true) {
-			if (verifyReturn() < 0) {
-				emit displayMessage(USER_INFO, "Error, did not receive ACK after writing a block");
+			if (verifyReturn(GENERIC) < 0) {
+				emit displayMessage(MESSAGE_INFO, "Error, did not receive ACK after writing a block");
 				return;
 			}
 		}
 		if (verifyLastWrite == true) {
 			SMReadByteBlock(address, numBytes, readString);
 			if (verifyString != readString) {
-				emit displayMessage(USER_INFO, "Error validating sector at TODO implement retry");
+				emit displayMessage(MESSAGE_INFO, "Error validating sector at TODO implement retry");
 			}
 		}
 		break;
@@ -543,7 +553,7 @@ void FreeEMS_LoaderComms::flushRXStream() {
 	for (bytes = 0; flushMode == true; bytes++) {
 		read(&c, 1);
 		if (bytes > 4096) {
-			emit displayMessage(USER_INFO,
+			emit displayMessage(MESSAGE_INFO,
 					"it seems there is a stream of data coming in the serial port, is the firmware running ?");
 			return;
 		}
@@ -558,43 +568,43 @@ void FreeEMS_LoaderComms::run() {
 	switch (threadAction) {
 	case EXECUTE_RIP_ERASE_LOAD:
 		emit setGUI(WORKING);
-		emit displayMessage(USER_INFO, "Executing rip, erase and load");
-		emit displayMessage(USER_INFO, "Ripping...");
+		emit displayMessage(MESSAGE_INFO, "Executing rip, erase and load");
+		emit displayMessage(MESSAGE_INFO, "Ripping...");
 		ripDevice();
-		emit displayMessage(USER_INFO, "Erasing...");
+		emit displayMessage(MESSAGE_INFO, "Erasing...");
 		eraseDevice();
-		emit displayMessage(USER_INFO, "Loading...");
+		emit displayMessage(MESSAGE_INFO, "Loading...");
 		loadDevice();
-		emit displayMessage(USER_INFO, "DONE!");
+		emit displayMessage(MESSAGE_INFO, "DONE!");
 		emit setGUI(CONNECTED);
 		break;
 	case EXECUTE_LOAD:
 		emit setGUI(WORKING);
-		emit displayMessage(USER_INFO, "Erasing...");
+		emit displayMessage(MESSAGE_INFO, "Erasing...");
 		eraseDevice();
-		emit displayMessage(USER_INFO, "Executing load");
+		emit displayMessage(MESSAGE_INFO, "Executing load");
 		loadDevice();
-		emit displayMessage(USER_INFO, "DONE!");
+		emit displayMessage(MESSAGE_INFO, "DONE!");
 		emit setGUI(CONNECTED);
 		break;
 	case EXECUTE_ERASE:
 		emit setGUI(WORKING);
-		emit displayMessage(USER_INFO, "Executing erase");
+		emit displayMessage(MESSAGE_INFO, "Executing erase");
 		eraseDevice();
 		emit setGUI(CONNECTED);
 		break;
 	case EXECUTE_RIP:
 		emit setGUI(WORKING);
-		emit displayMessage(USER_INFO, "Executing rip");
+		emit displayMessage(MESSAGE_INFO, "Executing rip");
 		ripDevice();
 		emit setGUI(CONNECTED);
 		break;
 	case TEST:
-		emit displayMessage(USER_INFO, "Executing Test");
+		emit displayMessage(MESSAGE_INFO, "Executing Test");
 		test();
 		break;
 	case NONE:
-		emit displayMessage(USER_INFO, "Action for thread not set!");
+		emit displayMessage(MESSAGE_INFO, "Action for thread not set!");
 		break;
 	default:
 		break;
@@ -606,7 +616,7 @@ void FreeEMS_LoaderComms::test() {
 	if (isReady()) {
 		for (i = 0;; i++) {
 			write(&SMReturn, 1);
-			if (!verifyReturn() > 0) {
+			if (!verifyReturn(GENERIC) > 0) {
 				break;
 			}
 			//			WOInfo("Wrote one byte and read three");

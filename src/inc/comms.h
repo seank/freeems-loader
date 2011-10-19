@@ -31,8 +31,6 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-//#include <QSerialPort>
-//#include <qextserialport.h>
 #include <QString>
 #include <QThread>
 #include <QObject>
@@ -42,6 +40,7 @@
 //#include <QTimer>
 
 #include "inc/sRecord.h"
+//#include "inc/loaderTypes.h"
 
 #include <QObject>
 
@@ -49,6 +48,9 @@
 #define ONE_TWENTY_EIGHT_K_RECORDS     128000  //enough records to hold 4MB at 16bytes each
 using namespace std;
 
+enum SM_COMMAND_TYPE{
+	GENERIC = 1, SETSM
+};
 /**
  * Thrown if timeout occurs
  */
@@ -138,7 +140,7 @@ public:
 	 * 256 bytes max
 	 */
 
-	int verifyReturn();
+	int verifyReturn(SM_COMMAND_TYPE type);
 
 	//bool
 	//verifyReturn(std::vector<char> &vec);
@@ -258,7 +260,7 @@ public:
 	~FreeEMS_LoaderComms();
 
 	signals:
-	void displayMessage(int type, QString text);
+	void displayMessage(MESSAGE_TYPE type, QString text);
 	void udProgress(int percent);
 	void configureProgress(int min, int max);
 	void setGUI(int);

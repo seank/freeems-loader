@@ -27,7 +27,6 @@
 #include "inc/freeems_loader.h"
 #include "string.h"
 #include <new>
-#include "inc/loaderTypes.h"
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -37,6 +36,7 @@ FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
 QWidget(parent), showHelp(false), fileArg(false), unattended(false) {
 	ui.setupUi(this);
 	qRegisterMetaType<string>("string");
+	qRegisterMetaType<unsigned int>("MESSAGE_TYPE");
 	loaderComms = new FreeEMS_LoaderComms;
 	fillBaud();
 	fillDataBits();
@@ -46,7 +46,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false) {
 	//redirectCLI();
 	loadFileName.clear();
 
-	QObject::connect(loaderComms, SIGNAL( displayMessage(int, QString) ), this, SLOT( displayMessage(int, QString) ));
+	QObject::connect(loaderComms, SIGNAL( displayMessage(MESSAGE_TYPE, QString) ), this, SLOT( displayMessage(MESSAGE_TYPE, QString) ));
 	QObject::connect(loaderComms, SIGNAL( setGUI(int) ), this, SLOT( changeGUIState(int) ));
 	QObject::connect(loaderComms, SIGNAL( udProgress(int) ), this, SLOT( updateProgress(int) ));
 	QObject::connect(loaderComms, SIGNAL( configureProgress(int, int) ), this, SLOT( configureProgress(int, int) ));
@@ -76,12 +76,12 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false) {
 		if (isFileName) {
 			loadFileName = arg;
 			isFileName = false;
-			displayMessage(USER_INFO, "using filename: " + loadFileName);
+			displayMessage(MESSAGE_INFO, "using filename: " + loadFileName);
 		} else if (isDevice) {
 			isDevice = false;
 			ui.comboDevice->clear();
 			ui.comboDevice->addItem(arg);
-			displayMessage(USER_INFO, "using device: " + arg);
+			displayMessage(MESSAGE_INFO, "using device: " + arg);
 		}
 		if (arg.contains("--")) {
 			if (arg.contains("--unattended")) //TODO use nested if and detect invalid args
@@ -301,7 +301,7 @@ void FreeEMS_Loader::connect() {
 				loaderComms->close();
 			}
 		} else {
-			displayMessage(USER_INFO, "Unable to open port " + ui.comboDevice->currentText());
+			displayMessage(MESSAGE_INFO, "Unable to open port " + ui.comboDevice->currentText());
 		}
 	} else {
 		loaderComms->resetSM();
@@ -325,7 +325,7 @@ void FreeEMS_Loader::rip() {
 void FreeEMS_Loader::getFileName(QString name) {
 	name = QFileDialog::getSaveFileName(this, tr("Save s19 as"), QDir::currentPath(), tr("s19 (*.s19)"));
 	if (!name.isNull()) {
-		displayMessage(ERROR, "error opening file");
+		displayMessage(MESSAGE_ERROR, "error opening file");
 	}
 }
 
@@ -369,6 +369,10 @@ void FreeEMS_Loader::updateGUIState() {
 		//TODO stop com thread and close port
 		//loaderComms->st
 		//loaderComms->close();
+		displayMessage(MESSAGE_ERROR,"Problem communicating with the device, aborting");
+		updateProgress(0);
+		loaderComms->terminate();
+		loaderComms->close();
 		ui.pushLoad->setEnabled(0);
 		ui.pushRip->setEnabled(0);
 		ui.pushConnect->setText("Connect");
@@ -490,20 +494,25 @@ void FreeEMS_Loader::closeReset() {
 
 }
 
-void FreeEMS_Loader::displayMessage(int MESSAGE_TYPE, QString message) //TODO add eumu
+void FreeEMS_Loader::displayMessage(MESSAGE_TYPE type, QString message) //TODO add eumu
 {
-	switch (MESSAGE_TYPE) {
-	case USER_INFO:
-		cout << endl << "Info: " << message.toStdString();
-		writeText(message.toStdString());
+	switch (type) {
+		case MESSAGE_INFO:
+			cout << endl << "Info: " << message.toStdString();
+			writeText(message.toStdString());
 		break;
-	case ARGUMENT:
-		cout << endl << "Argument: " << message.toStdString();
-	case GENERIC:
-		cout << message.toStdString();
+		case MESSAGE_ARGUMENT:
+			cout << endl << "Argument: " << message.toStdString();
+		break;
+		case MESSAGE_GENERIC:
+			cout << message.toStdString();
+		break;
+		case MESSAGE_ERROR:
+			writeText(message.toStdString());
+			cout << endl << "Error: " << message.toStdString();
+		break;
 	default:
 		cout << endl << "Error Unknown Message Type";
 		break;
-
 	}
 }

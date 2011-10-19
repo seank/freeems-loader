@@ -38,6 +38,7 @@
 #include <QObject>
 
 #include "inc/parsing.h"
+#include "inc/loaderTypes.h"
 
 using namespace std;
 

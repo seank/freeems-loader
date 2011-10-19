@@ -40,6 +40,7 @@
 
 #include "ui_freeems_loader.h"
 #include "inc/comms.h"
+//#include "inc/loaderTypes.h"
 #include "qdebug.h"
 #include "stdio.h"
 #include <iostream>
@@ -111,7 +112,7 @@ void configureProgress(int min, int max);
 void showAbout();
 void closeReset();
 void changeGUIState(int);
-void displayMessage(int MESSAGE_TYPE, QString message);
+void displayMessage(MESSAGE_TYPE type, QString message);
 };
 
 #else

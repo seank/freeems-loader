@@ -55,8 +55,9 @@ enum LOADER_STATE {
 };
 
 enum MESSAGE_TYPE {
-	USER_INFO = 1, DEBUG, ARGUMENT, GENERIC
+	MESSAGE_INFO = 1, MESSAGE_DEBUG, MESSAGE_ARGUMENT, MESSAGE_GENERIC, MESSAGE_ERROR
 };
+
 enum s19ID {
 	S0, S1, // The type of record field is 'S1' (0x5331)
 	S2, // The type of record field is 'S2' (0x5332)

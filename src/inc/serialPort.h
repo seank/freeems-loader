@@ -33,26 +33,27 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-#ifdef __WIN32__
-#include <io.h>
-#include <windows.h>
-#else
-#include <termios.h> // POSIX terminal control definitions
-#endif
-
 #include <fcntl.h> // File control definitions
 #include <errno.h> // Error number definitions
 #include <time.h>   // time calls
+
+#ifdef __WIN32__
+  #include <io.h>
+  #include <windows.h>
+  #else
+  #include <termios.h> // POSIX terminal control definitions
+#endif
+
 #ifndef CRTSCTS
-#define CRTSCTS 0
+  #define CRTSCTS 0
 #endif
 
 #ifndef B115200
-#define B115200 115200
+  #define B115200 115200
 #endif
 
 #define POLL_ATTEMPTS 15 //TODO make confgable
+
 typedef enum {
 	NONE, ODD, EVEN
 } Parity;
@@ -77,7 +78,7 @@ public:
 	int readWrapper(unsigned int, char *, size_t size);
 	void flushSerial(FlushDirection direction);
 
-#ifdef _WIN32_
+#ifdef __WIN32__
 	void win32_setup_serial_params(int, int, int, Parity, int);
 	void win32_toggle_serial_control_lines(void);
 	void win32_flush_serial(int, FlushDirection);
