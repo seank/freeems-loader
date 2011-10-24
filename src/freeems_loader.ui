@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>378</width>
+    <width>419</width>
     <height>346</height>
    </rect>
   </property>
@@ -249,6 +249,13 @@ p, li { white-space: pre-wrap; }
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
+      <widget class="QPushButton" name="pushOpenFile">
+       <property name="text">
+        <string>Open File</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pushConnect">
        <property name="styleSheet">
         <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
@@ -331,9 +338,6 @@ p, li { white-space: pre-wrap; }
   </layout>
   <zorder>textOutput</zorder>
   <zorder>tabWidget</zorder>
-  <zorder>horizontalLayoutWidget</zorder>
-  <zorder>horizontalLayoutWidget_2</zorder>
-  <zorder>progressBar</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
@@ -347,8 +351,8 @@ p, li { white-space: pre-wrap; }
    <slot>connect()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>195</y>
+     <x>165</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>47</x>
@@ -363,11 +367,11 @@ p, li { white-space: pre-wrap; }
    <slot>rip()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>688</x>
-     <y>220</y>
+     <x>408</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>670</x>
+     <x>418</x>
      <y>194</y>
     </hint>
    </hints>
@@ -379,8 +383,8 @@ p, li { white-space: pre-wrap; }
    <slot>load()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>256</x>
-     <y>224</y>
+     <x>246</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>413</x>
@@ -395,11 +399,11 @@ p, li { white-space: pre-wrap; }
    <slot>eraseFlash()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>433</x>
-     <y>215</y>
+     <x>327</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>432</x>
+     <x>418</x>
      <y>182</y>
     </hint>
    </hints>
@@ -411,12 +415,28 @@ p, li { white-space: pre-wrap; }
    <slot>showAbout()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>317</x>
-     <y>125</y>
+     <x>328</x>
+     <y>122</y>
     </hint>
     <hint type="destinationlabel">
      <x>199</x>
      <y>159</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushOpenFile</sender>
+   <signal>clicked()</signal>
+   <receiver>FreeEMS_LoaderClass</receiver>
+   <slot>openFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>179</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>209</x>
+     <y>172</y>
     </hint>
    </hints>
   </connection>
@@ -431,6 +451,7 @@ p, li { white-space: pre-wrap; }
   <slot>slot2()</slot>
   <slot>slot4()</slot>
   <slot>eraseFlash()</slot>
+  <slot>openFile()</slot>
   <slot>load()</slot>
   <slot>showAbout()</slot>
   <slot>slot5()</slot>

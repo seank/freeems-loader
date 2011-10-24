@@ -33,7 +33,7 @@
 #include "inc/about.h"
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
-QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPerformed(0) {
+QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPerformed(0), _fileLoaded(false) {
 	ui.setupUi(this);
 	qRegisterMetaType<string>("string");
 	qRegisterMetaType<unsigned int>("MESSAGE_TYPE");
@@ -361,27 +361,29 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.pushRip->setEnabled(0);
 		ui.pushConnect->setText("Connect");
 		ui.pushErase->setEnabled(0);
+		ui.chkRip->setEnabled(true);
+		ui.chkVerify->setEnabled(true);
 		break;
 	case CONNECTED:
-		ui.pushLoad->setEnabled(1);
+		//ui.pushLoad->setEnabled(1);
 		ui.pushRip->setEnabled(1);
 		ui.pushConnect->setText("Close/Rst");
 		ui.pushErase->setEnabled(1);
 		ui.chkRip->setEnabled(1);
 		ui.chkRip->setEnabled(1);
+		if(_fileLoaded)
+			ui.pushLoad->setEnabled(true);
 		break;
 	case WORKING:
 		ui.pushConnect->setText("Abort");
-		ui.pushLoad->setEnabled(0);
-		ui.pushRip->setEnabled(0);
-		ui.pushErase->setEnabled(0);
-		ui.chkRip->setEnabled(0);
-		ui.chkRip->setEnabled(0);
+		ui.pushLoad->setEnabled(false);
+		ui.pushRip->setEnabled(false);
+		ui.pushErase->setEnabled(false);
+		ui.chkRip->setEnabled(false);
+		ui.chkVerify->setEnabled(false);
+		ui.pushOpenFile->setEnabled(false);
 		break;
 	case ERROR:
-		//TODO stop com thread and close port
-		//loaderComms->st
-		//loaderComms->close();
 		displayMessage(MESSAGE_ERROR,"Problem communicating with the device, aborting");
 		updateProgress(0);
 		loaderComms->terminate();
@@ -438,16 +440,16 @@ void FreeEMS_Loader::load() {
 	_numBurnsPerformed++;
 	QDate date = QDate::currentDate();
 	QTime time = QTime::currentTime();
-	QFileDialog fileDialog;
-	fileDialog.setViewMode(QFileDialog::Detail);
-
-	if (!fileArg) //if no file was specified from the cmdline open browser
-	{
-		//loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
-		loadFileName = fileDialog.getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
-	}
-	if (loadFileName.isNull()) {
-		writeText("no load file selected");
+//	QFileDialog fileDialog;
+//	fileDialog.setViewMode(QFileDialog::Detail);
+//
+//	if (!fileArg) //if no file was specified from the cmdline open browser
+//	{
+//		//loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
+//		loadFileName = fileDialog.getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
+//	}
+	if (!_fileLoaded) {
+		writeText("s19 records have not been loaded");
 		return;
 	}
 	if (ui.chkVerify->isChecked()) {
@@ -532,4 +534,26 @@ void FreeEMS_Loader::displayMessage(MESSAGE_TYPE type, QString message) {
 		cout << endl << "Error Unknown Message Type";
 		break;
 	}
+}
+
+void FreeEMS_Loader::openFile() {
+//	QDate date = QDate::currentDate();
+//	QTime time = QTime::currentTime();
+	QFileDialog fileDialog;
+	fileDialog.setViewMode(QFileDialog::Detail);
+	//loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
+	loadFileName = fileDialog.getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
+	if (loadFileName.isNull()) {
+		writeText("no file selected");
+		return;
+	}else{
+		//loadFile();
+		if(_loaderState == CONNECTED)
+			ui.pushLoad->setEnabled(true);
+		_fileLoaded = true;
+	}
+}
+
+void FreeEMS_Loader::loadFile() {
+
 }

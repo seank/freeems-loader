@@ -59,10 +59,8 @@ class FreeEMS_Loader: public QWidget {
 public:
 	FreeEMS_Loader(QWidget *parent = 0);
 	~FreeEMS_Loader();
-
 	bool showHelp;
 	bool fileArg;
-
 	virtual bool notify(QObject *rec, QEvent *ev) {
 		qDebug() << "MyApplication::notify";
 		try {
@@ -101,8 +99,10 @@ private:
 	int flashTypeIndex;
 	int _loaderState; /* holds the current state of the loader see LOADER_STATES enum */
 	int _numBurnsPerformed;
+	bool _fileLoaded;
 
 public slots:
+void openFile();
 void connect();
 void rip();
 void eraseFlash();
@@ -115,6 +115,7 @@ void showAbout();
 void closeReset();
 void changeGUIState(int);
 void displayMessage(MESSAGE_TYPE type, QString message);
+void loadFile();
 };
 
 #else
