@@ -199,7 +199,7 @@ int FreeEMS_LoaderSREC::retRecordSize() {
 	return record.length();
 }
 
-void FreeEMS_LoaderSREC::createFromString(string* lineIn) {
+bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 	char type = *(lineIn->c_str() + 1);
 	if (*lineIn->c_str() == 'S') //start of record
 	{
@@ -221,8 +221,11 @@ void FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			FreeEMS_LoaderParsing::asciiPairToArray(recordPayload, recordBytes, recordPayloadBytes);
 			setNumPairsInRecord();
 			calculateCheckSum();
-			if (recordChkSum != recordLoadedChkSum) { //TODO emit critical error message and halt
-				cout << "WARNING RECORD LOADED CHECKSUM DOES NOT MATCH CALCUATED SUM";
+			if (recordChkSum != recordLoadedChkSum) {
+				//emit displayMessage(MESSAGE_ERROR, "CHECKSUM DOES NOT MATCH CALCUATED SUM IN LINE->");
+				//FreeEMS_Loader::displayMessage(MESSAGE_ERROR, "CHECKSUM DOES NOT MATCH CALCUATED SUM IN LINE->");
+				cout<<"CHECKSUM DOES NOT MATCH CALCUATED SUM IN LINE->";
+				return false;
 			}
 			break;
 		case '3':
@@ -234,5 +237,5 @@ void FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 	} else {
 		cout << "LINE DOES NOT CONTAIN LOADABLE RECORD";
 	}
-	return;
+	return true;
 }

@@ -95,7 +95,7 @@ public:
 
 	void clearSets();
 
-	void generateRecords(vector<string> lineArray);
+	bool generateRecords(vector<string> lineArray);
 
 	bool lineIsLoadable(string* line);
 
@@ -104,6 +104,8 @@ public:
 	void setRipFilename(QString name);
 
 	void setLoadFilename(QString name);
+
+	int numBadSums();
 
 	void resetSM();
 
@@ -133,6 +135,8 @@ public:
 	void SMReadChars(const char *data, size_t size);
 
 	void flushRXStream();
+
+	void parseFile();
 
 	/*
 	 * Read a block of memory starting at address specified.
@@ -252,6 +256,10 @@ public:
 
 	void setAction(int action);
 
+	bool isRecordSetLoaded();
+
+	int numLoadableRecords();
+
 	void run();
 
 	bool verifyLastWrite;
@@ -283,6 +291,8 @@ private:
 	int s19SetTwoCount;
 	unsigned int lastLoadAddress;
 
+	void writeBlocks();
+
 	QString ripFilename;
 	QString loadFilename;
 
@@ -291,6 +301,9 @@ private:
 	bool fDeviceIsSet;
 	bool smIsReady;
 	bool flushMode;
+	bool _recordSetLoaded;
+	int _badCheckSums;
+	int _loadableRecords;
 };
 
 #else

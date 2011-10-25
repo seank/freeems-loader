@@ -67,20 +67,13 @@ public:
 	/*
 	 * calculate a records checksum and compre it to the stored value.
 	 */
-	bool
-	verifyRecord();
-	int
-	getRecordAddress();
-	char
-	getNextByte();
-	char
-	getRecordType();
-	void
-	buildRecord();
-	void
-	printRecord();
-	void
-	createFromString(string* lineIn);
+	bool verifyRecord();
+	int	getRecordAddress();
+	char getNextByte();
+	char getRecordType();
+	void buildRecord();
+	void printRecord();
+	bool createFromString(string* lineIn);
 	std::string
 	retRecordString();
 
@@ -90,27 +83,17 @@ public:
 	 represented by the pairs of characters making up the count, the address, and
 	 the data fields.
 	 */
-	void
-	calculateCheckSum();
+	void calculateCheckSum();
 
-	int
-	putNextByte(char byte);
-	int
-	setRecordAddress(unsigned int address);
-	int
-	setRecordAddress(char* address);
-	int
-	setRecordType(int type);
-	int
-	setTypeIndex(int type);
-	void
-	setNumPairsInRecord();
-	void
-	initVariables();
-	int
-	retRecordSize();
-	bool
-	lineIsLoadable(string* line);
+	int putNextByte(char byte);
+	int setRecordAddress(unsigned int address);
+	int setRecordAddress(char* address);
+	int setRecordType(int type);
+	int	setTypeIndex(int type);
+	void setNumPairsInRecord();
+	void initVariables();
+	int retRecordSize();
+	bool lineIsLoadable(string* line);
 
 	bool recordIsNull;
 	char recordPayload[512]; //ascii pair representaion of the payload
@@ -121,6 +104,7 @@ public:
 
 	signals:
 	void WOInfo(string text);
+	void displayMessage(MESSAGE_TYPE type, QString text);
 
 private:
 	string record;

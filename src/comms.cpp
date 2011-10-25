@@ -81,6 +81,7 @@ bool FreeEMS_LoaderComms::isOpen() const {
 }
 
 void FreeEMS_LoaderComms::init() {
+	_recordSetLoaded = false;
 	serPort = new FreeEMS_SerialPort;
 	s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
 	//s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
@@ -101,31 +102,17 @@ void FreeEMS_LoaderComms::clearSets() {
 void FreeEMS_LoaderComms::close() {
 	if (isOpen() == false)
 		return;
-	emit displayMessage(MESSAGE_ERROR, "comms closing port");
+	emit displayMessage(MESSAGE_INFO, "closing serial port");
 	serPort->closePort();
 	smIsReady = false;
 }
 
 void FreeEMS_LoaderComms::loadDevice() {
-	clearSets();
-	s19SetOneCount = 0;
-
-	vector < string > lineArray;
-	string line;
-	//int i;
-	ifstream ifs(loadFilename.toAscii());
-	if (ifs.fail()) {
-		cout << "error opening load file";
-		return;
+	if(_recordSetLoaded) {
+		writeBlocks();
+	} else {
+		emit displayMessage(MESSAGE_ERROR, "can't perform load, record set not yet loaded");
 	}
-	while (getline(ifs, line)) {
-		//i = 0;
-		lineArray.push_back(line);
-	}
-	generateRecords(lineArray);
-	loadRecordSet();
-	ifs.close();
-	return;
 }
 
 void FreeEMS_LoaderComms::ripDevice() {
@@ -452,17 +439,32 @@ int FreeEMS_LoaderComms::getDeviceByteCount() {
 	}
 }
 
-void FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
-	unsigned int i, j;
+bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
+	unsigned int i;
+	unsigned int linesLoadable;
+	unsigned int linesNotLodable;
+	bool result = false;
 	string line;
-	for (i = 0, j = 0; i < lineArray.size(); i++) {
+	_loadableRecords = 0;
+	_badCheckSums = 0;
+	for (i = 0, linesLoadable = 0; i < lineArray.size(); i++) {
 		line = lineArray.at(i);
 		if (lineIsLoadable(&line)) {
-			s19SetOne[j].createFromString(&line);
+			result = s19SetOne[linesLoadable].createFromString(&line);
+			if(result == false){
+				_badCheckSums++;
+				return result;
+			}
 			s19SetOneCount++;
-			j++;
+			linesLoadable++;
+			_loadableRecords++;
+			result++;
+		} else {
+			linesNotLodable++;
 		}
 	}
+	_recordSetLoaded = true;
+	return true;
 }
 
 //TODO move to parser class
@@ -474,9 +476,7 @@ bool FreeEMS_LoaderComms::lineIsLoadable(string* line) {
 
 void FreeEMS_LoaderComms::loadRecordSet() {
 	int i;
-
-	emit
-	configureProgress(0, s19SetOneCount - 1);
+	emit configureProgress(0, s19SetOneCount - 1);
 	for (i = 0; i < s19SetOneCount; i++) {
 		SMWriteByteBlock(s19SetOne[i].payloadAddress, s19SetOne[i].recordBytes, s19SetOne[i].recordPayloadBytes);
 		emit udProgress(i);
@@ -620,4 +620,49 @@ void FreeEMS_LoaderComms::test() {
 
 void FreeEMS_LoaderComms::abortOperation() {
 
+}
+
+void FreeEMS_LoaderComms::parseFile() {
+	clearSets();
+	_badCheckSums = 0;
+	_loadableRecords = 0;
+	s19SetOneCount = 0;
+	_recordSetLoaded = false;
+	int linesRead = 0;
+	vector < string > lineArray;
+	string line;
+	//int i;
+	ifstream ifs(loadFilename.toAscii());
+	if (ifs.fail()) {
+		//cout << "error opening load file";
+		emit displayMessage(MESSAGE_ERROR, "error opening file");
+		return;
+	}
+	while (getline(ifs, line)) {
+		//i = 0;
+		lineArray.push_back(line);
+		linesRead++;
+	}
+	ifs.close();
+	generateRecords(lineArray);
+}
+
+void FreeEMS_LoaderComms::writeBlocks() {
+	loadRecordSet();
+	return;
+}
+
+bool FreeEMS_LoaderComms::isRecordSetLoaded() {
+	if(_recordSetLoaded){
+		return true;
+	}
+	return false;
+}
+
+int FreeEMS_LoaderComms::numLoadableRecords() {
+	return _loadableRecords;
+}
+
+int FreeEMS_LoaderComms::numBadSums() {
+	return _badCheckSums;
 }

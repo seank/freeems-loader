@@ -47,6 +47,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	loadFileName.clear();
 
 	QObject::connect(loaderComms, SIGNAL( displayMessage(MESSAGE_TYPE, QString) ), this, SLOT( displayMessage(MESSAGE_TYPE, QString) ));
+	//QObject::connect(loaderComms->s19SetOne, SIGNAL( displayMessage(MESSAGE_TYPE, QString) ), this, SLOT( displayMessage(MESSAGE_TYPE, QString) ));
 	QObject::connect(loaderComms, SIGNAL( setGUI(int) ), this, SLOT( changeGUIState(int) ));
 	QObject::connect(loaderComms, SIGNAL( udProgress(int) ), this, SLOT( updateProgress(int) ));
 	QObject::connect(loaderComms, SIGNAL( configureProgress(int, int) ), this, SLOT( configureProgress(int, int) ));
@@ -357,20 +358,22 @@ void FreeEMS_Loader::changeGUIState(int state) {
 void FreeEMS_Loader::updateGUIState() {
 	switch (_loaderState) {
 	case NOTCONNECTED:
-		ui.pushLoad->setEnabled(0);
-		ui.pushRip->setEnabled(0);
+		ui.pushLoad->setEnabled(false);
+		ui.pushRip->setEnabled(false);
 		ui.pushConnect->setText("Connect");
-		ui.pushErase->setEnabled(0);
+		ui.pushErase->setEnabled(false);
 		ui.chkRip->setEnabled(true);
 		ui.chkVerify->setEnabled(true);
+		ui.pushLoad->setEnabled(true);
 		break;
 	case CONNECTED:
 		//ui.pushLoad->setEnabled(1);
-		ui.pushRip->setEnabled(1);
+		ui.pushRip->setEnabled(true);
 		ui.pushConnect->setText("Close/Rst");
-		ui.pushErase->setEnabled(1);
-		ui.chkRip->setEnabled(1);
-		ui.chkRip->setEnabled(1);
+		ui.pushErase->setEnabled(true);
+		ui.chkRip->setEnabled(true);
+		ui.chkRip->setEnabled(true);
+		ui.pushLoad->setEnabled(true);
 		if(_fileLoaded)
 			ui.pushLoad->setEnabled(true);
 		break;
@@ -388,10 +391,11 @@ void FreeEMS_Loader::updateGUIState() {
 		updateProgress(0);
 		loaderComms->terminate();
 		loaderComms->close();
-		ui.pushLoad->setEnabled(0);
-		ui.pushRip->setEnabled(0);
+		ui.pushLoad->setEnabled(false);
+		ui.pushRip->setEnabled(false);
 		ui.pushConnect->setText("Connect");
-		ui.pushErase->setEnabled(0);
+		ui.pushErase->setEnabled(false);
+		ui.pushLoad->setEnabled(true);
 		break;
 	default:
 		break;
@@ -481,7 +485,6 @@ void FreeEMS_Loader::load() {
 		loaderComms->setAction(EXECUTE_LOAD);
 		loaderComms->start();
 	}
-
 	QSettings settings("FreeEMS", "Loader"); //TODO make saveSettings fuction
 	settings.setValue("lastDirectory", loadDirectory);
 	//serialConnection->loadDevice(); // calls load without a seperate thread
@@ -541,16 +544,27 @@ void FreeEMS_Loader::openFile() {
 //	QTime time = QTime::currentTime();
 	QFileDialog fileDialog;
 	fileDialog.setViewMode(QFileDialog::Detail);
+	QString qSNum;
 	//loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
 	loadFileName = fileDialog.getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
 	if (loadFileName.isNull()) {
-		writeText("no file selected");
+		displayMessage(MESSAGE_ERROR, "no file selected");
 		return;
-	}else{
-		//loadFile();
-		if(_loaderState == CONNECTED)
-			ui.pushLoad->setEnabled(true);
-		_fileLoaded = true;
+	} else{
+		loaderComms->setLoadFilename(loadFileName);
+		loaderComms->parseFile();
+		if(loaderComms->numLoadableRecords() == 0){
+			displayMessage(MESSAGE_ERROR, "no loadable records parsed");
+			return;
+		}else if(loaderComms->numBadSums()){
+			displayMessage(MESSAGE_ERROR, "there are " + qSNum.setNum(loaderComms->numBadSums(), 10) + " records with bad checksums");
+			return;
+		} else {
+			displayMessage(MESSAGE_INFO,"found " + 	qSNum.setNum(loaderComms->numLoadableRecords(), 10) +" loadable records in file");
+			if(_loaderState == CONNECTED)
+				ui.pushLoad->setEnabled(true);
+			_fileLoaded = true;
+		}
 	}
 }
 
