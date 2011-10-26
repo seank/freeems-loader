@@ -364,7 +364,7 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.pushErase->setEnabled(false);
 		ui.chkRip->setEnabled(true);
 		ui.chkVerify->setEnabled(true);
-		ui.pushLoad->setEnabled(true);
+		ui.pushOpenFile->setEnabled(true);
 		break;
 	case CONNECTED:
 		//ui.pushLoad->setEnabled(1);
