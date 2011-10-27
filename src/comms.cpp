@@ -447,9 +447,10 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 	string line;
 	_loadableRecords = 0;
 	_badCheckSums = 0;
+	FreeEMS_LoaderParsing parser;
 	for (i = 0, linesLoadable = 0; i < lineArray.size(); i++) {
 		line = lineArray.at(i);
-		if (lineIsLoadable(&line)) {
+		if (parser.lineIsLoadable(&line)) {
 			result = s19SetOne[linesLoadable].createFromString(&line);
 			if(result == false){
 				_badCheckSums++;
@@ -465,13 +466,6 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 	}
 	_recordSetLoaded = true;
 	return true;
-}
-
-//TODO move to parser class
-bool FreeEMS_LoaderComms::lineIsLoadable(string* line) {
-	if ((line->find("S3")) == 0 || (line->find("S2")) == 0 || ((line->find("S1")) == 0))
-		return true;
-	return false;
 }
 
 void FreeEMS_LoaderComms::loadRecordSet() {

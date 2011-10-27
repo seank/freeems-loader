@@ -114,3 +114,10 @@ void FreeEMS_LoaderParsing::asciiPairToArray(char* inString, char* destBuffer, i
 		*(destBuffer + j) = value;
 	}
 }
+
+//TODO the recognizable record types should not be static
+bool FreeEMS_LoaderParsing::lineIsLoadable(string* line) {
+	if ((line->find("S3")) == 0 || (line->find("S2")) == 0 || ((line->find("S1")) == 0))
+		return true;
+	return false;
+}
