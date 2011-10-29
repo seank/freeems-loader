@@ -66,11 +66,11 @@ class FreeEMS_SerialPort {
 public:
 	FreeEMS_SerialPort();
 	virtual ~FreeEMS_SerialPort();
-#ifdef __WIN32__
-	void win32_setup_serial_params(unsigned int, int, int, Parity parity, int);
-	void win32_toggle_serial_control_lines(void);
-	void win32_flush_serial(unsigned int, FlushDirection);
-#endif
+//#ifdef __WIN32__
+//	void win32SetupSerialParams(unsigned int, int, int, Parity parity, int);
+//	void win32ToggleSerialControl_lines(void);
+//	void win32FlushSerial(unsigned int, FlushDirection);
+//#endif
 	bool isOpen();
 	void openPort(char *port_name);
 	int setupPort(int baud);
@@ -86,15 +86,11 @@ private:
 	int _fd;
 	bool _isOpenFlag;
 	static const int _poll_attempts = 50;
-
-	/* Globals */
-
 #ifndef __WIN32__
 	struct termios oldtio;
 	struct termios newtio;
 #endif
 	//static char * serial_lockfile = NULL;
-
 #ifdef __WIN32__
 	struct _Serial_Params
 	{
