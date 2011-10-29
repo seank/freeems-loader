@@ -289,9 +289,9 @@ void FreeEMS_Loader::connect() {
 	QFile file;
 	file.setFileName(ui.comboDevice->currentText());
 	bool fileIsOpen = 0;
-	if (_loaderState == WORKING) {
+	if (_loaderState == STATE_WORKING) {
 		loaderComms->terminate(); //TODO terminate should be used with caution review the pitfalls
-		changeGUIState(CONNECTED);
+		changeGUIState(STATE_CONNECTED);
 		return;
 	}
 	if (!loaderComms->isReady()) {
@@ -305,7 +305,7 @@ void FreeEMS_Loader::connect() {
 			loaderComms->setSM();
 			loaderComms->setFlashType(defFlashType);
 			if (loaderComms->isReady() == true) {
-				changeGUIState(CONNECTED);
+				changeGUIState(STATE_CONNECTED);
 			} else {
 				loaderComms->close();
 			}
@@ -316,7 +316,7 @@ void FreeEMS_Loader::connect() {
 		loaderComms->resetSM();
 		//sleep(1); // POSIX only TODO
 		loaderComms->close();
-		loaderComms->isReady() ? changeGUIState(CONNECTED) : changeGUIState(NOTCONNECTED);
+		loaderComms->isReady() ? changeGUIState(STATE_CONNECTED) : changeGUIState(STATE_NOT_CONNECTED);
 	}
 }
 
@@ -342,7 +342,7 @@ void FreeEMS_Loader::getFileName(QString name) {
 void FreeEMS_Loader::initGUI() {
 	ui.chkVerify->setChecked(true);
 	ui.chkRip->setChecked(true);
-	changeGUIState(NOTCONNECTED);
+	changeGUIState(STATE_NOT_CONNECTED);
 	ui.progressBar->setValue(0);
 	ui.radioRX->setEnabled(false);
 	ui.radioTX->setEnabled(false);
@@ -357,7 +357,7 @@ void FreeEMS_Loader::changeGUIState(int state) {
 
 void FreeEMS_Loader::updateGUIState() {
 	switch (_loaderState) {
-	case NOTCONNECTED:
+	case STATE_NOT_CONNECTED:
 		ui.pushLoad->setEnabled(false);
 		ui.pushRip->setEnabled(false);
 		ui.pushConnect->setText("Connect");
@@ -366,7 +366,7 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.chkVerify->setEnabled(true);
 		ui.pushOpenFile->setEnabled(true);
 		break;
-	case CONNECTED:
+	case STATE_CONNECTED:
 		//ui.pushLoad->setEnabled(1);
 		ui.pushRip->setEnabled(true);
 		ui.pushConnect->setText("Close/Rst");
@@ -377,7 +377,7 @@ void FreeEMS_Loader::updateGUIState() {
 		if(_fileLoaded)
 			ui.pushLoad->setEnabled(true);
 		break;
-	case WORKING:
+	case STATE_WORKING:
 		ui.pushConnect->setText("Abort");
 		ui.pushLoad->setEnabled(false);
 		ui.pushRip->setEnabled(false);
@@ -386,7 +386,7 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.chkVerify->setEnabled(false);
 		ui.pushOpenFile->setEnabled(false);
 		break;
-	case ERROR:
+	case STATE_ERROR:
 		displayMessage(MESSAGE_ERROR,"Problem communicating with the device, aborting");
 		updateProgress(0);
 		loaderComms->terminate();
@@ -564,7 +564,7 @@ void FreeEMS_Loader::openFile() {
 			return;
 		} else {
 			displayMessage(MESSAGE_INFO,"found " + 	qSNum.setNum(loaderComms->numLoadableRecords(), 10) +" loadable records in file");
-			if(_loaderState == CONNECTED)
+			if(_loaderState == STATE_CONNECTED)
 				ui.pushLoad->setEnabled(true);
 			_fileLoaded = true;
 		}

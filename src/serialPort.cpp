@@ -39,8 +39,7 @@ FreeEMS_SerialPort::~FreeEMS_SerialPort() {
 }
 
 #ifdef __WIN32__
-void
-win32_setup_serial_params(unsigned int fd, int baud, int bits, Parity parity, int stop)
+void win32_setup_serial_params(unsigned int fd, int baud, int bits, Parity parity, int stop)
 {
 	DCB dcb;
 	WSADATA wsaData;
@@ -166,7 +165,8 @@ void FreeEMS_SerialPort::openPort(char * port_name) {
 int FreeEMS_SerialPort::setupPort(int baud) {
 #ifdef __WIN32__
 
-	win32_setup_serial_params(_fd, baud, 8, NONE, 1);
+	win32_setup_serial_params(_fd, baud, 8, ODD, 1);
+	return 0;
 #else
 	int _baud = 0;
 
@@ -259,7 +259,6 @@ void FreeEMS_SerialPort::closePort() {
 void FreeEMS_SerialPort::flushSerial(FlushDirection direction) {
 #ifdef __WIN32__
 	if (_fd) {
-		//win32_flush_serial(_fd, type);
 		win32_flush_serial(_fd, direction);
 	}
 #else

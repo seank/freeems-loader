@@ -66,8 +66,12 @@ class FreeEMS_SerialPort {
 public:
 	FreeEMS_SerialPort();
 	virtual ~FreeEMS_SerialPort();
+#ifdef __WIN32__
+	void win32_setup_serial_params(unsigned int, int, int, Parity parity, int);
+	void win32_toggle_serial_control_lines(void);
+	void win32_flush_serial(unsigned int, FlushDirection);
+#endif
 	bool isOpen();
-
 	void openPort(char *port_name);
 	int setupPort(int baud);
 	void closePort();
@@ -77,12 +81,6 @@ public:
 	void readData(char *data, size_t size);
 	int readWrapper(unsigned int, char *, size_t size);
 	void flushSerial(FlushDirection direction);
-
-#ifdef __WIN32__
-	void win32_setup_serial_params(int, int, int, Parity, int);
-	void win32_toggle_serial_control_lines(void);
-	void win32_flush_serial(int, FlushDirection);
-#endif
 
 private:
 	int _fd;

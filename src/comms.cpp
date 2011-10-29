@@ -551,7 +551,7 @@ void FreeEMS_LoaderComms::setAction(int action) {
 void FreeEMS_LoaderComms::run() {
 	switch (threadAction) {
 	case EXECUTE_RIP_ERASE_LOAD:
-		emit setGUI(WORKING);
+		emit setGUI(STATE_WORKING);
 		emit displayMessage(MESSAGE_INFO, "Executing rip, erase and load");
 		emit displayMessage(MESSAGE_INFO, "Ripping...");
 		ripDevice();
@@ -560,28 +560,28 @@ void FreeEMS_LoaderComms::run() {
 		emit displayMessage(MESSAGE_INFO, "Loading...");
 		loadDevice();
 		emit displayMessage(MESSAGE_INFO, "DONE!");
-		emit setGUI(CONNECTED);
+		emit setGUI(STATE_CONNECTED);
 		break;
 	case EXECUTE_LOAD:
-		emit setGUI(WORKING);
+		emit setGUI(STATE_WORKING);
 		emit displayMessage(MESSAGE_INFO, "Erasing...");
 		eraseDevice();
 		emit displayMessage(MESSAGE_INFO, "Executing load");
 		loadDevice();
 		emit displayMessage(MESSAGE_INFO, "DONE!");
-		emit setGUI(CONNECTED);
+		emit setGUI(STATE_CONNECTED);
 		break;
 	case EXECUTE_ERASE:
-		emit setGUI(WORKING);
+		emit setGUI(STATE_WORKING);
 		emit displayMessage(MESSAGE_INFO, "Executing erase");
 		eraseDevice();
-		emit setGUI(CONNECTED);
+		emit setGUI(STATE_CONNECTED);
 		break;
 	case EXECUTE_RIP:
-		emit setGUI(WORKING);
+		emit setGUI(STATE_WORKING);
 		emit displayMessage(MESSAGE_INFO, "Executing rip");
 		ripDevice();
-		emit setGUI(CONNECTED);
+		emit setGUI(STATE_CONNECTED);
 		break;
 	case TEST:
 		emit displayMessage(MESSAGE_INFO, "Executing Test");
