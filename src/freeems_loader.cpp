@@ -435,13 +435,17 @@ void FreeEMS_Loader::test() {
 }
 
 void FreeEMS_Loader::eraseFlash() {
+	QSettings settings("FreeEMS", "Loader"); //TODO this should be done will a call back to be proper
 	_numBurnsPerformed++;
+	settings.setValue("numBurnsPerformed", _numBurnsPerformed);
 	loaderComms->setAction(EXECUTE_ERASE);
 	loaderComms->start();
 }
 
 void FreeEMS_Loader::load() {
+	QSettings settings("FreeEMS", "Loader");
 	_numBurnsPerformed++;
+	settings.setValue("numBurnsPerformed", _numBurnsPerformed);
 	QDate date = QDate::currentDate();
 	QTime time = QTime::currentTime();
 //	QFileDialog fileDialog;
@@ -485,7 +489,6 @@ void FreeEMS_Loader::load() {
 		loaderComms->setAction(EXECUTE_LOAD);
 		loaderComms->start();
 	}
-	QSettings settings("FreeEMS", "Loader"); //TODO make saveSettings fuction
 	settings.setValue("lastDirectory", loadDirectory);
 	//serialConnection->loadDevice(); // calls load without a seperate thread
 }
