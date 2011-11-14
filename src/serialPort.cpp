@@ -447,22 +447,25 @@ int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested
 		FD_SET(fd, &readfds);
 		res = select(fd + 1, &readfds, NULL, NULL, &t);
 		if (res == -1) {
-			//output("ERROR, select() failure!\n",FALSE);
-			printf("ERROR, select() failure!\n");
+			closePort();
+			printf("ERROR, select() failure! Closing Port\n");
 			return -1;
 		}
 		if (res == 0) /* Timeout */
 		{
-			/*printf("timeout!\n");*/
+			printf("ERROR, select() timeout! Retrying...\n");
 			attempts++;
 			if (attempts > POLL_ATTEMPTS)
+				printf("ERROR, select() timeout! Giving up\n");
 				return total;
 		}
 		/* OK we have something waiting for us, read it */
 		if (FD_ISSET(fd,&readfds)) {
-			/*printf("data avail!\n");*/
+			printf("data avail!\n");
 			read_pos = requested - wanted;
 			received = read(fd, &buf[read_pos], wanted);
+			printf("data avail!\n");
+			printf("read %i bytes\n", received);
 			if (received == -1) {
 				printf("Serial I/O Error, read failure\n");
 				//output("Serial I/O Error, read failure\n",FALSE);
@@ -471,6 +474,8 @@ int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested
 			total += received;
 			/*printf("got %i bytes\n",received);*/
 			wanted -= received;
+		} else {
+			printf("FD NOT SET\n");
 		}
 	}
 	return total;

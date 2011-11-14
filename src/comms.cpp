@@ -331,7 +331,7 @@ int FreeEMS_LoaderComms::verifyReturn(SM_COMMAND_TYPE type) { //TODO this should
 			if (code == (char) 0xe0 && response[1] == 0x3E) {
 				return 1;
 			}
-			emit setGUI(ERROR);
+			emit setGUI(STATE_ERROR);
 			emit displayMessage(MESSAGE_ERROR, "unable to verify serial monitor return code");
 			return -1;
 		break;
@@ -339,7 +339,7 @@ int FreeEMS_LoaderComms::verifyReturn(SM_COMMAND_TYPE type) { //TODO this should
 			if(code == (char)0xE0){
 				read(response, 2);
 				if(response[1] != 0x3E){
-					emit setGUI(ERROR);
+					emit setGUI(STATE_ERROR);
 					emit displayMessage(MESSAGE_ERROR, "unable to verify serial monitor presence");
 					return -1;
 				}
