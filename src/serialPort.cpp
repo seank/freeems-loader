@@ -374,11 +374,13 @@ void FreeEMS_SerialPort::flushOutBuffer() {
 	flushSerial(OUTBOUND);
 }
 
-void FreeEMS_SerialPort::readData(char *data, size_t size) {
+int FreeEMS_SerialPort::readData(char *data, size_t size) {
 	if (isOpen()) {
-		FreeEMS_SerialPort::readWrapper(_fd, data, size);
-	} else
+		return FreeEMS_SerialPort::readWrapper(_fd, data, size);
+	} else {
 		std::cout << "Error: Port is not open ";
+		return -2;
+	}
 }
 
 void FreeEMS_SerialPort::writeData(const char *data, size_t size) {
@@ -389,7 +391,7 @@ void FreeEMS_SerialPort::writeData(const char *data, size_t size) {
 		std::cout << "Error: Port is not open ";
 }
 
-int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested) {
+int FreeEMS_SerialPort::readWrapper(int fd, char *buf, size_t requested) {
 #ifdef __WIN32__
 	/* Windows can't do select() on anything but network sockets which
 	 is completely braindead, and thus yoou must do overlapped IO
@@ -439,8 +441,9 @@ int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested
 	int received = 0;
 	int res = 0;
 	int total = 0;
+	int tries = 0;
 
-	while (wanted > 0) {
+	while (wanted > 0 ) {
 		FD_ZERO(&readfds);
 		t.tv_sec = 0;
 		t.tv_usec = 200000;
@@ -455,27 +458,35 @@ int FreeEMS_SerialPort::readWrapper(unsigned int fd, char *buf, size_t requested
 		{
 			printf("ERROR, select() timeout! Retrying...\n");
 			attempts++;
-			if (attempts > POLL_ATTEMPTS)
+			if (attempts > POLL_ATTEMPTS) {
 				printf("ERROR, select() timeout! Giving up\n");
 				return total;
+			}
 		}
 		/* OK we have something waiting for us, read it */
 		if (FD_ISSET(fd,&readfds)) {
-			printf("data avail!\n");
+			//printf("data avail!\n");
 			read_pos = requested - wanted;
 			received = read(fd, &buf[read_pos], wanted);
-			printf("data avail!\n");
-			printf("read %i bytes\n", received);
+			//printf("data avail!\n");
+			//printf("read %i bytes\n", received);
 			if (received == -1) {
-				printf("Serial I/O Error, read failure\n");
-				//output("Serial I/O Error, read failure\n",FALSE);
+				//printf("Serial I/O Error, read failure\n");
 				return -1;
 			}
 			total += received;
+			if(received == 0){
+				tries++;
+				if(tries > MAX_TRIES) {
+					printf("ERROR, max tries exceeded giving up\n");
+					return -1;
+				}
+			}
 			/*printf("got %i bytes\n",received);*/
 			wanted -= received;
 		} else {
-			printf("FD NOT SET\n");
+			printf("ERROR, FD NOT SET\n");
+			return -1;
 		}
 	}
 	return total;

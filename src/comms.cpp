@@ -266,8 +266,11 @@ void FreeEMS_LoaderComms::writeString(const std::string& s) {
 }
 
 //TODO add parity "double read" option
-void FreeEMS_LoaderComms::read(char *data, size_t size) { //usleep(5000);
-	serPort->readData(data, size);
+void FreeEMS_LoaderComms::read(char *data, size_t size) {
+	if ((serPort->readData(data, size)) < 0) {
+		close();
+		emit setGUI(STATE_ERROR);
+	}
 }
 
 //TODO add parity "double read" option

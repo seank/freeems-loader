@@ -53,6 +53,7 @@
 #endif
 
 #define POLL_ATTEMPTS 3 //TODO make confgable
+#define MAX_TRIES	20 //max number of times a read can return 0 bytes before giving up
 
 typedef enum {
 	NONE, ODD, EVEN
@@ -78,8 +79,8 @@ public:
 	void flushInBuffer();
 	void flushOutBuffer();
 	void writeData(const char *data, size_t size);
-	void readData(char *data, size_t size);
-	int readWrapper(unsigned int, char *, size_t size);
+	int readData(char *data, size_t size);
+	int readWrapper(int, char *, size_t size);
 	void flushSerial(FlushDirection direction);
 
 private:
