@@ -434,6 +434,8 @@ int FreeEMS_SerialPort::readWrapper(int fd, char *buf, size_t requested) {
 
 #else	/* Linux/OS-X where sane I/O lives */
 	fd_set readfds;
+	fd_set errfds;
+
 	struct timeval t;
 	int attempts = 0;
 	int read_pos = 0;
@@ -441,55 +443,52 @@ int FreeEMS_SerialPort::readWrapper(int fd, char *buf, size_t requested) {
 	int received = 0;
 	int res = 0;
 	int total = 0;
-	int tries = 0;
 
 	while (wanted > 0 ) {
 		FD_ZERO(&readfds);
+		FD_ZERO(&errfds);
 		t.tv_sec = 0;
 		t.tv_usec = 200000;
 		FD_SET(fd, &readfds);
-		res = select(fd + 1, &readfds, NULL, NULL, &t);
+
+		FD_SET(fd,&errfds);
+		res = select (fd+1, &readfds,NULL,&errfds, &t);
 		if (res == -1) {
-			closePort();
 			printf("ERROR, select() failure! Closing Port\n");
+		}
+		 /* OK we have an error condition waiting for us, read it */
+		if (FD_ISSET(fd,&errfds)) {
+			printf("select() (read) ERROR !\n");
+			attempts++;
+		}
+		if (attempts > POLL_ATTEMPTS) {
+			//return total;
 			return -1;
 		}
+
 		if (res == 0) /* Timeout */
 		{
-			printf("ERROR, select() timeout! Retrying...\n");
+			//printf("ERROR, select() timeout! Retrying...\n");
 			attempts++;
 			if (attempts > POLL_ATTEMPTS) {
 				printf("ERROR, select() timeout! Giving up\n");
-				return total;
-			}
-		}
-		/* OK we have something waiting for us, read it */
-		if (FD_ISSET(fd,&readfds)) {
-			//printf("data avail!\n");
-			read_pos = requested - wanted;
-			received = read(fd, &buf[read_pos], wanted);
-			//printf("data avail!\n");
-			//printf("read %i bytes\n", received);
-			if (received == -1) {
-				//printf("Serial I/O Error, read failure\n");
+				//return total;
 				return -1;
 			}
-			total += received;
-			if(received == 0){
-				tries++;
-				if(tries > MAX_TRIES) {
-					printf("ERROR, max tries exceeded giving up\n");
-					return -1;
-				}
-			}
-			/*printf("got %i bytes\n",received);*/
-			wanted -= received;
-		} else {
-			printf("ERROR, FD NOT SET\n");
-			return -1;
 		}
+	      //OK we have something waiting for us, read it
+	     if (FD_ISSET(fd,&readfds)) {
+	    	 printf("data avail!\n");
+	    	 read_pos = requested - wanted;
+	    	 received = read(fd, &buf[read_pos], wanted);
+    		 if (received <= 0) {
+    			 printf("Serial I/O Error, read failure\n");
+    			 return -1;
+    		 }
+    		 total += received;
+    		 wanted -= received;
+	     }
 	}
 	return total;
 #endif
 }
-
