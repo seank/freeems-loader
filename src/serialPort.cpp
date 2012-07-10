@@ -29,7 +29,7 @@
 #include "inc/serialPort.h"
 
 FreeEMS_SerialPort::FreeEMS_SerialPort() :
-_fd(0), _isOpenFlag(false) {
+_fd(0), m_isOpenFlag(false) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -159,7 +159,7 @@ void FreeEMS_SerialPort::openPort(char * port_name) {
 	_fd = open(port_name, O_RDWR | O_NOCTTY | O_NONBLOCK);
 	fcntl(_fd, ~O_NONBLOCK);
 #endif
-	_isOpenFlag = _fd > 0 ? true : false;
+	m_isOpenFlag = _fd > 0 ? true : false;
 }
 
 int FreeEMS_SerialPort::setupPort(int baud) {
@@ -363,7 +363,7 @@ void FreeEMS_SerialPort::flushSerial(FlushDirection direction) {
 //}
 
 bool FreeEMS_SerialPort::isOpen() {
-	return _isOpenFlag;
+	return m_isOpenFlag;
 }
 
 void FreeEMS_SerialPort::flushInBuffer() {
@@ -450,7 +450,6 @@ int FreeEMS_SerialPort::readWrapper(int fd, char *buf, size_t requested) {
 		t.tv_sec = 0;
 		t.tv_usec = 200000;
 		FD_SET(fd, &readfds);
-
 		FD_SET(fd,&errfds);
 		res = select (fd+1, &readfds,NULL,&errfds, &t);
 		if (res == -1) {
@@ -465,7 +464,6 @@ int FreeEMS_SerialPort::readWrapper(int fd, char *buf, size_t requested) {
 			//return total;
 			return -1;
 		}
-
 		if (res == 0) /* Timeout */
 		{
 			//printf("ERROR, select() timeout! Retrying...\n");

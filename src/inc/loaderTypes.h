@@ -100,17 +100,17 @@ extern const struct dataVector_tag dataVectorTable[];
 extern const struct flashModuleInfo_tag flashModuleTable[];
 extern const struct s19Info s19Table[];
 extern const int numDataVectorTableEntries;
-extern const char PPageRegister;
-extern const char Zero;
-extern const char SMReadByte;
-extern const char SMWriteByte;
-extern const char SMReadBlock;
-extern const char SMErasePage;
-extern const char SMWriteBlock;
+extern const unsigned char PPageRegister;
+extern const unsigned char Zero;
+extern const unsigned char SMReadByte;
+extern const unsigned char SMWriteByte;
+extern const unsigned char SMReadBlock;
+extern const unsigned char SMErasePage;
+extern const unsigned char SMWriteBlock;
 extern const char* defFlashType;
-extern const char SMReturn;
-extern const char SMReset;
-extern const char SMRDY[3];
+extern const unsigned char SMReturn;
+extern const unsigned char SMReset;
+extern const unsigned char SMRDY[3];
 
 #else
 /* let us know if we are being untidy with headers */

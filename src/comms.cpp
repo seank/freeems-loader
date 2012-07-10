@@ -67,22 +67,24 @@ void FreeEMS_LoaderComms::openTest(QString serPortName) {
 void FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate) {
 	if (isOpen())
 		close();
-	serPort->openPort(serPortName.toAscii().data());
-	serPort->setupPort(baud_rate);
-	serPort->flushSerial(BOTH);
+
+	serPort.openPort(serPortName);
+	serPort.setupPort(baud_rate, 8, "none", 1);
+	serPort.communicate();
+	//serPort->flushSerial(BOTH);
 }
 
 bool FreeEMS_LoaderComms::isReady() const {
 	return smIsReady ? true : false;
 }
 
-bool FreeEMS_LoaderComms::isOpen() const {
-	return serPort->isOpen();
+bool FreeEMS_LoaderComms::isOpen() {
+	return serPort.isOpen();
 }
 
 void FreeEMS_LoaderComms::init() {
 	_recordSetLoaded = false;
-	serPort = new FreeEMS_SerialPort;
+	//serPort = new FreeEMS_SerialPort;
 	s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
 	//s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
 	lastLoadAddress = 0;
@@ -103,7 +105,7 @@ void FreeEMS_LoaderComms::close() {
 	if (isOpen() == false)
 		return;
 	emit displayMessage(MESSAGE_INFO, "closing serial port");
-	serPort->closePort();
+	serPort.closePort();
 	smIsReady = false;
 }
 
@@ -129,14 +131,14 @@ void FreeEMS_LoaderComms::ripDevice() {
 	//  unsigned int bytesInRange;
 	unsigned int pagedAddress = 0;
 
-	std::vector<char> rxBuffer(bytesPerRecord);
+	std::vector<unsigned char> rxBuffer(bytesPerRecord);
 	ofstream outFile(ripFilename.toAscii(), ios::out | ios::binary);
 	FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
 	totalBytes = getDeviceByteCount();
 	emit configureProgress(0, totalBytes - 1);
 
-	serPort->flushInBuffer();
-	serPort->flushOutBuffer();
+	//serPort->flushInBuffer();
+	//serPort->flushOutBuffer();
 
 	if (smIsReady) {
 		for (i = 0; i < numDataVectorTableEntries; i++) {
@@ -195,8 +197,8 @@ void FreeEMS_LoaderComms::setFlashType(const char *commonName) {
 	}
 }
 
-void FreeEMS_LoaderComms::SMSetPPage(char PPage) {
-	char page = PPage;
+void FreeEMS_LoaderComms::SMSetPPage(unsigned char PPage) {
+	unsigned char page = PPage;
 	write(&SMWriteByte, 1);
 	write(&Zero, 1);
 	write(&PPageRegister, 1);
@@ -221,21 +223,21 @@ void FreeEMS_LoaderComms::resetSM() {
 
 void FreeEMS_LoaderComms::setSM() {
 	//write(&SMReset, 1);
-	serPort->flushInBuffer();
-	serPort->flushOutBuffer();
+	//serPort->flushInBuffer();
+	//serPort->flushOutBuffer();
+	serPort.flushRX();
 	write(&SMReturn, 1);
 	if (verifyReturn(SETSM) > 0) {
 		smIsReady = true;
 	} else {
 		smIsReady = false;
 	}
-
 	return;
 }
 
-void FreeEMS_LoaderComms::write(const char *data, size_t size) {
+void FreeEMS_LoaderComms::write(const unsigned char *data, size_t size) {
 	//sleep(1);
-	serPort->writeData(data, size);
+	serPort.writeData(data, size);
 }
 /*
  void
@@ -247,9 +249,9 @@ void FreeEMS_LoaderComms::write(const char *data, size_t size) {
  }
  */
 
-void FreeEMS_LoaderComms::write(const std::vector<char>& data) {
+void FreeEMS_LoaderComms::write(const std::vector<unsigned char>& data) {
 	unsigned int i;
-	char d;
+	unsigned char d;
 	for (i = 0; i < data.size(); i++) {
 		d = data[i];
 		write(&d, 1);
@@ -258,7 +260,7 @@ void FreeEMS_LoaderComms::write(const std::vector<char>& data) {
 
 void FreeEMS_LoaderComms::writeString(const std::string& s) {
 	unsigned int i;
-	char d;
+	unsigned char d;
 	for (i = 0; i < s.size(); i++) {
 		d = s[i];
 		write(&d, 1);
@@ -266,8 +268,8 @@ void FreeEMS_LoaderComms::writeString(const std::string& s) {
 }
 
 //TODO add parity "double read" option
-void FreeEMS_LoaderComms::read(char *data, size_t size) {
-	if ((serPort->readData(data, size)) < 0) {
+void FreeEMS_LoaderComms::read(unsigned char* data, size_t size) {
+	if ((serPort.readData(data, size)) < 0) {
 		close();
 		emit setGUI(STATE_ERROR);
 	}
@@ -284,17 +286,17 @@ void FreeEMS_LoaderComms::read(char *data, size_t size) {
  }
  */
 
-std::vector<char> FreeEMS_LoaderComms::read(size_t size) {
-	vector<char> result(size, '\0'); //Allocate a vector with the desired size
+std::vector<unsigned char> FreeEMS_LoaderComms::read(size_t size) {
+	vector<unsigned char> result(size, '\0'); //Allocate a vector with the desired size
 	read(&result[0], size); //Fill it with values
 	return result;
 }
 
-std::string FreeEMS_LoaderComms::readString(size_t size) {
-	string result(size, '\0'); //Allocate a string with the desired size
-	read(&result[0], size); //Fill it with values
-	return result;
-}
+//std::string FreeEMS_LoaderComms::readString(size_t size) {
+//	string result(size, '\0'); //Allocate a string with the desired size
+//	read(&result[0], size); //Fill it with values
+//	return result;
+//}
 
 FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
 
@@ -313,8 +315,8 @@ FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
  }
  */
 
-void FreeEMS_LoaderComms::returnFlashType(char *responce) {
-	char getIDCommand = 0xB7;
+void FreeEMS_LoaderComms::returnFlashType(unsigned char *responce) {
+	unsigned char getIDCommand = 0xB7;
 	write(&getIDCommand, 1);
 	read(responce, 4);
 	return;
@@ -325,47 +327,52 @@ int FreeEMS_LoaderComms::verifyReturn(SM_COMMAND_TYPE type) { //TODO this should
 	//resp = serPort->read(3); //todo use wrapper
 	//QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
 	//usleep(5000);
-	char response[3] = { 0 };
-	char code = 0;
+	unsigned char response[3] = { 0 };
+	unsigned char code = 0;
 	read(&code, 1);
 	switch (type){
 		case GENERIC:
 			read(response, 2);
-			if (code == (char) 0xe0 && response[1] == 0x3E) {
+			if (code ==  0xe0 && response[1] == 0x3E) {
+				qDebug("smVerify good");
 				return 1;
 			}
-			emit setGUI(STATE_ERROR);
+			//emit setGUI(STATE_ERROR);
 			emit displayMessage(MESSAGE_ERROR, "unable to verify serial monitor return code");
 			return -1;
 		break;
 		case SETSM:
-			if(code == (char)0xE0){
+			if(code == 0xE0){
+				qDebug("need to read two bytes");
 				read(response, 2);
-				if(response[1] != 0x3E){
-					emit setGUI(STATE_ERROR);
+				if(response[1] != 0x3e){
+					//emit setGUI(STATE_ERROR);
 					emit displayMessage(MESSAGE_ERROR, "unable to verify serial monitor presence");
 					return -1;
+				} else {
+					return 1;
 				}
-				return 1;
-			}else if(code == (char)0xE1){
-				read(response, 1);
-				if(response[0] == (char)0x0){
+			}else if(code == 0xE1){
+				read(response, 2);
+				if(response[1] == (char)0x3e){
 					emit displayMessage(MESSAGE_INFO, "serial monitor already running");
 					return 1;
 				}
 			}
-			emit displayMessage(MESSAGE_ERROR, "read unknown value from serial port");
+			emit displayMessage(MESSAGE_ERROR, "read unknown value from serial port while trying to verify");
+			qDebug("code %x read %x %x %x", code, response[0], response[1], response[2]);
 			return -1;
 		break;
 	}
+	qDebug("error verrifying return");
 	return -1;
 }
 
-int FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, char plusBytes, std::vector<char> &vec) {
-	std::vector<char> buffer(plusBytes);
-	char highByte = (address & 0xFF00) >> 8;
-	char lowByte = address & 0x00FF;
-	char bytesRequested = plusBytes - 1;
+int FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, unsigned int plusBytes, std::vector<unsigned char> &vec) {
+	std::vector<unsigned char> buffer(plusBytes);
+	unsigned char highByte = (address & 0xFF00) >> 8;
+	unsigned char lowByte = address & 0x00FF;
+	unsigned char bytesRequested = plusBytes - 1;
 	write(&SMReadBlock, 1);
 	write(&highByte, 1);
 	write(&lowByte, 1);
@@ -388,7 +395,7 @@ void FreeEMS_LoaderComms::erasePage(char PPage) {
 }
 
 void FreeEMS_LoaderComms::eraseDevice() {
-	serPort->flushInBuffer();
+	//serPort->flushInBuffer();
 	int i;
 	int nPages;
 	char PPageIndex;
@@ -482,19 +489,19 @@ void FreeEMS_LoaderComms::loadRecordSet() {
 	return;
 }
 
-void FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes, int numBytes) {
+void FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bufPtr, unsigned int numBytes) {
 	int typeID = S2; //TODO get from s19
 	unsigned int Ppage;
-	int i;
-	std::vector<char> verifyString;
-	std::vector<char> readString;
-	char c;
-	char highByte;
-	char lowByte;
-	char bytesToWrite;
+	unsigned int i;
+	std::vector<unsigned char> verifyString;
+	std::vector<unsigned char> readString;
+	unsigned char c;
+	unsigned char highByte;
+	unsigned char lowByte;
+	unsigned char bytesToWrite;
 
 	for (i = 0; i < numBytes; i++) {
-		verifyString.push_back(*(bytes + i));
+		verifyString.push_back(*(bufPtr + i));
 	}
 
 	switch (typeID) {
@@ -512,7 +519,7 @@ void FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes, in
 		write(&highByte, ONE_BYTE);
 		write(&lowByte, ONE_BYTE);
 		write(&bytesToWrite, ONE_BYTE);
-		write(bytes, numBytes);
+		write((unsigned char*)bufPtr, numBytes);
 		if (verifyACKs == true) {
 			if (verifyReturn(GENERIC) < 0) {
 				emit displayMessage(MESSAGE_INFO, "Error, did not receive ACK after writing a block");
@@ -534,17 +541,18 @@ void FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bytes, in
 
 void FreeEMS_LoaderComms::flushRXStream() {
 	//check for open port TODO maybe call other flush function
-	flushMode = true;
-	char c;
-	unsigned int bytes;
-	for (bytes = 0; flushMode == true; bytes++) {
-		read(&c, 1);
-		if (bytes > 4096) {
-			emit displayMessage(MESSAGE_INFO,
-					"it seems there is a stream of data coming in the serial port, is the firmware running ?");
-			return;
-		}
-	}
+	qDebug("flushRXStream called todo repimpiment");
+//	flushMode = true;
+//	char c;
+//	unsigned int bytes;
+///	for (bytes = 0; flushMode == true; bytes++) {
+//		read(&c, 1);
+//		if (bytes > 4096) {
+//			emit displayMessage(MESSAGE_INFO,
+//					"it seems there is a stream of data coming in the serial port, is the firmware running ?");
+//			return;
+//		}
+//	}
 }
 
 void FreeEMS_LoaderComms::setAction(int action) {
@@ -590,11 +598,12 @@ void FreeEMS_LoaderComms::run() {
 		emit displayMessage(MESSAGE_INFO, "Executing Test");
 		test();
 		break;
-	case NONE:
+	//case NONE:
+	default:
 		emit displayMessage(MESSAGE_INFO, "Action for thread not set!");
 		break;
-	default:
-		break;
+//	default:
+//		break;
 	}
 }
 

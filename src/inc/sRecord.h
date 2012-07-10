@@ -63,7 +63,7 @@ public:
 	~FreeEMS_LoaderSREC();
 	//	bool verifyFile(int *file);
 	int
-	fillRecord(std::vector<char> binaryChars);
+	fillRecord(std::vector<unsigned char> binaryChars);
 	/*
 	 * calculate a records checksum and compre it to the stored value.
 	 */

@@ -36,25 +36,32 @@ const struct flashModuleInfo_tag flashModuleTable[] = { { "S12XDP512", FTX512K4,
 		0x10000 }, // TODO get correct values
 		{ "0", 0, 0, 0 } };
 
-const struct s19Info s19Table[] = { { S0, "Block header", "S0", 2, true }, { S1, "Data sequence", "S1", 2, true }, { S2,
-		"Data sequence", "S2", 3, true }, { S3, "Data sequence", "S3", 4, true },
-		{ S5, "Record count", "S5", 2, false }, { S7, "End of block", "S7", 0, false }, { S8, "End of block", "S8", 3,
-				false }, { S9, "End of block", "S9", 2, false }, { 0, 0, 0, 0, false } };
+const struct s19Info s19Table[] = {
+		{ S0, "Block header", "S0", 2, true },
+		{ S1, "Data sequence", "S1", 2, true },
+		{ S2, "Data sequence", "S2", 3, true },
+		{ S3, "Data sequence", "S3", 4, true },
+		{ S5, "Record count", "S5", 2, false },
+		{ S7, "End of block", "S7", 0, false },
+		{ S8, "End of block", "S8", 3, false },
+		{ S9, "End of block", "S9", 2, false },
+		{ 0, 0, 0, 0, false } //terminate
+};
 
 const int numDataVectorTableEntries = sizeof(dataVectorTable) / sizeof(struct dataVector_tag);
 const char *defFlashType = "S12XDP512";
 
-const char PPageRegister = 0x30;
-const char Zero = 0x00;
-const char SMReturn = 0x0D;
-const char SMRDY[3] = { 0xe0, 0x00, 0x3e };
+const unsigned char PPageRegister = 0x30;
+const unsigned char Zero = 0x00;
+const unsigned char SMReturn = 0x0D;
+const unsigned char SMRDY[3] = { 0xe0, 0x00, 0x3e };
 
-const char SMReadByte = 0xA1; /*  — Read_Byte  A1/AAAA/RD — Reads a byte of data from the specified 16-bit address and
+const unsigned char SMReadByte = 0xA1; /*  — Read_Byte  A1/AAAA/RD — Reads a byte of data from the specified 16-bit address and
    sends the 8-bit data back to the host PC. This routine assumes that accesses
    to the paged memory area have been preceded by a PPAGE register access
    (Write_Byte 0030 = page) to select the appropriate page. */
 
-const char SMWriteByte = 0xA2; /*  — Write_Byte A2/AAAA/WD — Writes the supplied byte of data to the specified 16-bit
+const unsigned char SMWriteByte = 0xA2; /*  — Write_Byte A2/AAAA/WD — Writes the supplied byte of data to the specified 16-bit
    address. This routine assumes that accesses to the paged memory area have
    been preceded by a PPAGE register access (Write_Byte 0030 = page) to
    select the appropriate page. All writes are processed through an intelligent
@@ -63,12 +70,12 @@ const char SMWriteByte = 0xA2; /*  — Write_Byte A2/AAAA/WD — Writes the supp
    nonvolatile memory location, an error code is transmitted before a new prompt
    is issued. See Intelligent Writes for details. */
 
-const char SMReadWord = 0xA3; /*  — Read_Word A3/AAAA/RDW — Reads a word of data from the specified 16-bit address and
+const unsigned char SMReadWord = 0xA3; /*  — Read_Word A3/AAAA/RDW — Reads a word of data from the specified 16-bit address and
    sends the 16-bit data back to the host PC. This routine assumes that accesses
    to the paged memory area have been preceded by a PPAGE register access
    (Write_Byte 0030 = page) to select the appropriate page. */
 
-const char SMWriteWord = 0xA4; /* — Write_Word A4/AAAA/WW — Writes the supplied word of data to the specified 16-bit
+const unsigned char SMWriteWord = 0xA4; /* — Write_Word A4/AAAA/WW — Writes the supplied word of data to the specified 16-bit
    address. This routine assumes that accesses to the paged memory area have
    been preceded by a PPAGE register access (Write_Byte 0030 = page) to
    select the appropriate page. All writes are processed through an intelligent
@@ -77,7 +84,7 @@ const char SMWriteWord = 0xA4; /* — Write_Word A4/AAAA/WW — Writes the suppl
    nonvolatile memory location, an error code is transmitted before a new prompt
    is issued. See Intelligent Writes for details. */
 
-const char SMReadNext = 0xA5; /*  — Read_Next A5/RDW — Pre-increments the user IX register (by 2), reads the word of data
+const unsigned char SMReadNext = 0xA5; /*  — Read_Next A5/RDW — Pre-increments the user IX register (by 2), reads the word of data
    from the address pointed to by IX, and sends the 16-bit data back to the host
    PC. This routine assumes that accesses to the paged memory area have been
    preceded by a PPAGE register access (Write_Byte 0030 = page) to select the
@@ -85,7 +92,7 @@ const char SMReadNext = 0xA5; /*  — Read_Next A5/RDW — Pre-increments the us
    running. If executed during run mode, this command will return an $E2 —
    Command Not Allowed in Run Mode error and $0000 data. */
 
-const char SMWriteNext = 0xA6; /* — Write_Next A6/WW — Pre-increments the user IX register (by 2) and writes the supplied
+const unsigned char SMWriteNext = 0xA6; /* — Write_Next A6/WW — Pre-increments the user IX register (by 2) and writes the supplied
    word to the address pointed to by IX. This routine assumes that accesses to
    the paged memory area have been preceded by a PPAGE register access
    (Write_Byte 0030 = page) to select the appropriate page. All writes are
@@ -97,7 +104,7 @@ const char SMWriteNext = 0xA6; /* — Write_Next A6/WW — Pre-increments the us
    executed during run mode, this command will return an $E2 — Command Not
    Allowed in Run Mode error and the write data will be ignored. */
 
-const char SMReadBlock = 0xA7; /* — Read_Block A7/AAAA/NN/RDB(AAAA) /RDB(AAAA+1) /.../RDB(AAAA+NN) — Reads a series of NN+1 (1
+const unsigned char SMReadBlock = 0xA7; /* — Read_Block A7/AAAA/NN/RDB(AAAA) /RDB(AAAA+1) /.../RDB(AAAA+NN) — Reads a series of NN+1 (1
    to 256) bytes of data starting at address AAAA and returns the data one byte at a time
    to the host starting with the data read from address AAAA and ending with the data
    from address AAAA+NN. This routine assumes that accesses to the paged memory
@@ -106,7 +113,7 @@ const char SMReadBlock = 0xA7; /* — Read_Block A7/AAAA/NN/RDB(AAAA) /RDB(AAAA+
    program is running, it is not recommended because it could slow down operation of the
    user program. */
 
-const char SMWriteBlock = 0xA8; /* — Write_Block A8/AAAA/NN/WB(AAAA) /WB(AAAA+1) /.../WB(AAAA+NN) — Writes a series of NN+1 (1 to
+const unsigned char SMWriteBlock = 0xA8; /* — Write_Block A8/AAAA/NN/WB(AAAA) /WB(AAAA+1) /.../WB(AAAA+NN) — Writes a series of NN+1 (1 to
    256) bytes of data into the target MCU memory starting at address AAAA and ending
    with address AAAA+NN. This routine assumes that accesses to the paged memory
    area have been preceded by a PPAGE register access (Write_Byte 0030 = page) to
@@ -117,11 +124,11 @@ const char SMWriteBlock = 0xA8; /* — Write_Block A8/AAAA/NN/WB(AAAA) /WB(AAAA+
    details. Although this command can be executed while a user program is running, it is
    not recommended because it could slow down operation of the user program. */
 
-const char SMErasePage = 0xB8; /* — Erase one page of FLASH memory selected by the current PPAGE
+const unsigned char SMErasePage = 0xB8; /* — Erase one page of FLASH memory selected by the current PPAGE
    register. $E6 error code will be returned if the command does not complete
    successfully. PPAGE must be preloaded with desired page to erase. */
 
-const char SMReset = 0xB4; /* When a user reset vector is programmed, the levels on the run/load
+const unsigned char SMReset = 0xB4; /* When a user reset vector is programmed, the levels on the run/load
    switch and the RxD0 line could cause a reset to either the user code or the
    monitor. The sequence of checks to determine the type of reset is listed and
    illustrated in Figure 1.

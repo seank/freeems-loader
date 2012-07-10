@@ -34,7 +34,6 @@ CONFIG *= qt \
     debug
 QT *= core \
     gui
-
 # xml \
 # xmlpatterns \
 # network \
@@ -42,13 +41,13 @@ QT *= core \
 HEADERS += inc/about.h \
     inc/freeems_loader.h \
     inc/sRecord.h \
-    inc/serialPort.h \
+#   inc/serialPort.h \
     inc/redirector.h \
     inc/parsing.h \
     inc/comms.h \
     inc/loaderTypes.h
 SOURCES += main.cpp \
-    serialPort.cpp \
+#   serialPort.cpp \
     sRecord.cpp \
     parsing.cpp \
     comms.cpp \
@@ -72,6 +71,8 @@ mac {
 # Straight Linux
 linux-g++ {
 	message("Straight Linux Build")
+	unix:INCLUDEPATH += $$quote(/home/seank/work/workspaceCDT/asyncSerial/)
+	unix:LIBS += $$quote(/home/seank/work/workspaceCDT/asyncSerial/libSerialIO.so)
 }
 # Native Windows Build
 win32 { 

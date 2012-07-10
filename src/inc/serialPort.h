@@ -85,7 +85,7 @@ public:
 
 private:
 	int _fd;
-	bool _isOpenFlag;
+	bool m_isOpenFlag;
 	static const int _poll_attempts = 50;
 #ifndef __WIN32__
 	struct termios oldtio;

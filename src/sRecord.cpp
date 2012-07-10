@@ -77,7 +77,7 @@ FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsi
 	//fillRecord(input, recordPayloadLength);
 }
 
-int FreeEMS_LoaderSREC::fillRecord(std::vector<char> binaryChars) {
+int FreeEMS_LoaderSREC::fillRecord(std::vector<unsigned char> binaryChars) {
 	int i, j;
 	for (j = binaryChars.size(), i = 0; i < j; i++) {
 		putNextByte((char) binaryChars.at(i));

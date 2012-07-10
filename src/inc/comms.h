@@ -36,7 +36,8 @@
 #include <QObject>
 #include <QDebug>
 //#include <QMutex>
-#include "inc/serialPort.h"
+//##include "inc/serialPort.h"
+#include "/home/seank/work/workspaceCDT/asyncSerial/inc/SerialIO.h"
 //#include <QTimer>
 
 #include "inc/sRecord.h"
@@ -113,7 +114,7 @@ public:
 
 	void loadRecordSet();
 
-	void SMWriteByteBlock(unsigned int address, char* bytes, int numBytes);
+	void SMWriteByteBlock(unsigned int address, char* bytes, unsigned int numBytes);
 
 	//void SMSetLoadAddress(unsigned int address, unsigned int typeID, int numBytes);
 
@@ -122,15 +123,15 @@ public:
 	 *  HCS12 device ID register. Please refer to selected device guides for device ID
 	 *  register contents.
 	 */
-	void returnFlashType(char *responce);
+	void returnFlashType(unsigned char *responce);
 
 	void setAbort(bool abortOperation);
 
 	void setFlashType(const char *commonName);
 
-	void SMSetPPage(char PPage);
+	void SMSetPPage(unsigned char PPage);
 
-	int SMReadByteBlock(unsigned int address, char plusBytes, std::vector<char> &vec);
+	int SMReadByteBlock(unsigned int address, unsigned int plusBytes, std::vector<unsigned char> &vec);
 
 	void SMReadChars(const char *data, size_t size);
 
@@ -161,7 +162,7 @@ public:
 	/**
 	 * \return true if serial device is open
 	 */
-	bool isOpen() const;
+	bool isOpen();
 
 	/**
 	 * Close the serial device
@@ -181,16 +182,16 @@ public:
 	 * \param size array size
 	 * \throws boost::system::system_error if any error
 	 */
-	void write(const char *data, size_t size);
+	void write(const unsigned char *data, size_t size);
 
 	/**
 	 * Write data
 	 * \param data to be sent through the serial device
 	 * \throws boost::system::system_error if any error
 	 */
-	void write(const std::vector<char>& data);
+	void write(const std::vector<unsigned char>& data);
 
-	void write(const char *data);
+	void write(const unsigned char *data);
 
 	/**
 	 * Write a string. Can be used to send ASCII data to the serial device.
@@ -209,7 +210,7 @@ public:
 	 * \throws boost::system::system_error if any error
 	 * \throws timeout_exception in case of timeout
 	 */
-	void read(char *data, size_t size);
+//	void read(char *data, size_t size);
 
 	void read(unsigned char *data, size_t size);
 	/**
@@ -219,8 +220,7 @@ public:
 	 * \throws boost::system::system_error if any error
 	 * \throws timeout_exception in case of timeout
 	 */
-	std::vector<char>
-	read(size_t size);
+	std::vector<unsigned char> read(size_t size);
 
 	/**
 	 * Read a string, blocking
@@ -232,8 +232,7 @@ public:
 	 * \throws boost::system::system_error if any error
 	 * \throws timeout_exception in case of timeout
 	 */
-	std::string
-	readString(size_t size);
+	std::string	readString(size_t size);
 
 	/**
 	 * Read a line, blocking
@@ -274,7 +273,8 @@ public:
 	void setGUI(int);
 
 private:
-	FreeEMS_SerialPort *serPort;
+	//FreeEMS_SerialPort *serPort;
+	IPDS::SerialIO	serPort;
 	/**
 	 * Possible outcome of a read. Set by callbacks, read from main code
 	 */
