@@ -46,7 +46,7 @@
 #include <QObject>
 
 #define SM_READY_CHAR_SIZE      0x03
-#define ONE_TWENTY_EIGHT_K_RECORDS     128000  //enough records to hold 4MB at 16bytes each
+#define ONE_TWENTY_EIGHT_K_RECORDS     10000  //enough records to hold 4MB at 16bytes each
 using namespace std;
 
 enum SM_COMMAND_TYPE{
