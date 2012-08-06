@@ -5,7 +5,7 @@ To build and run this application please run the following commands:
 
 1. "apt-get update && apt-get install  qt4-qmake libqt4-dev"
 
-2. Simply type "qmake && make -f Release" and hit enter!
+2. Simply type "qmake && make -f Release" from the src/ directory and hit enter!
 2a. For Fedora users type "qmake-qt4 && make -f Release"
 
 3. execute your freshly built loader by typing "./FreeEMS_Loader"
@@ -22,14 +22,26 @@ Install MinGW
 	2. Extract to c:\mingw
 
 	3. Add c:\mingw\bin to your PATH enviornment variable.
+		PATH can be extended through the Control Panel|System|Advanced|Environment variables menu.
 
 Install QTLibs
 
 	1. Download QT(MinGW-4.x)
 
-		http://get.qt.nokia.com/qt/source/qt-win-opensource-4.7.1-mingw.exe
+		http://releases.qt-project.org/qt4/source/qt-win-opensource-4.8.2-mingw.exe
 
 	2. Run installer and install to c:\Qt\$ver\
+
+	3. Add c:\Qt\<version>\bin to your PATH var.
+		PATH can be extended through the Control Panel|System|Advanced|Environment variables menu.
+
+Build Loader Source
+	
+	1. Open a new terminal window(cmd.exe)
+
+	2. From the FreeEMS-Loader src/ directory simply type "qmake; make release".
+
+	3. Execute your freshly built loader by typing "release/FreeEMS_Loader"
 
 ######################### MAC USERS #####################################
 
