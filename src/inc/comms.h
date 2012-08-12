@@ -37,8 +37,9 @@
 #include <QDebug>
 //#include <QMutex>
 //##include "inc/serialPort.h"
-#include "/home/seank/work/workspaceCDT/asyncSerial/inc/SerialIO.h"
+#include "/home/seank/work/workspaceCDT/asyncSerial/src/inc/public/SerialIO.h"
 //#include <QTimer>
+//#include "/usr/local/include/SerialIO.h"
 
 #include "inc/sRecord.h"
 //#include "inc/loaderTypes.h"
@@ -46,7 +47,7 @@
 #include <QObject>
 
 #define SM_READY_CHAR_SIZE      0x03
-#define ONE_TWENTY_EIGHT_K_RECORDS     10000  //enough records to hold 4MB at 16bytes each
+#define ONE_TWENTY_EIGHT_K_RECORDS     15000  //enough records to hold 4MB at 16bytes each
 using namespace std;
 
 enum SM_COMMAND_TYPE{
@@ -274,7 +275,7 @@ public:
 
 private:
 	//FreeEMS_SerialPort *serPort;
-	IPDS::SerialIO	serPort;
+	IPDS::SerialIO	*serPort;
 	/**
 	 * Possible outcome of a read. Set by callbacks, read from main code
 	 */

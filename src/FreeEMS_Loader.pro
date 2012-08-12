@@ -71,7 +71,8 @@ mac {
 # Straight Linux
 linux-g++ {
 	message("Straight Linux Build")
-	unix:INCLUDEPATH += $$quote(/home/seank/work/workspaceCDT/asyncSerial/)
+#	unix:INCLUDEPATH += $$quote(/home/seank/work/workspaceCDT/asyncSerial/src)
+#	unix:INCLUDEPATH += $$quote(/usr/local/include/)
 	unix:LIBS += $$quote(/home/seank/work/workspaceCDT/asyncSerial/libSerialIO.so)
 }
 # Native Windows Build

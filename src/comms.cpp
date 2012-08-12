@@ -68,9 +68,9 @@ void FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate) {
 	if (isOpen())
 		close();
 
-	serPort.openPort(serPortName);
-	serPort.setupPort(baud_rate, 8, "none", 1);
-	serPort.communicate();
+	serPort->openPort(serPortName);
+	serPort->setupPort(baud_rate, 8, "none", 1);
+	serPort->communicate();
 	//serPort->flushSerial(BOTH);
 }
 
@@ -79,12 +79,12 @@ bool FreeEMS_LoaderComms::isReady() const {
 }
 
 bool FreeEMS_LoaderComms::isOpen() {
-	return serPort.isOpen();
+	return serPort->isOpen();
 }
 
 void FreeEMS_LoaderComms::init() {
 	_recordSetLoaded = false;
-	//serPort = new FreeEMS_SerialPort;
+	serPort = new IPDS::SerialIO;
 	s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
 	//s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
 	lastLoadAddress = 0;
@@ -105,7 +105,7 @@ void FreeEMS_LoaderComms::close() {
 	if (isOpen() == false)
 		return;
 	emit displayMessage(MESSAGE_INFO, "closing serial port");
-	serPort.closePort();
+	serPort->closePort();
 	smIsReady = false;
 }
 
@@ -225,7 +225,7 @@ void FreeEMS_LoaderComms::setSM() {
 	//write(&SMReset, 1);
 	//serPort->flushInBuffer();
 	//serPort->flushOutBuffer();
-	serPort.flushRX();
+	serPort->flushRX();
 	write(&SMReturn, 1);
 	if (verifyReturn(SETSM) > 0) {
 		smIsReady = true;
@@ -237,7 +237,7 @@ void FreeEMS_LoaderComms::setSM() {
 
 void FreeEMS_LoaderComms::write(const unsigned char *data, size_t size) {
 	//sleep(1);
-	serPort.writeData(data, size);
+	serPort->writeData(data, size);
 }
 /*
  void
@@ -269,7 +269,7 @@ void FreeEMS_LoaderComms::writeString(const std::string& s) {
 
 //TODO add parity "double read" option
 void FreeEMS_LoaderComms::read(unsigned char* data, size_t size) {
-	if ((serPort.readData(data, size)) < 0) {
+	if ((serPort->readData(data, size)) < 0) {
 		close();
 		emit setGUI(STATE_ERROR);
 	}
