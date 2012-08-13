@@ -37,7 +37,7 @@
 #include <QDebug>
 //#include <QMutex>
 //##include "inc/serialPort.h"
-#include "/home/seank/work/workspaceCDT/asyncSerial/src/inc/public/SerialIO.h"
+#include "SerialIO.h"
 //#include <QTimer>
 //#include "/usr/local/include/SerialIO.h"
 
