@@ -27,6 +27,8 @@ TEMPLATE = app
 TARGET = FreeEMS_Loader
 QMAKE_CXXFLAGS *= -Wall
 QMAKE_CXXFLAGS *= -Werror
+QMAKE_CXXFLAGS_DEBUG += -pg
+QMAKE_LFLAGS_DEBUG += -pg
 CONFIG *= qt \
     warn_on \
     thread \
@@ -38,6 +40,7 @@ QT *= core \
 # xmlpatterns \
 # network \
 # opengl
+
 HEADERS += inc/about.h \
     inc/freeems_loader.h \
     inc/sRecord.h \
@@ -63,7 +66,7 @@ win32-x-g++ {
     message("Crosscompiling on Unix to Windows")
     QMAKE_CXXFLAGS -= -Werror
 }
- # Straight Mac-OS (OS-X)
+# Straight Mac-OS (OS-X)
 mac { 
     message("Mac OS-X Build")
     unix:INCLUDEPATH *= /opt/local/include
@@ -71,9 +74,8 @@ mac {
 # Straight Linux
 linux-g++ {
 	message("Straight Linux Build")
-#	unix:INCLUDEPATH += $$quote(/home/seank/work/workspaceCDT/asyncSerial/src)
-#	unix:INCLUDEPATH += $$quote(/usr/local/include/)
-	unix:LIBS += $$quote(/home/seank/work/workspaceCDT/asyncSerial/libSerialIO.so)
+	unix:INCLUDEPATH += $$quote(/usr/local/include/)
+	unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so)
 }
 # Native Windows Build
 win32 { 

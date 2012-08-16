@@ -38,9 +38,6 @@
 //#include <QMutex>
 //##include "inc/serialPort.h"
 #include "SerialIO.h"
-//#include <QTimer>
-//#include "/usr/local/include/SerialIO.h"
-
 #include "inc/sRecord.h"
 //#include "inc/loaderTypes.h"
 
