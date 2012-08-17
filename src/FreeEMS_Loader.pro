@@ -80,6 +80,8 @@ linux-g++ {
 # Native Windows Build
 win32 { 
     message("Straight compile on windows (seank only)")
+    unix:INCLUDEPATH *= /usr/local/include/
+    LIBS += -L/usr/local/win32/lib/SerialIO0.dll
     win32:LIBS *= -Lc:/mingw/lib \
         -lwsock32
 }
