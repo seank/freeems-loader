@@ -299,6 +299,9 @@ void FreeEMS_Loader::connect() {
 		//serialConnection->close();
 		fileIsOpen = file.open(QIODevice::ReadWrite); //TODO further try to detect the problem
 		file.close();
+#ifdef __WIN32__
+		fileIsOpen = true; /* TODO fix always set OK for windows, for now */
+#endif
 		if (fileIsOpen) {
 			loaderComms->open(portName, ui.comboBaud->currentText().toUInt());
 			//sleep(1); // POSIX ONLY TODO port takes a second to init after the open function
