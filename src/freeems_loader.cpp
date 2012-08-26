@@ -303,6 +303,9 @@ void FreeEMS_Loader::connect() {
 		fileIsOpen = true; /* TODO fix always set OK for windows, for now */
 #endif
 		if (fileIsOpen) {
+			//TODO add code to check for packets here, before going into RAM mode for SM
+			QString mode =  "RAW";
+			loaderComms->setDataMode(mode);
 			loaderComms->open(portName, ui.comboBaud->currentText().toUInt());
 			//sleep(1); // POSIX ONLY TODO port takes a second to init after the open function
 			loaderComms->setSM();

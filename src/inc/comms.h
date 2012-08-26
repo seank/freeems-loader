@@ -251,6 +251,8 @@ public:
 
 	void setSM();
 
+	void setDataMode(QString& mode);
+
 	void setAction(int action);
 
 	bool isRecordSetLoaded();

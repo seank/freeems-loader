@@ -672,3 +672,7 @@ int FreeEMS_LoaderComms::numLoadableRecords() {
 int FreeEMS_LoaderComms::numBadSums() {
 	return _badCheckSums;
 }
+
+void FreeEMS_LoaderComms::setDataMode(QString& mode) {
+	serPort->setMode(mode);
+}
