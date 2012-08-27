@@ -48,6 +48,9 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 
 	QObject::connect(loaderComms, SIGNAL( displayMessage(MESSAGE_TYPE, QString) ), this, SLOT( displayMessage(MESSAGE_TYPE, QString) ));
 	//QObject::connect(loaderComms->s19SetOne, SIGNAL( displayMessage(MESSAGE_TYPE, QString) ), this, SLOT( displayMessage(MESSAGE_TYPE, QString) ));
+
+	QObject::connect(this, SIGNAL( requestCommsThreadTermination() ), loaderComms, SLOT( commsThreadTermination() ));
+
 	QObject::connect(loaderComms, SIGNAL( setGUI(int) ), this, SLOT( changeGUIState(int) ));
 	QObject::connect(loaderComms, SIGNAL( udProgress(int) ), this, SLOT( updateProgress(int) ));
 	QObject::connect(loaderComms, SIGNAL( configureProgress(int, int) ), this, SLOT( configureProgress(int, int) ));
@@ -394,9 +397,10 @@ void FreeEMS_Loader::updateGUIState() {
 		break;
 	case STATE_ERROR:
 		displayMessage(MESSAGE_ERROR,"Problem communicating with the device, aborting");
-		updateProgress(0);
-		loaderComms->terminate();
-		loaderComms->close();
+	//	updateProgress(0);
+	//	emit requestCommsThreadTermination();
+		//loaderComms->terminate();
+		//loaderComms->close();
 		ui.pushLoad->setEnabled(false);
 		ui.pushRip->setEnabled(false);
 		ui.pushConnect->setText("Connect");
@@ -541,6 +545,10 @@ void FreeEMS_Loader::displayMessage(MESSAGE_TYPE type, QString message) {
 		case MESSAGE_ERROR:
 			writeText(message.toStdString());
 			cout << endl << "Error: " << message.toStdString();
+			qDebug() << QThread::currentThreadId();
+			emit requestCommsThreadTermination();
+
+			//changeGUIState(STATE_ERROR);
 		break;
 	default:
 		cout << endl << "Error Unknown Message Type";

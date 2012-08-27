@@ -161,7 +161,9 @@ void FreeEMS_LoaderComms::ripDevice() {
 						pagedAddress = PPageIndex;
 						pagedAddress <<= 16;
 						pagedAddress += address;
-						SMReadByteBlock((unsigned short) address, bytesPerRecord, rxBuffer);
+						if (SMReadByteBlock((unsigned short) address, bytesPerRecord, rxBuffer) < 0) {
+							return;
+						}
 						s19Record->initVariables(); // clear record
 						s19Record->setTypeIndex(S2);
 						s19Record->setRecordAddress(pagedAddress);
@@ -379,7 +381,7 @@ int FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, unsigned int plus
 	write(&bytesRequested, 1);
 	buffer = read(plusBytes);
 	if (verifyReturn(GENERIC) < 0){ // you must always verify a return to "clear" the buffer
-		emit displayMessage(MESSAGE_ERROR, "error validating return from SMRequestByteBlock");
+		emit displayMessage(MESSAGE_ERROR, "error validating return from SMReadByteBlock");
 		return -1;
 		//cout << "error validating return from SMRequestByteBlock";
 	}
@@ -675,4 +677,12 @@ int FreeEMS_LoaderComms::numBadSums() {
 
 void FreeEMS_LoaderComms::setDataMode(QString& mode) {
 	serPort->setMode(mode);
+}
+
+void FreeEMS_LoaderComms::commsThreadTermination() {
+	cout << "thread termination requested"; //todo remove
+	qDebug() << QThread::currentThreadId();
+	quit();
+	//exit(1);
+	//terminate();
 }

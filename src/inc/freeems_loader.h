@@ -72,6 +72,9 @@ public:
 		return false;
 	}
 
+signals:
+	void requestCommsThreadTermination();
+
 protected:
 	void fillBaud();
 	void fillStopBits();

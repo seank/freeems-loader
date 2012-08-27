@@ -266,11 +266,15 @@ public:
 
 	~FreeEMS_LoaderComms();
 
+public	slots:
+	void commsThreadTermination();
+
 	signals:
 	void displayMessage(MESSAGE_TYPE type, QString text);
 	void udProgress(int percent);
 	void configureProgress(int min, int max);
 	void setGUI(int);
+
 
 private:
 	//FreeEMS_SerialPort *serPort;
