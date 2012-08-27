@@ -24,7 +24,7 @@
 # *
 # */
 TEMPLATE = app
-TARGET = FreeEMS_Loader
+TARGET = FreeEMS-Loader
 QMAKE_CXXFLAGS *= -Wall
 QMAKE_CXXFLAGS *= -Werror
 QMAKE_CXXFLAGS_DEBUG += -pg
@@ -36,36 +36,33 @@ CONFIG *= qt \
     debug
 QT *= core \
     gui
+
 # xml \
 # xmlpatterns \
 # network \
 # opengl
-
 HEADERS += inc/about.h \
     inc/freeems_loader.h \
-    inc/sRecord.h \
-#   inc/serialPort.h \
+    inc/sRecord.h \ # inc/serialPort.h \
     inc/redirector.h \
     inc/parsing.h \
     inc/comms.h \
     inc/loaderTypes.h
-SOURCES += main.cpp \
-#   serialPort.cpp \
+SOURCES += freeemsLoader.cpp \
+    main.cpp \ # serialPort.cpp \
     sRecord.cpp \
     parsing.cpp \
     comms.cpp \
     types.cpp \
-    about.cpp \
-    freeems_loader.cpp
-FORMS *= about.ui \
-    freeems_loader.ui
-RESOURCES += resource-root.qrc 
-
-CONFIG(debug, debug|release) {
-
-} else {
-	DEFINES += QT_NO_WARNING_OUTPUT QT_NO_DEBUG_OUTPUT
-	message("Building Release Version")
+    about.cpp
+FORMS *= freeemsLoader.ui \
+    about.ui
+RESOURCES += resource-root.qrc
+CONFIG(debug, debug|release):
+else { 
+    DEFINES += QT_NO_WARNING_OUTPUT \
+        QT_NO_DEBUG_OUTPUT
+    message("Building Release Version")
 }
 
 # Cross compilation
@@ -73,17 +70,20 @@ win32-x-g++ {
     message("Crosscompiling on Unix to Windows")
     QMAKE_CXXFLAGS -= -Werror
 }
+
 # Straight Mac-OS (OS-X)
 mac { 
     message("Mac OS-X Build")
     unix:INCLUDEPATH *= /opt/local/include
 }
+
 # Straight Linux
-linux-g++ {
-	message("Straight Linux Build")
-	unix:INCLUDEPATH += $$quote(/usr/local/include/)
-	unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so)
+linux-g++ { 
+    message("Straight Linux Build")
+    unix:INCLUDEPATH += $$quote(/usr/local/include/)
+    unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so)
 }
+
 # Native Windows Build
 win32 { 
     message("Straight compile on windows (seank only)")

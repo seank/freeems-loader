@@ -38,7 +38,7 @@
 #include <QFileDialog>
 #include <QObject>
 
-#include "ui_freeems_loader.h"
+#include "ui_freeemsLoader.h"
 #include "inc/comms.h"
 //#include "inc/loaderTypes.h"
 #include "qdebug.h"

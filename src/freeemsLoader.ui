@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>FreeEMS_Loader</string>
+   <string>FreeEMS-Loader</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
