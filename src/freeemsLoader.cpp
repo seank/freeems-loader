@@ -287,9 +287,9 @@ void FreeEMS_Loader::connect() {
 	bool fileIsOpen = 0;
 	if (_loaderState == STATE_WORKING) {
 		loaderComms->terminate(); //TODO terminate should be used with caution review the pitfalls
+		while(loaderComms->isRunning());
 		//TODO echo aborted at X %
 		displayMessage(MESSAGE_INFO, "Aborting as requested");
-		ui.progressBar->setValue(0);
 		changeGUIState(STATE_CONNECTED);
 		return;
 	}
@@ -367,6 +367,7 @@ void FreeEMS_Loader::updateGUIState() {
 	switch (_loaderState) {
 	case STATE_NOT_CONNECTED:
 		loaderComms->close();
+		ui.progressBar->setValue(0);
 		ui.pushLoad->setEnabled(false);
 		ui.pushRip->setEnabled(false);
 		ui.pushConnect->setText("Connect");
@@ -377,6 +378,7 @@ void FreeEMS_Loader::updateGUIState() {
 		break;
 	case STATE_CONNECTED:
 		//ui.pushLoad->setEnabled(1);
+		ui.progressBar->setValue(0);
 		ui.pushRip->setEnabled(true);
 		ui.pushConnect->setText("Close/Rst");
 		ui.pushErase->setEnabled(true);
