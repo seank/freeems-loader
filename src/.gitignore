@@ -1,4 +1,4 @@
-/FreeEMS_Loader
+/FreeEMS-Loader
 /FreeEMS_Loader.app/*
 /debug/*
 /release/*
@@ -11,3 +11,4 @@
 /*.out
 /moc*.cpp
 /ui_*.h
+/*.s19
