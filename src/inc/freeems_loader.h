@@ -106,7 +106,6 @@ void openFile();
 void connect();
 void rip();
 void eraseFlash();
-void test();
 void load();
 void writeText(string message);
 void updateProgress(int percent);

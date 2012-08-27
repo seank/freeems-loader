@@ -84,11 +84,11 @@ public:
 
 	void abortOperation();
 
-	void ripDevice();
+	int ripDevice();
 
 	void openTest(QString serPortName);
 
-	void loadDevice();
+	int  loadDevice();
 
 	void init();
 
@@ -98,7 +98,7 @@ public:
 
 	bool lineIsLoadable(string* line);
 
-	void setThreadAction(int action);
+	void setThreadAction(QString action);
 
 	void setRipFilename(QString name);
 
@@ -110,9 +110,9 @@ public:
 
 	int getDeviceByteCount();
 
-	void loadRecordSet();
+	int loadRecordSet();
 
-	void SMWriteByteBlock(unsigned int address, char* bytes, unsigned int numBytes);
+	int SMWriteByteBlock(unsigned int address, char* bytes, unsigned int numBytes);
 
 	//void SMSetLoadAddress(unsigned int address, unsigned int typeID, int numBytes);
 
@@ -245,15 +245,15 @@ public:
 	 */
 	std::string readStringUntil(const std::string& delim = "\n");
 
-	void erasePage(char PPage);
+	int erasePage(char PPage);
 
-	void eraseDevice();
+	int eraseDevice();
 
 	void setSM();
 
 	void setDataMode(QString& mode);
 
-	void setAction(int action);
+	void setAction(QString action);
 
 	bool isRecordSetLoaded();
 
@@ -271,6 +271,7 @@ public:
 	void udProgress(int percent);
 	void configureProgress(int min, int max);
 	void setGUI(int);
+
 
 private:
 	//FreeEMS_SerialPort *serPort;
@@ -291,19 +292,22 @@ private:
 	int s19SetTwoCount;
 	unsigned int lastLoadAddress;
 
-	void writeBlocks();
+	int writeBlocks();
 
 	QString ripFilename;
 	QString loadFilename;
 
 	int flashTypeIndex;
-	int threadAction;
 	bool fDeviceIsSet;
 	bool smIsReady;
 	bool flushMode;
 	bool _recordSetLoaded;
 	int _badCheckSums;
 	int _loadableRecords;
+
+	bool m_actionRip;
+	bool m_actionErase;
+	bool m_actionLoad;
 };
 
 #else

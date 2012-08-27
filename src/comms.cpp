@@ -37,41 +37,14 @@ FreeEMS_LoaderComms::FreeEMS_LoaderComms() :
 
 void FreeEMS_LoaderComms::openTest(QString serPortName) {
 	serPortName = serPortName;
-	//
-	//  TNX::CommTimeouts commTimeouts;
-	//  commTimeouts.PosixVMIN = 0;
-	//  commTimeouts.PosixVTIME = .2;
-	//  TNX::QSerialPort serPorttest(serPortName, "115200,8,n,1");
-	//  serPorttest.setPortName(serPortName);
-	//  serPorttest.open();
-	//  serPorttest.flushInBuffer();
-	//  serPorttest.setCommTimeouts(commTimeouts);
-	//  serPorttest.write(SMRDY, sizeof(SMRDY));
-	//Problem communicating with the device
-	//Comms: closing port
-	//  //TODO user return verify instead
-	//  QByteArray resp;
-	//
-	//  //resp = serPorttest.read(3);
-	//  QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
-	//  if(resp.contains(tester)){
-	//      WOInfo("Found String");
-	//  }else{
-	//  WOInfo("NONBOOST Serial Port Read/Write Complete: SM NOT FOUND");
-	//  }
-	//  //serPorttest.close();
-	//  //delete(serPort);
-	// error validating return from SMRequestByteBlock
 }
 
 void FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate) {
 	if (isOpen())
 		close();
-
 	serPort->openPort(serPortName);
 	serPort->setupPort(baud_rate, 8, "none", 1);
 	serPort->communicate();
-	//serPort->flushSerial(BOTH);
 }
 
 bool FreeEMS_LoaderComms::isReady() const {
@@ -90,11 +63,13 @@ void FreeEMS_LoaderComms::init() {
 	lastLoadAddress = 0;
 	clearSets();
 	s19SetOneCount = 0;
+	m_actionErase = false;
+	m_actionRip = false;
+	m_actionLoad = false;
 }
 
 void FreeEMS_LoaderComms::clearSets() {
 	unsigned int i;
-
 	for (i = 0; i < ONE_TWENTY_EIGHT_K_RECORDS; i++) {
 		s19SetOne[i].initVariables();
 		// s19SetTwo[i].initVariables();
@@ -109,15 +84,16 @@ void FreeEMS_LoaderComms::close() {
 	smIsReady = false;
 }
 
-void FreeEMS_LoaderComms::loadDevice() {
+int FreeEMS_LoaderComms::loadDevice() {
 	if(_recordSetLoaded) {
-		writeBlocks();
+		return writeBlocks();
 	} else {
 		emit displayMessage(MESSAGE_ERROR, "can't perform load, record set not yet loaded");
+		return -1;
 	}
 }
 
-void FreeEMS_LoaderComms::ripDevice() {
+int FreeEMS_LoaderComms::ripDevice() {
 	int i;
 	int totalBytes = 0;
 	int totalBytesTX = 0;
@@ -136,9 +112,6 @@ void FreeEMS_LoaderComms::ripDevice() {
 	FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
 	totalBytes = getDeviceByteCount();
 	emit configureProgress(0, totalBytes - 1);
-
-	//serPort->flushInBuffer();
-	//serPort->flushOutBuffer();
 
 	if (smIsReady) {
 		for (i = 0; i < numDataVectorTableEntries; i++) {
@@ -161,7 +134,10 @@ void FreeEMS_LoaderComms::ripDevice() {
 						pagedAddress = PPageIndex;
 						pagedAddress <<= 16;
 						pagedAddress += address;
-						SMReadByteBlock((unsigned short) address, bytesPerRecord, rxBuffer);
+						if (SMReadByteBlock((unsigned short) address, bytesPerRecord, rxBuffer) < 0) {
+							emit udProgress(0);
+							return -1;
+						}
 						s19Record->initVariables(); // clear record
 						s19Record->setTypeIndex(S2);
 						s19Record->setRecordAddress(pagedAddress);
@@ -183,6 +159,7 @@ void FreeEMS_LoaderComms::ripDevice() {
 	}
 	outFile.close();
 	delete s19Record;
+	return 1;
 }
 
 void FreeEMS_LoaderComms::setFlashType(const char *commonName) {
@@ -239,15 +216,6 @@ void FreeEMS_LoaderComms::write(const unsigned char *data, size_t size) {
 	//sleep(1);
 	serPort->writeData(data, size);
 }
-/*
- void
- FreeEMS_LoaderComms::write(const char *data)
- {
- //asio::write(port, asio::buffer(data, size));
- printf("about to write %x to the port /n",*data);
- serPort->write(data);
- }
- */
 
 void FreeEMS_LoaderComms::write(const std::vector<unsigned char>& data) {
 	unsigned int i;
@@ -275,45 +243,15 @@ void FreeEMS_LoaderComms::read(unsigned char* data, size_t size) {
 	}
 }
 
-//TODO add parity "double read" option
-/*
- void
- FreeEMS_LoaderComms::read(unsigned char *data, size_t size)
- {
- //if(serPort->waitForReadyRead(5000)){// for testing
- serPort->read(data, size);
- //}
- }
- */
-
 std::vector<unsigned char> FreeEMS_LoaderComms::read(size_t size) {
 	vector<unsigned char> result(size, '\0'); //Allocate a vector with the desired size
 	read(&result[0], size); //Fill it with values
 	return result;
 }
 
-//std::string FreeEMS_LoaderComms::readString(size_t size) {
-//	string result(size, '\0'); //Allocate a string with the desired size
-//	read(&result[0], size); //Fill it with values
-//	return result;
-//}
-
 FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
-
+	//TODO populate with proper code
 }
-
-/*
- void //TODO reimpliment
- FreeEMS_LoaderComms::timeoutExpired(const boost::system::error_code& error)
- {
- if (result != resultInProgress)
- return;
- if (error != asio::error::operation_aborted)
- {
- result = resultTimeoutExpired;
- }
- }
- */
 
 void FreeEMS_LoaderComms::returnFlashType(unsigned char *responce) {
 	unsigned char getIDCommand = 0xB7;
@@ -337,7 +275,6 @@ int FreeEMS_LoaderComms::verifyReturn(SM_COMMAND_TYPE type) { //TODO this should
 				qDebug("smVerify good");
 				return 1;
 			}
-			//emit setGUI(STATE_ERROR);
 			emit displayMessage(MESSAGE_ERROR, "unable to verify serial monitor return code");
 			return -1;
 		break;
@@ -346,7 +283,6 @@ int FreeEMS_LoaderComms::verifyReturn(SM_COMMAND_TYPE type) { //TODO this should
 				qDebug("need to read two bytes");
 				read(response, 2);
 				if(response[1] != 0x3e){
-					//emit setGUI(STATE_ERROR);
 					emit displayMessage(MESSAGE_ERROR, "unable to verify serial monitor presence");
 					return -1;
 				} else {
@@ -359,12 +295,12 @@ int FreeEMS_LoaderComms::verifyReturn(SM_COMMAND_TYPE type) { //TODO this should
 					return 1;
 				}
 			}
-			emit displayMessage(MESSAGE_ERROR, "read unknown value from serial port while trying to verify");
+			emit displayMessage(MESSAGE_ERROR, "Data read, but it was not a serial monitor ACK");
 			qDebug("code %x read %x %x %x", code, response[0], response[1], response[2]);
 			return -1;
 		break;
 	}
-	qDebug("error verrifying return");
+	qDebug("error verifying return");
 	return -1;
 }
 
@@ -379,22 +315,25 @@ int FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, unsigned int plus
 	write(&bytesRequested, 1);
 	buffer = read(plusBytes);
 	if (verifyReturn(GENERIC) < 0){ // you must always verify a return to "clear" the buffer
-		emit displayMessage(MESSAGE_ERROR, "error validating return from SMRequestByteBlock");
+		emit displayMessage(MESSAGE_ERROR, "Error validating ACK from SMReadByteBlock");
 		return -1;
-		//cout << "error validating return from SMRequestByteBlock";
 	}
 	vec = buffer;
 	return 1;
 }
 
-void FreeEMS_LoaderComms::erasePage(char PPage) {
+int FreeEMS_LoaderComms::erasePage(char PPage) {
 	SMSetPPage(PPage);
 	write(&SMErasePage, 1);
-	if (verifyReturn(GENERIC) < 0)
-		cout << "Error validating SMErasePage confirmation" << endl;
+	if (verifyReturn(GENERIC) < 0) {
+		emit displayMessage(MESSAGE_ERROR, "Error validating SMErasePage confirmation");
+		emit udProgress(0);
+		return -1;
+	}
+	return 1;
 }
 
-void FreeEMS_LoaderComms::eraseDevice() {
+int FreeEMS_LoaderComms::eraseDevice() {
 	//serPort->flushInBuffer();
 	int i;
 	int nPages;
@@ -410,18 +349,28 @@ void FreeEMS_LoaderComms::eraseDevice() {
 				configureProgress((unsigned char) dataVectorTable[i].startPage,
 						(unsigned char) dataVectorTable[i].stopPage);
 				for (PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--) {
-					erasePage(PPageIndex); // TODO put signal here
+					if ( erasePage(PPageIndex) < 0 ) {
+						emit displayMessage(MESSAGE_ERROR, "Problem erasing device");
+						emit udProgress(0);
+						return -1;
+					}
 					emit udProgress((unsigned char) PPageIndex);
 				}
 			}
 		}
 	} else {
-		cout << "error SM not ready";
+		emit displayMessage(MESSAGE_ERROR, "Serial monitor not ready");
 	}
+	return 1;
 }
 
-void FreeEMS_LoaderComms::setThreadAction(int action) {
-	threadAction = action;
+void FreeEMS_LoaderComms::setThreadAction(QString action) {
+	if (action.compare("ERASE"))
+		m_actionErase = true;
+	if (action.compare("RIP"))
+		m_actionRip = true;
+	if (action.compare("LOAD"))
+		m_actionLoad = true;
 }
 
 void FreeEMS_LoaderComms::setRipFilename(QString name) {
@@ -478,18 +427,22 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 	return true;
 }
 
-void FreeEMS_LoaderComms::loadRecordSet() {
+int FreeEMS_LoaderComms::loadRecordSet() {
 	int i;
 	emit configureProgress(0, s19SetOneCount - 1);
 	for (i = 0; i < s19SetOneCount; i++) {
-		SMWriteByteBlock(s19SetOne[i].payloadAddress, s19SetOne[i].recordBytes, s19SetOne[i].recordPayloadBytes);
+		if (SMWriteByteBlock(s19SetOne[i].payloadAddress, s19SetOne[i].recordBytes, s19SetOne[i].recordPayloadBytes) < 0) {
+			emit displayMessage(MESSAGE_ERROR, "Unable to load record set");
+			emit udProgress(0);
+			return -1;
+		}
 		emit udProgress(i);
 
 	}
-	return;
+	return 1;
 }
 
-void FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bufPtr, unsigned int numBytes) {
+int FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bufPtr, unsigned int numBytes) {
 	int typeID = S2; //TODO get from s19
 	unsigned int Ppage;
 	unsigned int i;
@@ -522,106 +475,72 @@ void FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bufPtr, u
 		write((unsigned char*)bufPtr, numBytes);
 		if (verifyACKs == true) {
 			if (verifyReturn(GENERIC) < 0) {
-				emit displayMessage(MESSAGE_INFO, "Error, did not receive ACK after writing a block");
-				return;
+				emit displayMessage(MESSAGE_INFO, "Error did not receive ACK after writing a block");
+				return -1;
 			}
 		}
 		if (verifyLastWrite == true) {
 			SMReadByteBlock(address, numBytes, readString);
 			if (verifyString != readString) {
 				emit displayMessage(MESSAGE_INFO, "Error validating sector at TODO implement retry");
+				return -1;
 			}
 		}
 		break;
 	default:
-		cout << "Cannot get byte count, no device set";
+		emit displayMessage(MESSAGE_INFO, "Error device type not set");
 		break;
 	}
+	return 1;
 }
 
 void FreeEMS_LoaderComms::flushRXStream() {
 	//check for open port TODO maybe call other flush function
 	qDebug("flushRXStream called todo repimpiment");
-//	flushMode = true;
-//	char c;
-//	unsigned int bytes;
-///	for (bytes = 0; flushMode == true; bytes++) {
-//		read(&c, 1);
-//		if (bytes > 4096) {
-//			emit displayMessage(MESSAGE_INFO,
-//					"it seems there is a stream of data coming in the serial port, is the firmware running ?");
-//			return;
-//		}
-//	}
 }
 
-void FreeEMS_LoaderComms::setAction(int action) {
-	threadAction = action;
+void FreeEMS_LoaderComms::setAction(QString action) {
+	if (action.contains("RIP"))
+		m_actionRip = true;
+	if (action.contains("ERASE"))
+		m_actionErase = true;
+	if (action.contains("LOAD"))
+		m_actionLoad = true;
 }
 
 void FreeEMS_LoaderComms::run() {
-	switch (threadAction) {
-	case EXECUTE_RIP_ERASE_LOAD:
-		emit setGUI(STATE_WORKING);
-		emit displayMessage(MESSAGE_INFO, "Executing rip, erase and load");
+	emit setGUI(STATE_WORKING);
+	if (m_actionRip) {
 		emit displayMessage(MESSAGE_INFO, "Ripping...");
-		ripDevice();
-		emit displayMessage(MESSAGE_INFO, "Erasing...");
-		eraseDevice();
-		emit displayMessage(MESSAGE_INFO, "Loading...");
-		loadDevice();
-		emit displayMessage(MESSAGE_INFO, "DONE!");
-		emit setGUI(STATE_CONNECTED);
-		break;
-	case EXECUTE_LOAD:
-		emit setGUI(STATE_WORKING);
-		emit displayMessage(MESSAGE_INFO, "Erasing...");
-		eraseDevice();
-		emit displayMessage(MESSAGE_INFO, "Executing load");
-		loadDevice();
-		emit displayMessage(MESSAGE_INFO, "DONE!");
-		emit setGUI(STATE_CONNECTED);
-		break;
-	case EXECUTE_ERASE:
-		emit setGUI(STATE_WORKING);
-		emit displayMessage(MESSAGE_INFO, "Executing erase");
-		eraseDevice();
-		emit setGUI(STATE_CONNECTED);
-		break;
-	case EXECUTE_RIP:
-		emit setGUI(STATE_WORKING);
-		emit displayMessage(MESSAGE_INFO, "Executing rip");
-		ripDevice();
-		emit setGUI(STATE_CONNECTED);
-		break;
-	case TEST:
-		emit displayMessage(MESSAGE_INFO, "Executing Test");
-		test();
-		break;
-	//case NONE:
-	default:
-		emit displayMessage(MESSAGE_INFO, "Action for thread not set!");
-		break;
-//	default:
-//		break;
-	}
-}
-
-void FreeEMS_LoaderComms::test() {
-	unsigned long i;
-	if (isReady()) {
-		for (i = 0;; i++) {
-			write(&SMReturn, 1);
-			if (!verifyReturn(GENERIC) > 0) {
-				break;
-			}
-			//			WOInfo("Wrote one byte and read three");
+		if (ripDevice() < 0) {
+			emit displayMessage(MESSAGE_ERROR, "Failed To Rip");
+			emit setGUI(STATE_NOT_CONNECTED);
+			return;
+		} else {
+			emit displayMessage(MESSAGE_INFO, "Rip Successful!");
 		}
-		//		WOInfo("Serial stress test failed see cli for iteration number");
-		cout << i << endl;
-	} else {
-		//		WOInfo("Error: SM NOT READY");
 	}
+	if (m_actionErase) {
+		emit displayMessage(MESSAGE_INFO, "Erasing...");
+		if (eraseDevice() < 0) {
+			emit displayMessage(MESSAGE_ERROR, "Failed To Erase");
+			emit setGUI(STATE_NOT_CONNECTED);
+			return;
+		} else {
+			emit displayMessage(MESSAGE_INFO, "Erase Successful!");
+		}
+	}
+	if (m_actionLoad) {
+		emit displayMessage(MESSAGE_INFO, "Loading...");
+		if (loadDevice() < 0) {
+			emit displayMessage(MESSAGE_INFO, "Failed To Load");
+			emit setGUI(STATE_NOT_CONNECTED);
+			return;
+		} else {
+			emit displayMessage(MESSAGE_INFO, "Load Successful!");
+		}
+	}
+	emit setGUI(STATE_CONNECTED);
 }
 
 void FreeEMS_LoaderComms::abortOperation() {
@@ -637,15 +556,12 @@ void FreeEMS_LoaderComms::parseFile() {
 	int linesRead = 0;
 	vector < string > lineArray;
 	string line;
-	//int i;
 	ifstream ifs(loadFilename.toAscii());
 	if (ifs.fail()) {
-		//cout << "error opening load file";
-		emit displayMessage(MESSAGE_ERROR, "error opening file");
+		emit displayMessage(MESSAGE_ERROR, "Error opening file");
 		return;
 	}
 	while (getline(ifs, line)) {
-		//i = 0;
 		lineArray.push_back(line);
 		linesRead++;
 	}
@@ -653,9 +569,8 @@ void FreeEMS_LoaderComms::parseFile() {
 	generateRecords(lineArray);
 }
 
-void FreeEMS_LoaderComms::writeBlocks() {
-	loadRecordSet();
-	return;
+int FreeEMS_LoaderComms::writeBlocks() {
+	return loadRecordSet();
 }
 
 bool FreeEMS_LoaderComms::isRecordSetLoaded() {
@@ -676,3 +591,4 @@ int FreeEMS_LoaderComms::numBadSums() {
 void FreeEMS_LoaderComms::setDataMode(QString& mode) {
 	serPort->setMode(mode);
 }
+

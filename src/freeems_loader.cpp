@@ -47,7 +47,6 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	loadFileName.clear();
 
 	QObject::connect(loaderComms, SIGNAL( displayMessage(MESSAGE_TYPE, QString) ), this, SLOT( displayMessage(MESSAGE_TYPE, QString) ));
-	//QObject::connect(loaderComms->s19SetOne, SIGNAL( displayMessage(MESSAGE_TYPE, QString) ), this, SLOT( displayMessage(MESSAGE_TYPE, QString) ));
 	QObject::connect(loaderComms, SIGNAL( setGUI(int) ), this, SLOT( changeGUIState(int) ));
 	QObject::connect(loaderComms, SIGNAL( udProgress(int) ), this, SLOT( updateProgress(int) ));
 	QObject::connect(loaderComms, SIGNAL( configureProgress(int, int) ), this, SLOT( configureProgress(int, int) ));
@@ -320,7 +319,6 @@ void FreeEMS_Loader::connect() {
 		}
 	} else {
 		loaderComms->resetSM();
-		//sleep(1); // POSIX only TODO
 		loaderComms->close();
 		loaderComms->isReady() ? changeGUIState(STATE_CONNECTED) : changeGUIState(STATE_NOT_CONNECTED);
 	}
@@ -334,7 +332,7 @@ void FreeEMS_Loader::rip() {
 		return;
 	}
 	loaderComms->setRipFilename(ripFileName);
-	loaderComms->setAction(EXECUTE_RIP);
+	loaderComms->setAction("RIP");
 	loaderComms->start();
 }
 
@@ -364,6 +362,7 @@ void FreeEMS_Loader::changeGUIState(int state) {
 void FreeEMS_Loader::updateGUIState() {
 	switch (_loaderState) {
 	case STATE_NOT_CONNECTED:
+		loaderComms->close();
 		ui.pushLoad->setEnabled(false);
 		ui.pushRip->setEnabled(false);
 		ui.pushConnect->setText("Connect");
@@ -394,9 +393,8 @@ void FreeEMS_Loader::updateGUIState() {
 		break;
 	case STATE_ERROR:
 		displayMessage(MESSAGE_ERROR,"Problem communicating with the device, aborting");
-		updateProgress(0);
-		loaderComms->terminate();
-		loaderComms->close();
+		//loaderComms->terminate(); FreeEMS_LoaderComms::commsThreadTermination()
+		//loaderComms->close();
 		ui.pushLoad->setEnabled(false);
 		ui.pushRip->setEnabled(false);
 		ui.pushConnect->setText("Connect");
@@ -408,43 +406,11 @@ void FreeEMS_Loader::updateGUIState() {
 	}
 }
 
-void FreeEMS_Loader::test() {
-	loaderComms->setAction(TEST);
-	loaderComms->start();
-	/*
-	 unsigned long i;
-	 if(loaderComms->isReady()){
-	 for(i = 0;  ; i++){
-	 loaderComms->write(&SMReturn, 1);
-	 if(!loaderComms->verifyReturn() > 0){
-	 break;
-	 }
-	 writeText("Wrote one byte and read three");
-	 }
-	 writeText("Serial stress test failed see cli for iteration number");
-	 cout<<i<<endl;
-	 }else {
-	 writeText("Error: SM NOT READY");
-	 }
-	 */
-
-	//serialConnection->setSM();
-	//FreeEMS_LoaderThreads test(serialConnection, EXECUTE_ERASE);
-	//test.run(serialConnection);
-	//test.start();
-	//heapThreads->start();
-	//heapThreads->wait();
-	//test.wait();
-	//serialConnection->setLoadFilename();
-	//  string test = "Yo MOFO you ready to get loaded or what?";
-	//  writeText(test);
-}
-
 void FreeEMS_Loader::eraseFlash() {
 	QSettings settings("FreeEMS", "Loader"); //TODO this should be done will a call back to be proper
 	_numBurnsPerformed++;
 	settings.setValue("numBurnsPerformed", _numBurnsPerformed);
-	loaderComms->setAction(EXECUTE_ERASE);
+	loaderComms->setAction("ERASE");
 	loaderComms->start();
 }
 
@@ -489,14 +455,14 @@ void FreeEMS_Loader::load() {
 	loaderComms->setLoadFilename(loadFileName);
 	loaderComms->setRipFilename(ripFileName);
 	if (ui.chkRip->isChecked()) {
-		loaderComms->setAction(EXECUTE_RIP_ERASE_LOAD);
+		loaderComms->setAction("RIP_ERASE_LOAD");
 		loaderComms->start();
 	} else {
-		loaderComms->setAction(EXECUTE_LOAD);
+
+		loaderComms->setAction("ERASE_LOAD");
 		loaderComms->start();
 	}
 	settings.setValue("lastDirectory", loadDirectory);
-	//serialConnection->loadDevice(); // calls load without a seperate thread
 }
 
 void FreeEMS_Loader::writeText(string message) {
