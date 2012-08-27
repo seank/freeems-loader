@@ -61,9 +61,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	ui.comboParity->setCurrentIndex((settings.value("parity").toUInt()));
 	ui.chkRip->setChecked(settings.value("chkRip").toBool());
 	ui.chkVerify->setChecked(settings.value("chkVerify").toBool());
-	//loadFileName = settings.value("lastFileName").toString();
-	loadDirectory = settings.value("lastDirectory").toString();
-	loadRipDirectory = settings.value("lastRipDirectory").toString();
+
 	_numBurnsPerformed = settings.value("numBurnsPerformed").toInt();
 
 	QString loadsNum;
@@ -141,7 +139,6 @@ FreeEMS_Loader::~FreeEMS_Loader() {
 	settings.setValue("dataBits", ui.comboDataBits->currentIndex());
 	settings.setValue("chkRip", ui.chkRip->isChecked());
 	settings.setValue("chkVerify", ui.chkVerify->isChecked());
-	settings.setValue("lastFileName", loadFileName);
 	settings.setValue("lastRipFileName", ripFileName);
 	settings.setValue("numBurnsPerformed", _numBurnsPerformed);
 }
@@ -325,12 +322,16 @@ void FreeEMS_Loader::connect() {
 }
 
 void FreeEMS_Loader::rip() {
+	QSettings settings("FreeEMS", "Loader");
+
+	loadRipDirectory = settings.value("lastRipDirectory").toString();
 	ui.chkRip->setEnabled(0);
 	ripFileName = QFileDialog::getSaveFileName(this, tr("Save s19 as"), loadRipDirectory, tr("s19 (*.s19)"));
 	if (ripFileName.isNull()) {
 		displayMessage(MESSAGE_INFO, "no rip file name specified");
 		return;
 	}
+	settings.setValue("lastRipDirectory", ripFileName);
 	loaderComms->setRipFilename(ripFileName);
 	loaderComms->setAction("RIP");
 	loaderComms->start();
@@ -439,7 +440,7 @@ void FreeEMS_Loader::load() {
 		loaderComms->verifyLastWrite = false; //todo make set function
 		loaderComms->verifyACKs = true; //todo make settable
 	}
-	loadDirectory = loadFileName;
+
 	QString name = loadFileName.section('/', -1);
 	ripFileName = QDir::currentPath();
 	ripFileName += "/saved/";
@@ -462,7 +463,6 @@ void FreeEMS_Loader::load() {
 		loaderComms->setAction("ERASE_LOAD");
 		loaderComms->start();
 	}
-	settings.setValue("lastDirectory", loadDirectory);
 }
 
 void FreeEMS_Loader::writeText(string message) {
@@ -517,6 +517,9 @@ void FreeEMS_Loader::displayMessage(MESSAGE_TYPE type, QString message) {
 void FreeEMS_Loader::openFile() {
 //	QDate date = QDate::currentDate();
 //	QTime time = QTime::currentTime();
+	QSettings settings("FreeEMS", "Loader");
+	loadDirectory = settings.value("lastDirectory").toString();
+
 	QFileDialog fileDialog;
 	fileDialog.setViewMode(QFileDialog::Detail);
 	QString qSNum;
@@ -526,10 +529,11 @@ void FreeEMS_Loader::openFile() {
 		displayMessage(MESSAGE_ERROR, "no file selected");
 		return;
 	} else{
+		settings.setValue("lastDirectory", loadFileName);
 		loaderComms->setLoadFilename(loadFileName);
 		loaderComms->parseFile();
 		if(loaderComms->numLoadableRecords() == 0){
-			displayMessage(MESSAGE_ERROR, "no loadable records parsed");
+			displayMessage(MESSAGE_ERROR, "no load-able records parsed");
 			return;
 		}else if(loaderComms->numBadSums()){
 			displayMessage(MESSAGE_ERROR, "there are " + qSNum.setNum(loaderComms->numBadSums(), 10) + " records with bad checksums");
