@@ -281,47 +281,61 @@ void FreeEMS_Loader::fillParity() {
 
 //TODO combine setGUIState code into this function
 void FreeEMS_Loader::connect() {
-	QString portName = ui.comboDevice->currentText();
-	QFile file;
-	file.setFileName(ui.comboDevice->currentText());
-	bool fileIsOpen = 0;
-	if (_loaderState == STATE_WORKING) {
-		loaderComms->terminate(); //TODO terminate should be used with caution review the pitfalls
-		while(loaderComms->isRunning());
-		//TODO echo aborted at X %
-		displayMessage(MESSAGE_INFO, "Aborting as requested");
-		changeGUIState(STATE_CONNECTED);
+	loaderComms->setupPort(ui.comboDevice->currentText(),
+			ui.comboBaud->currentText().toUInt());
+	if (_loaderState == STATE_CONNECTED) {
+		loaderComms->setAction("DISCONNECT");
+	} else if (_loaderState == STATE_NOT_CONNECTED) {
+		loaderComms->setAction("CONNECT");
+	} else if (_loaderState == STATE_WORKING) {
+		displayMessage(MESSAGE_ERROR, "Sorry for the inconvenience, but Abort needs to be reimplemented");
+		//loaderComms->terminate(); //TODO gracefully shutdown
 		return;
 	}
-	if (!loaderComms->isReady()) {
-		//setFlashType();
-		//serialConnection->close();
-		fileIsOpen = file.open(QIODevice::ReadWrite); //TODO further try to detect the problem
-		file.close();
-#ifdef __WIN32__
-		fileIsOpen = true; /* TODO fix always set OK for windows, for now */
-#endif
-		if (fileIsOpen) {
-			//TODO add code to check for packets here, before going into RAM mode for SM
-			QString mode =  "RAW";
-			loaderComms->setDataMode(mode);
-			loaderComms->open(portName, ui.comboBaud->currentText().toUInt());
-			//sleep(1); // POSIX ONLY TODO port takes a second to init after the open function
-			loaderComms->setSM();
-			loaderComms->setFlashType(defFlashType);
-			if (loaderComms->isReady() == true) {
-				changeGUIState(STATE_CONNECTED);
-			} else {
-				loaderComms->close();
-			}
-		} else {
-			displayMessage(MESSAGE_INFO, "Unable to open port " + ui.comboDevice->currentText());
-		}
-	} else {
-		loaderComms->resetSM();
-		loaderComms->close();
-		loaderComms->isReady() ? changeGUIState(STATE_CONNECTED) : changeGUIState(STATE_NOT_CONNECTED);
-	}
+	loaderComms->start();
+//	QString mode =  "RAW";
+	//			loaderComms->setDataMode(mode);
+//	QString portName = ui.comboDevice->currentText();
+//	QFile file;
+//	file.setFileName(ui.comboDevice->currentText());
+//	bool fileIsOpen = 0;
+//	if (_loaderState == STATE_WORKING) {
+//		loaderComms->terminate(); //TODO terminate should be used with caution review the pitfalls
+//		while(loaderComms->isRunning());
+//		//TODO echo aborted at X %
+//		displayMessage(MESSAGE_INFO, "Aborting as requested");
+//		changeGUIState(STATE_CONNECTED);
+//		return;
+//	}
+//	if (!loaderComms->isReady()) {
+//		//setFlashType();
+//		//serialConnection->close();
+//		fileIsOpen = file.open(QIODevice::ReadWrite); //TODO further try to detect the problem
+//		file.close();
+//#ifdef __WIN32__
+//		fileIsOpen = true; /* TODO fix always set OK for windows, for now */
+//#endif
+//		if (fileIsOpen) {
+//			//TODO add code to check for packets here, before going into RAM mode for SM
+//			QString mode =  "RAW";
+//			loaderComms->setDataMode(mode);
+//			loaderComms->open(portName, ui.comboBaud->currentText().toUInt());
+//			//sleep(1); // POSIX ONLY TODO port takes a second to init after the open function
+//			loaderComms->setSM();
+//			loaderComms->setFlashType(defFlashType);
+//			if (loaderComms->isReady() == true) {
+//				changeGUIState(STATE_CONNECTED);
+//			} else {
+//				loaderComms->close();
+//			}
+//		} else {
+//			displayMessage(MESSAGE_INFO, "Unable to open port " + ui.comboDevice->currentText());
+//		}
+//	} else {
+//		loaderComms->resetSM();
+//		loaderComms->close();
+//		loaderComms->isReady() ? changeGUIState(STATE_CONNECTED) : changeGUIState(STATE_NOT_CONNECTED);
+//	}
 }
 
 void FreeEMS_Loader::rip() {
@@ -354,6 +368,7 @@ void FreeEMS_Loader::initGUI() {
 	ui.progressBar->setValue(0);
 	ui.radioRX->setEnabled(false);
 	ui.radioTX->setEnabled(false);
+	_fileLoaded = false;
 	//	ui.radFlashType->setChecked(1);
 	//	ui.radFlashType->setDisabled(1);
 }
@@ -377,14 +392,14 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.pushOpenFile->setEnabled(true);
 		break;
 	case STATE_CONNECTED:
-		//ui.pushLoad->setEnabled(1);
 		ui.progressBar->setValue(0);
 		ui.pushRip->setEnabled(true);
 		ui.pushConnect->setText("Close/Rst");
 		ui.pushErase->setEnabled(true);
 		ui.chkRip->setEnabled(true);
-		ui.chkRip->setEnabled(true);
+		ui.chkVerify->setEnabled(true);
 		ui.pushLoad->setEnabled(true);
+		ui.pushOpenFile->setEnabled(true);
 		if(_fileLoaded)
 			ui.pushLoad->setEnabled(true);
 		break;
@@ -399,13 +414,12 @@ void FreeEMS_Loader::updateGUIState() {
 		break;
 	case STATE_ERROR:
 		displayMessage(MESSAGE_ERROR,"Problem communicating with the device, aborting");
-		//loaderComms->terminate(); FreeEMS_LoaderComms::commsThreadTermination()
-		//loaderComms->close();
 		ui.pushLoad->setEnabled(false);
 		ui.pushRip->setEnabled(false);
 		ui.pushConnect->setText("Connect");
 		ui.pushErase->setEnabled(false);
 		ui.pushLoad->setEnabled(true);
+		ui.pushOpenFile->setEnabled(true);
 		break;
 	default:
 		break;
@@ -435,7 +449,7 @@ void FreeEMS_Loader::load() {
 //		loadFileName = fileDialog.getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
 //	}
 	if (!_fileLoaded) {
-		writeText("s19 records have not been loaded");
+		displayMessage(MESSAGE_INFO, "s19 records have not been loaded");
 		return;
 	}
 	if (ui.chkVerify->isChecked()) {
@@ -461,11 +475,13 @@ void FreeEMS_Loader::load() {
 	loaderComms->setLoadFilename(loadFileName);
 	loaderComms->setRipFilename(ripFileName);
 	if (ui.chkRip->isChecked()) {
-		loaderComms->setAction("RIP_ERASE_LOAD");
+		loaderComms->setAction("RIP");
+		loaderComms->setAction("ERASE");
+		loaderComms->setAction("LOAD");
 		loaderComms->start();
 	} else {
-
-		loaderComms->setAction("ERASE_LOAD");
+		loaderComms->setAction("ERASE");
+		loaderComms->setAction("LOAD");
 		loaderComms->start();
 	}
 }

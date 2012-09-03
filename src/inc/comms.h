@@ -35,11 +35,9 @@
 #include <QThread>
 #include <QObject>
 #include <QDebug>
-//#include <QMutex>
-//##include "inc/serialPort.h"
+#include <QFile>
 #include "SerialIO.h"
 #include "inc/sRecord.h"
-//#include "inc/loaderTypes.h"
 
 #include <QObject>
 
@@ -98,7 +96,7 @@ public:
 
 	bool lineIsLoadable(string* line);
 
-	void setThreadAction(QString action);
+//	void setThreadAction(QString action);
 
 	void setRipFilename(QString name);
 
@@ -259,6 +257,12 @@ public:
 
 	int numLoadableRecords();
 
+	void connect();
+
+	void disConnect();
+
+	void setupPort(QString portName, unsigned int baud);
+
 	void run();
 
 	bool verifyLastWrite;
@@ -296,6 +300,8 @@ private:
 
 	QString ripFilename;
 	QString loadFilename;
+	QString m_portName;
+	unsigned int  m_portBaud;
 
 	int flashTypeIndex;
 	bool fDeviceIsSet;
@@ -308,6 +314,8 @@ private:
 	bool m_actionRip;
 	bool m_actionErase;
 	bool m_actionLoad;
+	bool m_actionConnect;
+	bool m_actionDisConnect;
 };
 
 #else

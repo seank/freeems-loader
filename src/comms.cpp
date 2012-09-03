@@ -63,9 +63,12 @@ void FreeEMS_LoaderComms::init() {
 	lastLoadAddress = 0;
 	clearSets();
 	s19SetOneCount = 0;
+
 	m_actionErase = false;
 	m_actionRip = false;
 	m_actionLoad = false;
+	m_actionConnect = false;
+	m_actionDisConnect = false;
 }
 
 void FreeEMS_LoaderComms::clearSets() {
@@ -195,6 +198,11 @@ void FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size) {
 
 void FreeEMS_LoaderComms::resetSM() {
 	write(&SMReset, 1);
+	if (verifyReturn(GENERIC)) {
+		emit displayMessage(MESSAGE_INFO, "SM Reset ACK received");
+	} else {
+		emit displayMessage(MESSAGE_ERROR, "SM Reset ACK not received, TODO check for packets");
+	}
 	return;
 }
 
@@ -364,15 +372,6 @@ int FreeEMS_LoaderComms::eraseDevice() {
 	return 1;
 }
 
-void FreeEMS_LoaderComms::setThreadAction(QString action) {
-	if (action.compare("ERASE"))
-		m_actionErase = true;
-	if (action.compare("RIP"))
-		m_actionRip = true;
-	if (action.compare("LOAD"))
-		m_actionLoad = true;
-}
-
 void FreeEMS_LoaderComms::setRipFilename(QString name) {
 	ripFilename = name;
 }
@@ -495,22 +494,33 @@ int FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bufPtr, un
 }
 
 void FreeEMS_LoaderComms::flushRXStream() {
-	//check for open port TODO maybe call other flush function
 	qDebug("flushRXStream called todo repimpiment");
 }
 
 void FreeEMS_LoaderComms::setAction(QString action) {
-	if (action.contains("RIP"))
+	if (action == "CONNECT")
+		m_actionConnect = true;
+	if (action == "RIP")
 		m_actionRip = true;
-	if (action.contains("ERASE"))
+	if (action == "ERASE")
 		m_actionErase = true;
-	if (action.contains("LOAD"))
+	if (action == "LOAD")
 		m_actionLoad = true;
+	if (action == "DISCONNECT")
+		m_actionDisConnect = true;
 }
 
 void FreeEMS_LoaderComms::run() {
-	emit setGUI(STATE_WORKING);
+	if (m_actionConnect) {
+		emit setGUI(STATE_WORKING);
+		m_actionConnect = false;
+		connect();
+		if (!isReady())
+			return;
+	}
 	if (m_actionRip) {
+		emit setGUI(STATE_WORKING);
+		m_actionRip = false;
 		emit displayMessage(MESSAGE_INFO, "Ripping...");
 		if (ripDevice() < 0) {
 			emit displayMessage(MESSAGE_ERROR, "Failed To Rip");
@@ -518,9 +528,12 @@ void FreeEMS_LoaderComms::run() {
 			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Rip Successful!");
+			emit setGUI(STATE_CONNECTED);
 		}
 	}
 	if (m_actionErase) {
+		emit setGUI(STATE_WORKING);
+		m_actionErase = false;
 		emit displayMessage(MESSAGE_INFO, "Erasing...");
 		if (eraseDevice() < 0) {
 			emit displayMessage(MESSAGE_ERROR, "Failed To Erase");
@@ -528,9 +541,12 @@ void FreeEMS_LoaderComms::run() {
 			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Erase Successful!");
+			emit setGUI(STATE_CONNECTED);
 		}
 	}
 	if (m_actionLoad) {
+		emit setGUI(STATE_WORKING);
+		m_actionLoad = false;
 		emit displayMessage(MESSAGE_INFO, "Loading...");
 		if (loadDevice() < 0) {
 			emit displayMessage(MESSAGE_INFO, "Failed To Load");
@@ -538,9 +554,13 @@ void FreeEMS_LoaderComms::run() {
 			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Load Successful!");
+			emit setGUI(STATE_CONNECTED);
 		}
 	}
-	emit setGUI(STATE_CONNECTED);
+	if (m_actionDisConnect) {
+			m_actionDisConnect = false;
+			disConnect();
+		}
 }
 
 void FreeEMS_LoaderComms::abortOperation() {
@@ -592,3 +612,56 @@ void FreeEMS_LoaderComms::setDataMode(QString& mode) {
 	serPort->setMode(mode);
 }
 
+void FreeEMS_LoaderComms::connect() {
+	QFile file;
+	file.setFileName(m_portName);
+	bool fileIsOpen = 0;
+	if (!isReady()) {
+		//setFlashType();
+		fileIsOpen = file.open(QIODevice::ReadWrite); //TODO further try to detect the problem
+		file.close();
+#ifdef __WIN32__
+		fileIsOpen = true; /* TODO fix always set OK for windows, for now */
+#endif
+		if (fileIsOpen) {
+			//TODO add code to check for packets here, before going into RAM mode for SM
+			QString mode = "RAW";
+			setDataMode(mode);
+			open(m_portName, m_portBaud);
+			setSM();
+			setFlashType(defFlashType);
+			if (!isReady()) {
+				emit displayMessage(MESSAGE_INFO, "Unable to summon SerialMonitor");
+				emit setGUI(STATE_NOT_CONNECTED);
+				close();
+			} else {
+				emit setGUI(STATE_CONNECTED);
+			}
+		} else {
+			emit displayMessage(MESSAGE_INFO, "Unable to open port " + m_portName);
+			emit setGUI(STATE_NOT_CONNECTED);
+		}
+	} else {
+		emit displayMessage(MESSAGE_INFO, "Already connected");
+		//TODO maybe flush buffer?
+		emit setGUI(STATE_CONNECTED);
+	}
+}
+
+void FreeEMS_LoaderComms::disConnect() {
+	if (!isReady()) {
+		emit displayMessage(MESSAGE_INFO, "Already disconnected");
+		emit setGUI(STATE_NOT_CONNECTED);
+	} else {
+		emit displayMessage(MESSAGE_INFO, "Requesting CPU reset then disconnecting");
+		resetSM();
+		close();
+		emit setGUI(STATE_NOT_CONNECTED);
+	}
+}
+
+void FreeEMS_LoaderComms::setupPort(QString portName, unsigned int baud) {
+	m_portName = portName;
+	m_portBaud = baud;
+	//TODO finish other stuff
+}
