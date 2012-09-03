@@ -204,6 +204,11 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 	if (*lineIn->c_str() == 'S') //start of record
 	{
 		switch (type) {
+		case '0': //vendor specific data
+			setTypeIndex(S0);
+			memcpy(recordTypeIdChars, lineIn->c_str(), TWO_BYTES);
+			memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
+			//TODO finish
 		case '1':
 			break;
 		case '2': //Record is S2

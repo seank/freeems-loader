@@ -76,6 +76,7 @@ public:
 	bool createFromString(string* lineIn);
 	std::string
 	retRecordString();
+	QString getAllVendorData();
 
 	/*
 	 These characters when paired and interpreted as a hexadecimal value display
