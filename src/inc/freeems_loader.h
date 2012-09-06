@@ -51,6 +51,10 @@
 #include <vector>
 #include <string>
 
+//Emulate a forward declaration for using external Vars in code
+#define fwdDeclare_p(x) #x
+#define fwdDeclare(x) fwdDeclare_p(x)
+
 using namespace std;
 
 class FreeEMS_Loader: public QWidget {

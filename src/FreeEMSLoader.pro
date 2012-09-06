@@ -82,12 +82,14 @@ linux-g++ {
     message("Straight Linux Build")
     unix:INCLUDEPATH += $$quote(/usr/local/include/)
     unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so)
+    DEFINES += GIT_HASH=$$system(git log -n 1 --pretty=format:%H)
 }
 
 # Native Windows Build
 win32 { 
     message("Straight compile on windows (seank only)")
     unix:INCLUDEPATH *= /usr/local/include/
+    DEFINES += GIT_HASH=$$system(git log -n 1 --pretty=format:%H)
     LIBS += -L/usr/local/win32/lib/SerialIO0.dll
     win32:LIBS *= -Lc:/mingw/lib \
         -lwsock32

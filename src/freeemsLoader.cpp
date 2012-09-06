@@ -34,9 +34,12 @@
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
 QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPerformed(0), _fileLoaded(false) {
+	QString GitHash(fwdDeclare(GIT_HASH));
+	GitHash.truncate(8);
 	ui.setupUi(this);
 	qRegisterMetaType<string>("string");
 	qRegisterMetaType<unsigned int>("MESSAGE_TYPE");
+	this->setWindowTitle(QString("FreeEMS-Loader ") + GitHash);
 	loaderComms = new FreeEMS_LoaderComms;
 	fillBaud();
 	fillDataBits();
