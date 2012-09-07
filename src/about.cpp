@@ -52,6 +52,8 @@ About::About(QWidget *parent) :
 		"Public License along with this program. If not, see"
 		"http://www.gnu.org/licenses/. \n";
 	textBrowser->append(message);
+	textBrowser->append("\n Build Hash ");
+	textBrowser->append(fwdDeclare(GIT_HASH_FULL));
 }
 
 About::~About() 

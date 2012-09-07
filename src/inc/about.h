@@ -29,6 +29,10 @@
 
 #include "ui_about.h"
 
+//Emulate a forward declaration for using external Vars in code
+#define fwdDeclare_p(x) #x
+#define fwdDeclare(x) fwdDeclare_p(x)
+
 class About: public QDialog, public Ui::AboutForm 
 {
 public:

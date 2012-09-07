@@ -1,6 +1,6 @@
 # /* FreeEMS-Loader- the open source s19 loader with special features for FreeEMS
 # *
-# * Copyright (C) 2008-2011 by Sean Keys <skeys@powerefi.com>
+# * Copyright (C) 2008-2012 by Sean Keys <skeys@powerefi.com>
 # *
 # * This file is part of the FreeEMS-Loader project.
 # *
@@ -82,15 +82,16 @@ linux-g++ {
     message("Straight Linux Build")
     unix:INCLUDEPATH += $$quote(/usr/local/include/)
     unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so)
-    DEFINES += GIT_HASH=$$system(git log -n 1 --pretty=format:%H)
+    DEFINES += GIT_HASH=$$system(git describe --dirty=-DEV --always)
+    DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)    
 }
 
 # Native Windows Build
 win32 { 
     message("Straight compile on windows (seank only)")
-    unix:INCLUDEPATH *= /usr/local/include/
+    INCLUDEPATH *= /usr/local/include/
     DEFINES += GIT_HASH=$$system(git log -n 1 --pretty=format:%H)
-    LIBS += -L/usr/local/win32/lib/SerialIO0.dll
+    LIBS += -L/usr/local/win32/lib -lSerialIO0
     win32:LIBS *= -Lc:/mingw/lib \
         -lwsock32
 }
