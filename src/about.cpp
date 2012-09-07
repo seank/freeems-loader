@@ -1,6 +1,6 @@
 /* FreeEMS-Loader- the open source s19 loader with special features for FreeEMS
  *
- * Copyright (C) 2008-2011 by Sean Keys <skeys@powerefi.com>
+ * Copyright (C) 2008-2012 by Sean Keys <skeys@powerefi.com>
  *
  * This file is part of the FreeEMS-Loader project.
  *
@@ -34,7 +34,8 @@ About::About(QWidget *parent) :
 	static QString const message = \
 		"freeems-loader: a freeems firmware(s19) loader\n\n"
 
-		"Copyright (C) 2010 Sean Keys skeys at ipdatasys\n\n"
+		"Copyright (C) 2008-2012 Sean Keys skeys at ipdatasys\n"
+		"Contributions from DaveA and SeanS and ideas from FredC\n\n"
 
 		"This program is free software: you can redistribute \n"
 		"it and/or modify it under the terms of the GNU General \n"

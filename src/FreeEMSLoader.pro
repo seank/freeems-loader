@@ -25,6 +25,7 @@
 # */
 TEMPLATE = app
 TARGET = FreeEMS-Loader
+VERSION = 0.0.1
 QMAKE_CXXFLAGS *= -Wall
 QMAKE_CXXFLAGS *= -Werror
 QMAKE_CXXFLAGS_DEBUG += -pg
@@ -43,13 +44,13 @@ QT *= core \
 # opengl
 HEADERS += inc/about.h \
     inc/freeems_loader.h \
-    inc/sRecord.h \ # inc/serialPort.h \
+    inc/sRecord.h \ 
     inc/redirector.h \
     inc/parsing.h \
     inc/comms.h \
     inc/loaderTypes.h
 SOURCES += freeemsLoader.cpp \
-    main.cpp \ # serialPort.cpp \
+    main.cpp \
     sRecord.cpp \
     parsing.cpp \
     comms.cpp \
@@ -90,8 +91,9 @@ linux-g++ {
 win32 { 
     message("Straight compile on windows (seank only)")
     INCLUDEPATH *= /usr/local/include/
-    DEFINES += GIT_HASH=$$system(git log -n 1 --pretty=format:%H)
     LIBS += -L/usr/local/win32/lib -lSerialIO0
     win32:LIBS *= -Lc:/mingw/lib \
         -lwsock32
+	DEFINES += GIT_HASH=$$system(git describe --dirty=-DEV --always)
+    DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)    
 }
