@@ -247,6 +247,7 @@ void FreeEMS_LoaderComms::writeString(const std::string& s) {
 void FreeEMS_LoaderComms::read(unsigned char* data, size_t size) {
 	if ((serPort->readData(data, size)) < 0) {
 		close();
+		displayMessage(MESSAGE_ERROR,"Problem reading from the device, aborting");
 		emit setGUI(STATE_ERROR);
 	}
 }
@@ -554,7 +555,7 @@ void FreeEMS_LoaderComms::run() {
 			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Load Successful!");
-			emit setGUI(STATE_CONNECTED);
+			emit setGUI(STATE_LOAD_COMPLETE);
 		}
 	}
 	if (m_actionDisConnect) {

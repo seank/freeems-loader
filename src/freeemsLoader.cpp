@@ -37,7 +37,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	ui.setupUi(this);
 	qRegisterMetaType<string>("string");
 	qRegisterMetaType<unsigned int>("MESSAGE_TYPE");
-	this->setWindowTitle(QString("FreeEMS-Loader ") + fwdDeclare(GIT_HASH));
+	this->setWindowTitle(QString("FreeEMS-Loader ") + fwdDeclare(VERSION_STRING) + "-SNAPSHOT-" + fwdDeclare(GIT_HASH));
 	loaderComms = new FreeEMS_LoaderComms;
 	fillBaud();
 	fillDataBits();
@@ -382,6 +382,7 @@ void FreeEMS_Loader::changeGUIState(int state) {
 void FreeEMS_Loader::updateGUIState() {
 	switch (_loaderState) {
 	case STATE_NOT_CONNECTED:
+		_fileLoaded = false;
 		loaderComms->close();
 		ui.progressBar->setValue(0);
 		ui.pushLoad->setEnabled(false);
@@ -392,6 +393,10 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.chkVerify->setEnabled(true);
 		ui.pushOpenFile->setEnabled(true);
 		break;
+	case STATE_LOAD_COMPLETE:
+		ui.pushLoad->setEnabled(false);
+		_fileLoaded = false;
+		_loaderState = STATE_CONNECTED;
 	case STATE_CONNECTED:
 		ui.progressBar->setValue(0);
 		ui.pushRip->setEnabled(true);
@@ -414,7 +419,6 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.pushOpenFile->setEnabled(false);
 		break;
 	case STATE_ERROR:
-		displayMessage(MESSAGE_ERROR,"Problem communicating with the device, aborting");
 		ui.pushLoad->setEnabled(false);
 		ui.pushRip->setEnabled(false);
 		ui.pushConnect->setText("Connect");
