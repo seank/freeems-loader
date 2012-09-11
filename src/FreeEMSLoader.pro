@@ -25,7 +25,8 @@
 # */
 TEMPLATE = app
 TARGET = FreeEMS-Loader
-VERSION = 0.0.1
+VERSION = 0.1.0
+DEFINES += VERSION_STRING="0.1.0"
 QMAKE_CXXFLAGS *= -Wall
 QMAKE_CXXFLAGS *= -Werror
 QMAKE_CXXFLAGS_DEBUG += -pg
@@ -38,10 +39,6 @@ CONFIG *= qt \
 QT *= core \
     gui
 
-# xml \
-# xmlpatterns \
-# network \
-# opengl
 HEADERS += inc/about.h \
     inc/freeems_loader.h \
     inc/sRecord.h \ 
@@ -59,6 +56,7 @@ SOURCES += freeemsLoader.cpp \
 FORMS *= freeemsLoader.ui \
     about.ui
 RESOURCES += resource-root.qrc
+
 CONFIG(debug, debug|release):
 else { 
     DEFINES += QT_NO_WARNING_OUTPUT \
