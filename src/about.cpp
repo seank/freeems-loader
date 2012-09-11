@@ -32,11 +32,12 @@ About::About(QWidget *parent) :
 {
 	setupUi(this);
 	static QString const message = \
-		"freeems-loader: a freeems firmware(s19) loader\n\n"
+		"FreeEMS-Loader: a FreeEMS firmware(s19) loader\n\n"
 
 		"Copyright (C) 2008-2012 Sean Keys skeys at ipdatasys\n"
-		"Contributions from DaveA and SeanS and ideas from FredC\n\n"
+		"Contributions from DaveA and SeanS and ideas from FredC\n";
 
+	static QString const license = \
 		"This program is free software: you can redistribute \n"
 		"it and/or modify it under the terms of the GNU General \n"
 		"Public License as published by the Free Software \n"
@@ -50,11 +51,15 @@ About::About(QWidget *parent) :
 		"Public License for more details.\n\n"
 
 		"You should have received a copy of the GNU General\n"
-		"Public License along with this program. If not, see"
+		"Public License along with this program. If not, see "
 		"http://www.gnu.org/licenses/. \n";
+
 	textBrowser->append(message);
-	textBrowser->append("\n Build Hash ");
+	textBrowser->append("Build Hash");
 	textBrowser->append(fwdDeclare(GIT_HASH_FULL));
+	textBrowser->append("\n");
+	textBrowser->append(license);
+	textBrowser->moveCursor(QTextCursor::Start) ;
 }
 
 About::~About() 

@@ -38,6 +38,8 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	qRegisterMetaType<string>("string");
 	qRegisterMetaType<unsigned int>("MESSAGE_TYPE");
 	this->setWindowTitle(QString("FreeEMS-Loader ") + fwdDeclare(VERSION_STRING) + "-SNAPSHOT-" + fwdDeclare(GIT_HASH));
+//	ui.label_build_info->text().clear();
+	ui.label_build_info->setText(fwdDeclare(GIT_HASH_FULL));
 	loaderComms = new FreeEMS_LoaderComms;
 	fillBaud();
 	fillDataBits();
