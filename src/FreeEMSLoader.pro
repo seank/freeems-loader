@@ -56,6 +56,7 @@ SOURCES += freeemsLoader.cpp \
 FORMS *= freeemsLoader.ui \
     about.ui
 RESOURCES += resource-root.qrc
+QMAKE_POST_LINK += touch freeemsLoader.cpp about.cpp
 
 CONFIG(debug, debug|release):
 else { 
