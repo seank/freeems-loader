@@ -40,7 +40,6 @@
 
 #include "ui_freeemsLoader.h"
 #include "inc/comms.h"
-//#include "inc/loaderTypes.h"
 #include "qdebug.h"
 #include "stdio.h"
 #include <iostream>
@@ -70,7 +69,7 @@ public:
 		try {
 			return QApplication::instance()->notify(rec, ev);
 		} catch (...) {
-			qDebug() << "Unknown Exception: Terminating!";
+			cout << "Unknown Exception: Terminating!";
 			exit(0);
 		}
 		return false;
@@ -118,7 +117,6 @@ void showAbout();
 void closeReset();
 void changeGUIState(int);
 void displayMessage(MESSAGE_TYPE type, QString message);
-void loadFile();
 };
 
 #else

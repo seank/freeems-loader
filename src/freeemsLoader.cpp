@@ -531,6 +531,3 @@ void FreeEMS_Loader::openFile() {
 	}
 }
 
-void FreeEMS_Loader::loadFile() {
-
-}
