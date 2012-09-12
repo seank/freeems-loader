@@ -23,6 +23,7 @@
 # * Thank you for choosing FreeEMS-Loader to load your firmware!
 # *
 # */
+
 TEMPLATE = app
 TARGET = FreeEMS-Loader
 VERSION = 0.1.0
