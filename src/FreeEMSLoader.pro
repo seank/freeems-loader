@@ -23,7 +23,6 @@
 # * Thank you for choosing FreeEMS-Loader to load your firmware!
 # *
 # */
-
 TEMPLATE = app
 TARGET = FreeEMS-Loader
 VERSION = 0.1.0
@@ -38,15 +37,16 @@ CONFIG *= qt \
     debug
 QT *= core \
     gui
-
-HEADERS += inc/about.h \
+HEADERS += inc/globals.h \
+    inc/about.h \
     inc/freeems_loader.h \
-    inc/sRecord.h \ 
+    inc/sRecord.h \
     inc/redirector.h \
     inc/parsing.h \
     inc/comms.h \
     inc/loaderTypes.h
-SOURCES += freeemsLoader.cpp \
+SOURCES += globals.cpp \
+    freeemsLoader.cpp \
     main.cpp \
     sRecord.cpp \
     parsing.cpp \
@@ -56,8 +56,9 @@ SOURCES += freeemsLoader.cpp \
 FORMS *= freeemsLoader.ui \
     about.ui
 RESOURCES += resource-root.qrc
-QMAKE_POST_LINK += touch freeemsLoader.cpp about.cpp
-
+QMAKE_POST_LINK += touch \
+    freeemsLoader.cpp \
+    about.cpp
 CONFIG(debug, debug|release):
 else { 
     DEFINES += QT_NO_WARNING_OUTPUT \
@@ -83,16 +84,17 @@ linux-g++ {
     unix:INCLUDEPATH += $$quote(/usr/local/include/)
     unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so)
     DEFINES += GIT_HASH=$$system(git describe --dirty=-DEV --always)
-    DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)    
+    DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)
 }
 
 # Native Windows Build
 win32 { 
     message("Straight compile on windows (seank only)")
     INCLUDEPATH *= /usr/local/include/
-    LIBS += -L/usr/local/win32/lib -lSerialIO0
+    LIBS += -L/usr/local/win32/lib \
+        -lSerialIO0
     win32:LIBS *= -Lc:/mingw/lib \
         -lwsock32
-	DEFINES += GIT_HASH=$$system(git describe --dirty=-DEV --always)
-    DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)    
+    DEFINES += GIT_HASH=$$system(git describe --dirty=-DEV --always)
+    DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)
 }

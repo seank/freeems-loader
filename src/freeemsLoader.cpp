@@ -25,6 +25,7 @@
  */
 
 #include "inc/freeems_loader.h"
+#include "inc/globals.h"
 #include "string.h"
 #include <new>
 #include <string>
@@ -290,8 +291,9 @@ void FreeEMS_Loader::connect() {
 	} else if (_loaderState == STATE_NOT_CONNECTED) {
 		loaderComms->setAction("CONNECT");
 	} else if (_loaderState == STATE_WORKING) {
-		displayMessage(MESSAGE_ERROR, "Sorry for the inconvenience, but Abort needs to be reimplemented");
-		//loaderComms->terminate(); //TODO gracefully shutdown
+		loaderBusy.lock();
+		loaderAbort = true;
+		loaderBusy.unlock();
 		return;
 	}
 	loaderComms->start();

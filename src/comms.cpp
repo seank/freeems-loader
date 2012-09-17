@@ -26,6 +26,7 @@
 
 #include "inc/comms.h"
 #include <fstream>
+#include "inc/globals.h"
 
 using namespace std;
 
@@ -133,6 +134,12 @@ int FreeEMS_LoaderComms::ripDevice() {
 					rxBuffer.clear();
 					for (address = firstAddress; numSectors; address += bytesPerRecord, numSectors--, totalBytesTX +=
 							bytesPerRecord) {
+						loaderBusy.lock();
+						if (loaderAbort) {
+							loaderBusy.unlock();
+							return -2;
+						}
+						loaderBusy.unlock();
 						//Read Block
 						pagedAddress = PPageIndex;
 						pagedAddress <<= 16;
@@ -358,6 +365,12 @@ int FreeEMS_LoaderComms::eraseDevice() {
 				configureProgress((unsigned char) dataVectorTable[i].startPage,
 						(unsigned char) dataVectorTable[i].stopPage);
 				for (PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--) {
+					loaderBusy.lock();
+					if (loaderAbort) {
+						loaderBusy.unlock();
+						return -2;
+					}
+					loaderBusy.unlock();
 					if ( erasePage(PPageIndex) < 0 ) {
 						emit displayMessage(MESSAGE_ERROR, "Problem erasing device");
 						emit udProgress(0);
@@ -431,13 +444,18 @@ int FreeEMS_LoaderComms::loadRecordSet() {
 	int i;
 	emit configureProgress(0, s19SetOneCount - 1);
 	for (i = 0; i < s19SetOneCount; i++) {
+		loaderBusy.lock();
+		if (loaderAbort) {
+			loaderBusy.unlock();
+			return -2;
+		}
+		loaderBusy.unlock();
 		if (SMWriteByteBlock(s19SetOne[i].payloadAddress, s19SetOne[i].recordBytes, s19SetOne[i].recordPayloadBytes) < 0) {
 			emit displayMessage(MESSAGE_ERROR, "Unable to load record set");
 			emit udProgress(0);
 			return -1;
 		}
 		emit udProgress(i);
-
 	}
 	return 1;
 }
@@ -512,6 +530,8 @@ void FreeEMS_LoaderComms::setAction(QString action) {
 }
 
 void FreeEMS_LoaderComms::run() {
+	loaderAbort = false;
+	int result;
 	if (m_actionConnect) {
 		emit setGUI(STATE_WORKING);
 		m_actionConnect = false;
@@ -523,9 +543,14 @@ void FreeEMS_LoaderComms::run() {
 		emit setGUI(STATE_WORKING);
 		m_actionRip = false;
 		emit displayMessage(MESSAGE_INFO, "Ripping...");
-		if (ripDevice() < 0) {
+		result = ripDevice();
+		if (result == -1) {
 			emit displayMessage(MESSAGE_ERROR, "Failed To Rip");
 			emit setGUI(STATE_NOT_CONNECTED);
+			return;
+		} else if (result == -2) {
+			emit displayMessage(MESSAGE_INFO, "User Aborted!");
+			emit setGUI(STATE_CONNECTED);
 			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Rip Successful!");
@@ -536,9 +561,14 @@ void FreeEMS_LoaderComms::run() {
 		emit setGUI(STATE_WORKING);
 		m_actionErase = false;
 		emit displayMessage(MESSAGE_INFO, "Erasing...");
-		if (eraseDevice() < 0) {
+		result = eraseDevice();
+		if (result == -1) {
 			emit displayMessage(MESSAGE_ERROR, "Failed To Erase");
 			emit setGUI(STATE_NOT_CONNECTED);
+			return;
+		} else if (result == -2) {
+			emit displayMessage(MESSAGE_INFO, "User Aborted!");
+			emit setGUI(STATE_CONNECTED);
 			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Erase Successful!");
@@ -549,9 +579,14 @@ void FreeEMS_LoaderComms::run() {
 		emit setGUI(STATE_WORKING);
 		m_actionLoad = false;
 		emit displayMessage(MESSAGE_INFO, "Loading...");
-		if (loadDevice() < 0) {
+		result = loadDevice();
+		if (result == -1) {
 			emit displayMessage(MESSAGE_INFO, "Failed To Load");
 			emit setGUI(STATE_NOT_CONNECTED);
+			return;
+		} else if (result == -2) {
+			emit displayMessage(MESSAGE_INFO, "User Aborted!");
+			emit setGUI(STATE_CONNECTED);
 			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Load Successful!");
