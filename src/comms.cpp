@@ -81,10 +81,15 @@ void FreeEMS_LoaderComms::clearSets() {
 }
 
 void FreeEMS_LoaderComms::close() {
-	if (isOpen() == false)
-		return;
+//	if (isOpen() == false)
+//		return;
 	emit displayMessage(MESSAGE_INFO, "closing serial port");
 	serPort->closePort();
+	m_actionConnect = false;
+	m_actionErase = false;
+	m_actionDisConnect = false;
+	m_actionLoad = false;
+	m_actionRip = false;
 	smIsReady = false;
 }
 
@@ -252,9 +257,11 @@ void FreeEMS_LoaderComms::writeString(const std::string& s) {
 
 //TODO add parity "double read" option
 void FreeEMS_LoaderComms::read(unsigned char* data, size_t size) {
-	if ((serPort->readData(data, size)) < 0) {
+	int readResult = serPort->readData(data, size);
+
+	if (readResult < 0) {
 		close();
-		displayMessage(MESSAGE_ERROR,"Problem reading from the device, aborting");
+		displayMessage(MESSAGE_ERROR,"Problem reading from the device, is seems to have gone away, aborting");
 		emit setGUI(STATE_ERROR);
 	}
 }
@@ -678,7 +685,7 @@ void FreeEMS_LoaderComms::connect() {
 			emit setGUI(STATE_NOT_CONNECTED);
 		}
 	} else {
-		emit displayMessage(MESSAGE_INFO, "Already connected");
+		emit displayMessage(MESSAGE_INFO, "Already connected to SerialMonitor");
 		//TODO maybe flush buffer?
 		emit setGUI(STATE_CONNECTED);
 	}
