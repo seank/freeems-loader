@@ -1,6 +1,6 @@
 Welcome to FreeEMS-Loader!
 
-#########################  PREREQUISITES FOR BUILDING ####################
+#########################  PREREQUISITES FOR BUILDING ON ALL PLATFORMS ####################
 You must first have installed the SerialIO Library availiable at
 	https://github.com/seank/FreeEMS-SerialIO
 
@@ -10,12 +10,12 @@ If you do not have this installed, you will receive a build error like this:
 ##########################  LINUX USERS #################################
 To build and run this application please run the following commands:
 
-1. "apt-get update && apt-get install  qt4-qmake libqt4-dev"
+1. <apt-get update && apt-get install  qt4-qmake libqt4-dev>
 
-2. Simply type "qmake && make -f Release" from the src/ directory and hit enter!
-2a. For Fedora users type "qmake-qt4 && make -f Release"
+2. Simply type <qmake && make> from the src/ directory and hit enter!
+2a. For Fedora users type <qmake-qt4 && make>
 
-3. execute your freshly built loader by typing "./FreeEMS_Loader"
+3. execute your freshly built loader by typing <./FreeEMS_Loader>
 
 It's as easy as that!
 
