@@ -6,19 +6,19 @@ You must first have installed the SerialIO Library availiable at
 [GitHub](https://github.com/seank/FreeEMS-SerialIO).
 
 **Please note**: If you do not have this installed, you will receive a build error like this:
-make: *** No rule to make target `/usr/local/lib/libSerialIO.so.0.1.1', needed by `FreeEMS-Loader'.  Stop.
+`make: *** No rule to make target `/usr/local/lib/libSerialIO.so.0.1.1', needed by `FreeEMS-Loader'.  Stop.`
 
 
 ### LINUX USERS
 
-To build and run this application please run the following commands:
+**To build and run this application please run the following commands:
 
-1. <apt-get update && apt-get install  qt4-qmake libqt4-dev>
+1. `sudo apt-get update && sudo apt-get install  qt4-qmake libqt4-dev g++`
 
-2. Simply type <qmake && make> from the src/ directory and hit enter!
-2a. For Fedora users type <qmake-qt4 && make>
+2. Simply type `qmake && make` from the src/ directory and hit enter!
+	2-a. For Fedora users type `qmake-qt4 && make`
 
-3. execute your freshly built loader by typing <./FreeEMS_Loader>
+3. execute your freshly built loader by typing `./FreeEMS_Loader`
 
 It's as easy as that!
 
