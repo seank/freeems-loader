@@ -59,7 +59,10 @@ RESOURCES += resource-root.qrc
 QMAKE_POST_LINK += touch \
     freeemsLoader.cpp \
     about.cpp
-CONFIG(debug, debug|release):
+
+CONFIG(debug, debug|release) {
+	message("Building Debug Version, expect spew!")
+}
 else { 
     DEFINES += QT_NO_WARNING_OUTPUT \
         QT_NO_DEBUG_OUTPUT
