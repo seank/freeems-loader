@@ -1,13 +1,16 @@
-Welcome to FreeEMS-Loader!
+# Welcome to FreeEMS-Loader!
 
-#########################  PREREQUISITES FOR BUILDING ON ALL PLATFORMS ####################
+### PREREQUISITES FOR BUILDING ON ALL PLATFORMS
+
 You must first have installed the SerialIO Library availiable at
-	https://github.com/seank/FreeEMS-SerialIO
+[GitHub](https://github.com/seank/FreeEMS-SerialIO).
 
-If you do not have this installed, you will receive a build error like this:
-./inc/comms.h:39:22: error: SerialIO.h: No such file or directory
+**Please note**: If you do not have this installed, you will receive a build error like this:
+make: *** No rule to make target `/usr/local/lib/libSerialIO.so.0.1.1', needed by `FreeEMS-Loader'.  Stop.
 
-##########################  LINUX USERS #################################
+
+### LINUX USERS
+
 To build and run this application please run the following commands:
 
 1. <apt-get update && apt-get install  qt4-qmake libqt4-dev>
@@ -19,41 +22,38 @@ To build and run this application please run the following commands:
 
 It's as easy as that!
 
-#########################  WINDOWS USERS ################################
-Install MinGW
+### WINDOWS USERS
+**Install MinGW**
 
 	1. Download MinGW for use with qt4. QT is very specific there for I recommend you use the link below.
 
-		 http://computer-ss.com/files/MinGW-gcc440_1.zip
+		 [ComputerSystemsServices](http://computer-ss.com/files/MinGW-gcc440_1.zip)
 
 	2. Extract to c:\mingw
 
 	3. Add c:\mingw\bin to your PATH enviornment variable.
 		PATH can be extended through the Control Panel|System|Advanced|Environment variables menu.
 
-Install QTLibs
+**Install QTLibs**
 
 	1. Download QT(MinGW-4.x)
 
-		http://releases.qt-project.org/qt4/source/qt-win-opensource-4.8.2-mingw.exe
+		[QT](http://releases.qt-project.org/qt4/source/qt-win-opensource-4.8.2-mingw.exe)
 
 	2. Run installer and install to c:\Qt\$ver\
 
 	3. Add c:\Qt\<version>\bin to your PATH var.
 		PATH can be extended through the Control Panel|System|Advanced|Environment variables menu.
 
-Build Loader Source
+**Build Loader Source**
 	
 	1. Open a new terminal window(cmd.exe)
 
 	2. From the FreeEMS-Loader src/ directory simply type "qmake; make release"
 
 ######################### MAC USERS #####################################
-
-
-
-
-
+TODO
+No MAC hardware to complete this myself
 
 
 
@@ -61,7 +61,7 @@ Build Loader Source
 ######################### DEBUGGING TOOLS ##############################
 
 GNU PROOF
-add -pg -g  to CFLAGS to use http://sourceware.org/binutils/docs/gprof/
+add -pg -g  to CFLAGS to use [Sourceware](http://sourceware.org/binutils/docs/gprof/)
 run app
 when done run gprof app |less,  it'll read the profile app the program created (gmon.out) and the app and resolve the sombols and show you hte slow places
 
