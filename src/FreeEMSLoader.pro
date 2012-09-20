@@ -23,9 +23,11 @@
 # * Thank you for choosing FreeEMS-Loader to load your firmware!
 # *
 # */
+
 TEMPLATE = app
 TARGET = FreeEMS-Loader
 VERSION = 0.1.0
+LIB_VERSION = "0.1.0"
 QMAKE_CXXFLAGS *= -Wall
 QMAKE_CXXFLAGS *= -Werror
 QMAKE_CXXFLAGS_DEBUG += -pg
@@ -56,6 +58,7 @@ SOURCES += globals.cpp \
 FORMS *= freeemsLoader.ui \
     about.ui
 RESOURCES += resource-root.qrc
+# We are making use of QMAKE_POST_LINK so we always get fresh GIT hashes in our builds
 QMAKE_POST_LINK += touch \
     freeemsLoader.cpp \
     about.cpp
@@ -85,7 +88,8 @@ mac {
 linux-g++ { 
     message("Straight Linux Build")
     unix:INCLUDEPATH += $$quote(/usr/local/include/)
-    unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so)
+    unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so.$$LIB_VERSION)
+    PRE_TARGETDEPS += $$quote(/usr/local/lib/libSerialIO.so.$$LIB_VERSION)
     DEFINES += GIT_HASH=$$system(git describe --dirty=-DEV --always)
     DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)
 }
