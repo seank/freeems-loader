@@ -284,6 +284,13 @@ void FreeEMS_Loader::fillParity() {
 
 //TODO combine setGUIState code into this function
 void FreeEMS_Loader::connect() {
+	if (ui.comboBaud->currentText().compare("115200") ||
+			ui.comboDataBits->currentText().compare("8") ||
+			ui.comboParity->currentText().compare("NONE") ||
+			ui.comboStopBits->currentText().compare("1")) {
+		displayMessage(MESSAGE_INFO, "Warning you are not using default COM port settings");
+		displayMessage(MESSAGE_INFO, "Defaults are 115200, 8, NONE, 1");
+	}
 	loaderComms->setupPort(ui.comboDevice->currentText(),
 			ui.comboBaud->currentText().toUInt());
 	if (_loaderState == STATE_CONNECTED) {
