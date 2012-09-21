@@ -58,14 +58,27 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	QSettings settings("FreeEMS", "Loader");
 	resize(settings.value("size", QSize(400, 320)).toSize());
 	move(settings.value("pos", QPoint(50, 50)).toPoint());
-	ui.comboDevice->addItem(settings.value("serialDevice").toString());
-	ui.comboDataBits->setCurrentIndex(settings.value("dataBits").toUInt());
-	ui.comboStopBits->setCurrentIndex((settings.value("stopBits").toUInt()));
-	ui.comboParity->setCurrentIndex((settings.value("parity").toUInt()));
-	ui.chkRip->setChecked(settings.value("chkRip").toBool());
-	ui.chkVerify->setChecked(settings.value("chkVerify").toBool());
 
-	_numBurnsPerformed = settings.value("numBurnsPerformed").toInt();
+	/* if this is our first run, properly initialize settings */
+	if (settings.value("serialDevice").isNull()) {
+		displayMessage(MESSAGE_INFO, "This appears to be the first time FreeEMS Loader has been "
+				"run on this host, initializing settings..");
+		ui.comboBaud->setCurrentIndex(21);
+		ui.comboDataBits->setCurrentIndex(3);
+		ui.comboParity->setCurrentIndex(4);
+		ui.comboStopBits->setCurrentIndex(2);
+		ui.chkRip->setChecked(true);
+		ui.chkVerify->setChecked(true);
+		_numBurnsPerformed = 0;
+	} else {
+		ui.comboDevice->addItem(settings.value("serialDevice").toString());
+		ui.comboDataBits->setCurrentIndex(settings.value("dataBits").toUInt());
+		ui.comboStopBits->setCurrentIndex((settings.value("stopBits").toUInt()));
+		ui.comboParity->setCurrentIndex((settings.value("parity").toUInt()));
+		ui.chkRip->setChecked(settings.value("chkRip").toBool());
+		ui.chkVerify->setChecked(settings.value("chkVerify").toBool());
+		_numBurnsPerformed = settings.value("numBurnsPerformed").toInt();
+	}
 
 	QString loadsNum;
 	loadsNum.setNum(_numBurnsPerformed, 10);
@@ -284,6 +297,7 @@ void FreeEMS_Loader::fillParity() {
 
 //TODO combine setGUIState code into this function
 void FreeEMS_Loader::connect() {
+	// chk to see if user has custom port settings
 	if (ui.comboBaud->currentText().compare("115200") ||
 			ui.comboDataBits->currentText().compare("8") ||
 			ui.comboParity->currentText().compare("NONE") ||
