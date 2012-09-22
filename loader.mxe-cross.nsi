@@ -1,9 +1,6 @@
 # This installs FreeEMS Loader, creates a start menu shortcut, builds an uninstaller, and
 # adds uninstall information to the registry for Add/Remove Programs
  
-# To get started, put this script into a folder with the two files (app.exe, logo.ico, and license.rtf -
-# You'll have to create these yourself) and run makensis on it
- 
 # If you change the names "app.exe", "logo.ico", or "license.rtf" you should do a search and replace - they
 # show up in a few places.
 # All the other settings can be tweaked by editing the !defines at the top of this script
@@ -20,7 +17,6 @@
 ;!define UPDATEURL "http://powerefi.com/loader" # "Product Updates" link
 ;!define ABOUTURL "http://powerefi.com/loader" # "Publisher" link
 # This is the size (in kB) of all the files copied into "Program Files"
-
  
 RequestExecutionLevel admin ;Require admin rights on NT6+ (When UAC is turned on)
  
@@ -30,7 +26,7 @@ InstallDir "$PROGRAMFILES\${COMPANYNAME}\${APPNAME}"
 LicenseData "src/LICENSE"
 # This will be in the installer/uninstaller's title bar
 Name "${COMPANYNAME} - ${APPNAME}"
-Icon "logo.ico"
+Icon "src/images/logo.ico"
 outFile "FreeEMS-Loader-Installer.exe"
  
 !include LogicLib.nsh
@@ -59,10 +55,10 @@ section "install"
 	# Files for the install directory - to build the installer, these should be in the same directory as the install script (this file)
 	setOutPath $INSTDIR
 	# Files added here should be removed by the uninstaller (see section "uninstall")
-	file "FreeEMS-Loader.exe"
-	file "src/logo.ico"
+	file "src/release/FreeEMS-Loader.exe"
+	file "src/images/logo.ico"
 	file "/usr/local/win32/lib/SerialIO0.dll
-	file "LICENSE"
+	file "src/LICENSE"
 #	files "src/images/
 	# Add any other files for the install directory (license files, app data, etc) here
  
