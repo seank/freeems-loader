@@ -20,7 +20,7 @@
 ;!define UPDATEURL "http://powerefi.com/loader" # "Product Updates" link
 ;!define ABOUTURL "http://powerefi.com/loader" # "Publisher" link
 # This is the size (in kB) of all the files copied into "Program Files"
-#;!define INSTALLSIZE 7233
+
  
 RequestExecutionLevel admin ;Require admin rights on NT6+ (When UAC is turned on)
  
