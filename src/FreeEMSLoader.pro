@@ -58,6 +58,7 @@ SOURCES += globals.cpp \
 FORMS *= freeemsLoader.ui \
     about.ui
 RESOURCES += resource-root.qrc
+RC_FILE += loader.rc
 # We are making use of QMAKE_POST_LINK so we always get fresh GIT hashes in our builds
 QMAKE_POST_LINK += touch \
     freeemsLoader.cpp \
