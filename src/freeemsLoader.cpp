@@ -422,7 +422,6 @@ void FreeEMS_Loader::changeGUIState(int state) {
 void FreeEMS_Loader::updateGUIState() {
 	switch (_loaderState) {
 	case STATE_NOT_CONNECTED:
-		_fileLoaded = false;
 		loaderComms->close();
 		ui.progressBar->setValue(0);
 		ui.pushLoad->setEnabled(false);
