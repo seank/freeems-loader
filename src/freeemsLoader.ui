@@ -78,7 +78,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>70</y>
+         <y>60</y>
          <width>141</width>
          <height>22</height>
         </rect>
@@ -104,6 +104,22 @@
        </property>
        <property name="pixmap">
         <pixmap resource="resource-root.qrc">:/images/images/logos.png</pixmap>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushRipDir">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>90</y>
+         <width>101</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Rip Directory</string>
        </property>
       </widget>
      </widget>
@@ -467,8 +483,8 @@ p, li { white-space: pre-wrap; }
    <slot>showAbout()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>328</x>
-     <y>122</y>
+     <x>361</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
      <x>199</x>
@@ -492,9 +508,26 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushRipDir</sender>
+   <signal>released()</signal>
+   <receiver>FreeEMS_LoaderClass</receiver>
+   <slot>setAutoRipDir()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
+     <y>141</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>209</x>
+     <y>172</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>signal2()</signal>
+  <slot>setAutoRipDir()</slot>
   <slot>test()</slot>
   <slot>slot1()</slot>
   <slot>connect()</slot>

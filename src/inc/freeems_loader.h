@@ -91,6 +91,7 @@ protected:
 	void setLoaderState();
 
 private:
+	void saveSettings();
 	Ui::FreeEMS_LoaderClass ui;
 	FreeEMS_LoaderComms *loaderComms;
 	bool unattended;
@@ -98,13 +99,17 @@ private:
 	QString loadFileName;
 	QString loadDirectory;
 	QString loadRipDirectory;
+	QString autoRipDirectory;
 	QStringList cmdline_args;
+	QString appDataDir;
+	QString settingsFile;
 	int flashTypeIndex;
 	int _loaderState; /* holds the current state of the loader see LOADER_STATES enum */
 	int _numBurnsPerformed;
 	bool _fileLoaded;
 
 public slots:
+void setAutoRipDir();
 void openFile();
 void connect();
 void rip();
