@@ -57,7 +57,7 @@ section "install"
 	# Files added here should be removed by the uninstaller (see section "uninstall")
 	file "src/release/FreeEMS-Loader.exe"
 	file "src/images/logo.ico"
-	file "/usr/local/win32/lib/SerialIO0.dll
+	file "/usr/local/win32/lib/SerialIO0.dll"
 	file "src/LICENSE"
 #	files "src/images/
 	# Add any other files for the install directory (license files, app data, etc) here
