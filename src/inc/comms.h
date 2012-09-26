@@ -149,7 +149,7 @@ public:
 	/**
 	 * Opens a serial device.
 	 */
-	void open(QString serPortName, unsigned int baud_rate);
+	void open();
 
 	/**
 	 * \return true if serial device is open
@@ -261,12 +261,12 @@ public:
 
 	void disConnect();
 
-	void setupPort(QString portName, unsigned int baud);
+	void setupPort(QString portName, unsigned int baud, unsigned int stopBits, unsigned int dataBits,
+					QString parity);
 
 	void run();
 
 	bool verifyLastWrite;
-	bool verifyACKs;
 
 	~FreeEMS_LoaderComms();
 
@@ -301,12 +301,14 @@ private:
 	QString ripFilename;
 	QString loadFilename;
 	QString m_portName;
+	QString m_portParity;
 	unsigned int  m_portBaud;
+	unsigned int  m_portDataBits;
+	unsigned int  m_portStopBits;
 
 	int flashTypeIndex;
 	bool fDeviceIsSet;
 	bool smIsReady;
-	bool flushMode;
 	bool _recordSetLoaded;
 	int _badCheckSums;
 	int _loadableRecords;

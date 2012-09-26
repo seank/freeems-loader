@@ -58,32 +58,32 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 //	QSettings settings("FreeEMS", "Loader");
 #ifdef __WIN32__
 		QString appDataDir = getenv("AppData");
-		autoRipDirectory = appDataDir;
-		autoRipDirectory += "\\FreeEMS-Loader\\";
-		appDataDir = autoRipDirectory;
+		m_autoRipDirectory = appDataDir;
+		m_autoRipDirectory += "\\FreeEMS-Loader\\";
+		appDataDir = m_autoRipDirectory;
 		if (!QDir(appDataDir).exists(appDataDir))
 			QDir(appDataDir).mkpath(appDataDir);
 		appDataDir += "settings\\";
 		if (!QDir(appDataDir).exists(appDataDir))
 			QDir(appDataDir).mkpath(appDataDir);
-		autoRipDirectory += "rips\\";
-		if (!QDir(autoRipDirectory).exists(autoRipDirectory))
-			QDir(autoRipDirectory).mkpath(autoRipDirectory);
+		m_autoRipDirectory += "rips\\";
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
 #else
 		appDataDir = getenv("HOME");
-		autoRipDirectory = appDataDir;
+		m_autoRipDirectory = appDataDir;
 		appDataDir += "/.FreeEMS-Loader/";
-		autoRipDirectory += "/FreeEMS-Loader/";
+		m_autoRipDirectory += "/FreeEMS-Loader/";
 		if (!QDir(appDataDir).exists(appDataDir))
 			QDir(appDataDir).mkpath(appDataDir);
 		appDataDir += "settings/";
 		if (!QDir(appDataDir).exists(appDataDir))
 			QDir(appDataDir).mkpath(appDataDir);
-		if (!QDir(autoRipDirectory).exists(autoRipDirectory))
-			QDir(autoRipDirectory).mkpath(autoRipDirectory);
-		autoRipDirectory += "rips/";
-		if (!QDir(autoRipDirectory).exists(autoRipDirectory))
-			QDir(autoRipDirectory).mkpath(autoRipDirectory);
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
+		m_autoRipDirectory += "rips/";
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
 #endif
 	settingsFile = appDataDir + "settings.ini";
 	qDebug() << "settings file is -> " << settingsFile;
@@ -95,33 +95,33 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 				"run on this host, initializing settings..");
 #ifdef __WIN32__
 		QString appDataDir = getenv("AppData");
-		autoRipDirectory = appDataDir;
-		autoRipDirectory += "\\FreeEMS-Loader\\";
-		appDataDir = autoRipDirectory;
+		m_autoRipDirectory = appDataDir;
+		m_autoRipDirectory += "\\FreeEMS-Loader\\";
+		appDataDir = m_autoRipDirectory;
 		if (!QDir(appDataDir).exists(appDataDir))
 			QDir(appDataDir).mkpath(appDataDir);
 		appDataDir += "settings\\";
 		if (!QDir(appDataDir).exists(appDataDir))
 			QDir(appDataDir).mkpath(appDataDir);
-		autoRipDirectory += "rips\\";
-		if (!QDir(autoRipDirectory).exists(autoRipDirectory))
-			QDir(autoRipDirectory).mkpath(autoRipDirectory);
+		m_autoRipDirectory += "rips\\";
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
 #else
 		appDataDir = getenv("HOME");
-		autoRipDirectory = appDataDir;
+		m_autoRipDirectory = appDataDir;
 		appDataDir += "/.FreeEMS-Loader/";
-		autoRipDirectory += "/FreeEMS-Loader/";
+		m_autoRipDirectory += "/FreeEMS-Loader/";
 		if (!QDir(appDataDir).exists(appDataDir))
 			QDir(appDataDir).mkpath(appDataDir);
 		appDataDir += "settings/";
 		if (!QDir(appDataDir).exists(appDataDir))
 			QDir(appDataDir).mkpath(appDataDir);
 
-		if (!QDir(autoRipDirectory).exists(autoRipDirectory))
-			QDir(autoRipDirectory).mkpath(autoRipDirectory);
-		autoRipDirectory += "rips/";
-		if (!QDir(autoRipDirectory).exists(autoRipDirectory))
-			QDir(autoRipDirectory).mkpath(autoRipDirectory);
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
+		m_autoRipDirectory += "rips/";
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
 #endif
 		ui.comboBaud->setCurrentIndex(21);
 		ui.comboDataBits->setCurrentIndex(3);
@@ -138,7 +138,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 		ui.chkRip->setChecked(loaderSettings.value("chkRip").toBool());
 		ui.chkVerify->setChecked(loaderSettings.value("chkVerify").toBool());
 		_numBurnsPerformed = loaderSettings.value("numBurnsPerformed").toInt();
-		autoRipDirectory = loaderSettings.value("autoRipDirectory").toString();
+		m_autoRipDirectory = loaderSettings.value("autoRipDirectory").toString();
 		loaderSettings.setValue("appDataDir", appDataDir);
 		resize(loaderSettings.value("size", QSize(400, 320)).toSize());
 		move(loaderSettings.value("pos", QPoint(50, 50)).toPoint());
@@ -146,7 +146,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	}
 
 	qDebug() << "Settings location is -> " << appDataDir;
-	qDebug() << "RIP directory is -> " << autoRipDirectory;
+	qDebug() << "Auto RIP directory is -> " << m_autoRipDirectory;
 
 	QString loadsNum;
 	loadsNum.setNum(_numBurnsPerformed, 10);
@@ -213,8 +213,8 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 
 FreeEMS_Loader::~FreeEMS_Loader() {
 	saveSettings();
-	loaderComms->close();
-	delete loaderComms;
+//	loaderComms->close();
+//	delete loaderComms;
 
 }
 
@@ -364,11 +364,12 @@ void FreeEMS_Loader::connect() {
 		displayMessage(MESSAGE_INFO, "Warning you are not using default COM port settings");
 		displayMessage(MESSAGE_INFO, "Defaults are 115200, 8, NONE, 1");
 	}
-	loaderComms->setupPort(ui.comboDevice->currentText(),
-			ui.comboBaud->currentText().toUInt());
 	if (_loaderState == STATE_CONNECTED) {
 		loaderComms->setAction("DISCONNECT");
 	} else if (_loaderState == STATE_NOT_CONNECTED) {
+		loaderComms->setupPort(ui.comboDevice->currentText(),
+		ui.comboBaud->currentText().toUInt(), ui.comboStopBits->currentText().toUInt(),
+		ui.comboDataBits->currentText().toUInt(), ui.comboParity->currentText());
 		loaderComms->setAction("CONNECT");
 	} else if (_loaderState == STATE_WORKING) {
 		loaderBusy.lock();
@@ -403,15 +404,11 @@ void FreeEMS_Loader::getFileName(QString name) {
 }
 
 void FreeEMS_Loader::initGUI() {
-	ui.chkVerify->setChecked(true);
-	ui.chkRip->setChecked(true);
 	changeGUIState(STATE_NOT_CONNECTED);
 	ui.progressBar->setValue(0);
 	ui.radioRX->setEnabled(false);
 	ui.radioTX->setEnabled(false);
 	_fileLoaded = false;
-	//	ui.radFlashType->setChecked(1);
-	//	ui.radFlashType->setDisabled(1);
 }
 
 void FreeEMS_Loader::changeGUIState(int state) {
@@ -445,7 +442,7 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.chkVerify->setEnabled(true);
 		ui.pushLoad->setEnabled(true);
 		ui.pushOpenFile->setEnabled(true);
-		if(_fileLoaded)
+//		if(_fileLoaded)
 			ui.pushLoad->setEnabled(true);
 		break;
 	case STATE_WORKING:
@@ -458,12 +455,26 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.pushOpenFile->setEnabled(false);
 		break;
 	case STATE_ERROR:
+		loaderComms->setAction("NONE"); //This may need a mutex
 		ui.pushLoad->setEnabled(false);
 		ui.pushRip->setEnabled(false);
 		ui.pushConnect->setText("Connect");
 		ui.pushErase->setEnabled(false);
 		ui.pushLoad->setEnabled(true);
 		ui.pushOpenFile->setEnabled(true);
+		break;
+	case STATE_ABORT: //same as connected except actions are cleared
+		loaderComms->setAction("NONE"); //This may need a mutex
+		ui.progressBar->setValue(0);
+		ui.pushRip->setEnabled(true);
+		ui.pushConnect->setText("Close/Rst");
+		ui.pushErase->setEnabled(true);
+		ui.chkRip->setEnabled(true);
+		ui.chkVerify->setEnabled(true);
+		ui.pushOpenFile->setEnabled(true);
+//		if(_fileLoaded)
+			ui.pushLoad->setEnabled(true);
+		_loaderState = STATE_CONNECTED;
 		break;
 	default:
 		break;
@@ -498,27 +509,25 @@ void FreeEMS_Loader::load() {
 	}
 	if (ui.chkVerify->isChecked()) {
 		loaderComms->verifyLastWrite = true; //todo make set function
-		loaderComms->verifyACKs = true;
 	} else {
 		loaderComms->verifyLastWrite = false; //todo make set function
-		loaderComms->verifyACKs = true; //todo make settable
 	}
 
 	QString name = loadFileName.section('/', -1);
 //	ripFileName = QDir::currentPath();
 //	ripFileName += "/saved/";
-	if (!QDir(autoRipDirectory).exists(autoRipDirectory))
-		QDir(autoRipDirectory).mkpath(autoRipDirectory);
+	if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+		QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
 
-	autoRipDirectory += date.toString("MM-dd-yyyy-");
-	autoRipDirectory += time.toString("H-m-s-");
-	autoRipDirectory += "replaced-with-";
-	autoRipDirectory += name;
+	m_autoRipDirectory += date.toString("MM-dd-yyyy-");
+	m_autoRipDirectory += time.toString("H-m-s-");
+	m_autoRipDirectory += "replaced-with-";
+	m_autoRipDirectory += name;
 	if(ui.chkRip->isChecked()){
-		displayMessage(MESSAGE_INFO, "Ripping as '" + autoRipDirectory + "'");
+		displayMessage(MESSAGE_INFO, "Ripping as '" + m_autoRipDirectory + "'");
 	}
 	loaderComms->setLoadFilename(loadFileName);
-	loaderComms->setRipFilename(autoRipDirectory);
+	loaderComms->setRipFilename(m_autoRipDirectory);
 	if (ui.chkRip->isChecked()) {
 		loaderComms->setAction("RIP");
 		loaderComms->setAction("ERASE");
@@ -618,13 +627,13 @@ void FreeEMS_Loader::setAutoRipDir() {
 	QFileDialog fileDialog;
 	fileDialog.setViewMode(QFileDialog::Detail);
 	QString qSNum;
-	autoRipDirectory = QFileDialog::getExistingDirectory(this, "Set Auto Rip Directory", autoRipDirectory, QFileDialog::ShowDirsOnly);
+	m_autoRipDirectory = QFileDialog::getExistingDirectory(this, "Set Auto Rip Directory", m_autoRipDirectory, QFileDialog::ShowDirsOnly);
 #ifdef __WIN32__
-	autoRipDirectory += "\\";
+	m_autoRipDirectory += "\\";
 #else
-	autoRipDirectory += "/";
+	m_autoRipDirectory += "/";
 #endif
-	loaderSettings.setValue("autoRipDirectory", autoRipDirectory);
+	loaderSettings.setValue("autoRipDirectory", m_autoRipDirectory);
 }
 
 void FreeEMS_Loader::saveSettings() {
@@ -640,5 +649,4 @@ void FreeEMS_Loader::saveSettings() {
 	loaderSettings.setValue("chkVerify", ui.chkVerify->isChecked());
 	loaderSettings.setValue("lastRipFileName", ripFileName);
 	loaderSettings.setValue("numBurnsPerformed", _numBurnsPerformed);
-	loaderSettings.setValue("autoRipDirectory", autoRipDirectory);
 }

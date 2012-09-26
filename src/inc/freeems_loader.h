@@ -99,7 +99,7 @@ private:
 	QString loadFileName;
 	QString loadDirectory;
 	QString loadRipDirectory;
-	QString autoRipDirectory;
+	QString m_autoRipDirectory;
 	QStringList cmdline_args;
 	QString appDataDir;
 	QString settingsFile;

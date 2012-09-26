@@ -31,20 +31,17 @@
 using namespace std;
 
 FreeEMS_LoaderComms::FreeEMS_LoaderComms() :
-				verifyLastWrite(false), verifyACKs(true), flashTypeIndex(0), fDeviceIsSet(false), smIsReady(false) {
+				verifyLastWrite(false), flashTypeIndex(0), fDeviceIsSet(false), smIsReady(false) {
 	init();
-	flushMode = false;
 }
 
 void FreeEMS_LoaderComms::openTest(QString serPortName) {
-	serPortName = serPortName;
+	m_portName = serPortName;
 }
 
-void FreeEMS_LoaderComms::open(QString serPortName, unsigned int baud_rate) {
-	if (isOpen())
-		close();
-	serPort->openPort(serPortName);
-	serPort->setupPort(baud_rate, 8, "none", 1);
+void FreeEMS_LoaderComms::open() {
+	serPort->openPort(m_portName);
+	serPort->setupPort(m_portBaud, m_portDataBits, m_portParity, m_portStopBits);
 	serPort->communicate();
 }
 
@@ -58,18 +55,18 @@ bool FreeEMS_LoaderComms::isOpen() {
 
 void FreeEMS_LoaderComms::init() {
 	_recordSetLoaded = false;
-	serPort = new IPDS::SerialIO;
 	s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
 	//s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
 	lastLoadAddress = 0;
 	clearSets();
 	s19SetOneCount = 0;
-
+	serPort = new IPDS::SerialIO;
 	m_actionErase = false;
 	m_actionRip = false;
 	m_actionLoad = false;
 	m_actionConnect = false;
 	m_actionDisConnect = false;
+
 }
 
 void FreeEMS_LoaderComms::clearSets() {
@@ -81,8 +78,8 @@ void FreeEMS_LoaderComms::clearSets() {
 }
 
 void FreeEMS_LoaderComms::close() {
-//	if (isOpen() == false)
-//		return;
+	if (isOpen() == false)
+		return;
 	emit displayMessage(MESSAGE_INFO, "closing serial port");
 	serPort->closePort();
 	m_actionConnect = false;
@@ -219,9 +216,6 @@ void FreeEMS_LoaderComms::resetSM() {
 }
 
 void FreeEMS_LoaderComms::setSM() {
-	//write(&SMReset, 1);
-	//serPort->flushInBuffer();
-	//serPort->flushOutBuffer();
 	serPort->flushRX();
 	write(&SMReturn, 1);
 	if (verifyReturn(SETSM) > 0) {
@@ -274,6 +268,9 @@ std::vector<unsigned char> FreeEMS_LoaderComms::read(size_t size) {
 
 FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
 	//TODO populate with proper code
+	serPort->closePort();
+	delete serPort;
+	delete [] s19SetOne;
 }
 
 void FreeEMS_LoaderComms::returnFlashType(unsigned char *responce) {
@@ -498,11 +495,9 @@ int FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bufPtr, un
 		write(&lowByte, ONE_BYTE);
 		write(&bytesToWrite, ONE_BYTE);
 		write((unsigned char*)bufPtr, numBytes);
-		if (verifyACKs == true) {
-			if (verifyReturn(GENERIC) < 0) {
+    	if (verifyReturn(GENERIC) < 0) {
 				emit displayMessage(MESSAGE_INFO, "Error did not receive ACK after writing a block");
 				return -1;
-			}
 		}
 		if (verifyLastWrite == true) {
 			SMReadByteBlock(address, numBytes, readString);
@@ -524,6 +519,13 @@ void FreeEMS_LoaderComms::flushRXStream() {
 }
 
 void FreeEMS_LoaderComms::setAction(QString action) {
+	if (action == "NONE") {
+		m_actionConnect = false;
+		m_actionRip = false;
+		m_actionErase = false;
+		m_actionDisConnect = false;
+		m_actionLoad = false;
+	}
 	if (action == "CONNECT")
 		m_actionConnect = true;
 	if (action == "RIP")
@@ -557,7 +559,7 @@ void FreeEMS_LoaderComms::run() {
 			return;
 		} else if (result == -2) {
 			emit displayMessage(MESSAGE_INFO, "User Aborted!");
-			emit setGUI(STATE_CONNECTED);
+			emit setGUI(STATE_ABORT);
 			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Rip Successful!");
@@ -575,7 +577,7 @@ void FreeEMS_LoaderComms::run() {
 			return;
 		} else if (result == -2) {
 			emit displayMessage(MESSAGE_INFO, "User Aborted!");
-			emit setGUI(STATE_CONNECTED);
+			emit setGUI(STATE_ABORT);
 			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Erase Successful!");
@@ -593,7 +595,7 @@ void FreeEMS_LoaderComms::run() {
 			return;
 		} else if (result == -2) {
 			emit displayMessage(MESSAGE_INFO, "User Aborted!");
-			emit setGUI(STATE_CONNECTED);
+			emit setGUI(STATE_ABORT);
 			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Load Successful!");
@@ -670,7 +672,7 @@ void FreeEMS_LoaderComms::connect() {
 			//TODO add code to check for packets here, before going into RAM mode for SM
 			QString mode = "RAW";
 			setDataMode(mode);
-			open(m_portName, m_portBaud);
+			open();
 			setSM();
 			setFlashType(defFlashType);
 			if (!isReady()) {
@@ -703,8 +705,12 @@ void FreeEMS_LoaderComms::disConnect() {
 	}
 }
 
-void FreeEMS_LoaderComms::setupPort(QString portName, unsigned int baud) {
+void FreeEMS_LoaderComms::setupPort(QString portName, unsigned int baud, unsigned int stopBits, unsigned int dataBits,
+										QString parity) {
 	m_portName = portName;
 	m_portBaud = baud;
+	m_portDataBits = dataBits;
+	m_portStopBits = stopBits;
+	m_portParity = parity;
 	//TODO finish other stuff
 }
