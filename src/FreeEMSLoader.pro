@@ -71,7 +71,7 @@ else {
 }
 
 # Default make specs
-unix:INCLUDEPATH += inc
+INCLUDEPATH += inc
 unix:INCLUDEPATH += $$quote(/usr/local/include/)
 unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so.$$LIB_VERSION)
 unix:PRE_TARGETDEPS += $$quote(/usr/local/lib/libSerialIO.so.$$LIB_VERSION)
