@@ -26,7 +26,7 @@
 
 #include <comms.h>
 #include <fstream>
-#include "inc/globals.h"
+#include <globals.h>
 
 using namespace std;
 
