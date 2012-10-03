@@ -80,7 +80,6 @@ protected:
 	void fillDataBits();
 	void fillParity();
 	void redirectCLI();
-	static void outCallBack(const char* ptr, std::streamsize count, void* pTextBox);
 	void updateGUIState();
 	void initGUI();
 	int fillDevice();

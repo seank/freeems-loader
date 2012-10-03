@@ -237,24 +237,6 @@ int FreeEMS_Loader::fillDevice() {
 	return 0;
 }
 
-void FreeEMS_Loader::redirectCLI() {
-	/*
-	 StdRedirector<char>* coutRedirector = new StdRedirector<char> (std::cout,
-	 outCallBack, ui.textOutput);
-	 StdRedirector<char>* perrorRedirector = new StdRedirector <char>(&perror, outCallBack, ui.textOutput);
-	 coutRedirector->compileWarning();
-	 int *compileWarning = &coutRedirector;
-	 compileWarning++;
-	 std::cout << "CLI output redirected";
-	 */
-}
-
-void FreeEMS_Loader::outCallBack(const char* ptr, std::streamsize count, void* pTextBox) {
-	(void) count;
-	QTextBrowser* p = static_cast<QTextBrowser*>(pTextBox);
-	p->append(ptr);
-}
-
 void FreeEMS_Loader::fillBaud() {
 	//#ifdef B0
 	ui.comboBaud->addItem("0");
