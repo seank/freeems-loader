@@ -24,14 +24,14 @@
  *
  */
 
-#include "inc/freeems_loader.h"
-#include "inc/globals.h"
-#include "string.h"
+#include <freeems_loader.h>
+#include <globals.h>
+#include <string.h>
 #include <new>
 #include <string>
 #include <algorithm>
 #include <iostream>
-#include "inc/about.h"
+#include <about.h>
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
 QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPerformed(0), _fileLoaded(false) {

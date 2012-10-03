@@ -24,11 +24,11 @@
  *
  */
 
-#include "inc/parsing.h"
+#include <parsing.h>
 #include <string>
 #include <algorithm>
 #include <iostream>
-#include "stdio.h"
+#include <stdio.h>
 
 //#include "freeems_loader_types.cpp"
 

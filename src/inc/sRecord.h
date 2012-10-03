@@ -37,8 +37,8 @@
 #include <QString>
 #include <QObject>
 
-#include "inc/parsing.h"
-#include "inc/loaderTypes.h"
+#include <parsing.h>
+#include <loaderTypes.h>
 
 using namespace std;
 

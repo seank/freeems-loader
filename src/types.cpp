@@ -24,7 +24,7 @@
  *
  */
 
-#include "inc/loaderTypes.h"
+#include <loaderTypes.h>
 #include <string>
 
 const struct dataVector_tag dataVectorTable[] = { { "S12XDP512", 0x8000, 0xBFFF, 0xE0, 0xFF, PAGED_FLASH,

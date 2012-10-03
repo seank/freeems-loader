@@ -23,7 +23,6 @@
 # * Thank you for choosing FreeEMS-Loader to load your firmware!
 # *
 # */
-
 TEMPLATE = app
 TARGET = FreeEMS-Loader
 VERSION = 0.1.0
@@ -43,7 +42,6 @@ HEADERS += inc/globals.h \
     inc/about.h \
     inc/freeems_loader.h \
     inc/sRecord.h \
-    inc/redirector.h \
     inc/parsing.h \
     inc/comms.h \
     inc/loaderTypes.h
@@ -59,19 +57,25 @@ FORMS *= freeemsLoader.ui \
     about.ui
 RESOURCES += resource-root.qrc
 RC_FILE += loader.rc
+
 # We are making use of QMAKE_POST_LINK so we always get fresh GIT hashes in our builds
 QMAKE_POST_LINK += touch \
     freeemsLoader.cpp \
     about.cpp
-
-CONFIG(debug, debug|release) {
-	message("Building Debug Version, expect spew!")
-}
+CONFIG(debug, debug|release):message("Building Debug Version, expect spew!")
 else { 
     DEFINES += QT_NO_WARNING_OUTPUT \
         QT_NO_DEBUG_OUTPUT
     message("Building Release Version")
 }
+
+# Default make specs
+unix:INCLUDEPATH += inc
+unix:INCLUDEPATH += $$quote(/usr/local/include/)
+unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so.$$LIB_VERSION)
+unix:PRE_TARGETDEPS += $$quote(/usr/local/lib/libSerialIO.so.$$LIB_VERSION)
+unxi:DEFINES += GIT_HASH=$$system(git describe --dirty=-DEV --always)
+unix:DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)
 
 # Cross compilation
 win32-x-g++ { 

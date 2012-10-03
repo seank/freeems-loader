@@ -27,7 +27,7 @@
 #ifndef ABOUT_H
 #define ABOUT_H
 
-#include "ui_about.h"
+#include <ui_about.h>
 
 //Emulate a forward declaration for using external Vars in code
 #define fwdDeclare_p(x) #x

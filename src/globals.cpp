@@ -24,7 +24,7 @@
  *
  */
 
-#include "inc/globals.h"
+#include <globals.h>
 
 QMutex	loaderBusy;
 bool	loaderAbort;

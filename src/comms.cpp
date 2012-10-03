@@ -24,7 +24,7 @@
  *
  */
 
-#include "inc/comms.h"
+#include <comms.h>
 #include <fstream>
 #include "inc/globals.h"
 

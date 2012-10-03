@@ -36,8 +36,8 @@
 #include <QObject>
 #include <QDebug>
 #include <QFile>
-#include "SerialIO.h"
-#include "inc/sRecord.h"
+#include <SerialIO.h>
+#include <sRecord.h>
 
 #include <QObject>
 
