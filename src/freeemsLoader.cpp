@@ -214,8 +214,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 FreeEMS_Loader::~FreeEMS_Loader() {
 	saveSettings();
 //	loaderComms->close();
-//	delete loaderComms;
-
+	delete loaderComms;
 }
 
 int FreeEMS_Loader::fillDevice() {

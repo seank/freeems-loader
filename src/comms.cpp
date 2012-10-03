@@ -112,10 +112,12 @@ int FreeEMS_LoaderComms::ripDevice() {
 	unsigned int bytesPerRecord = 16; //read 16 bytes TODO make configurable, same as default hcs12mem tool
 	//  unsigned int bytesInRange;
 	unsigned int pagedAddress = 0;
+	int result = 1;
 
 	std::vector<unsigned char> rxBuffer(bytesPerRecord);
 	ofstream outFile(ripFilename.toAscii(), ios::out | ios::binary);
-	FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
+	//FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
+	FreeEMS_LoaderSREC s19Record(S2);
 	totalBytes = getDeviceByteCount();
 	emit configureProgress(0, totalBytes - 1);
 
@@ -124,13 +126,13 @@ int FreeEMS_LoaderComms::ripDevice() {
 			if (!strcmp(flashModuleTable[flashTypeIndex].name, dataVectorTable[i].association)) {
 				nPages = dataVectorTable[i].stopPage - dataVectorTable[i].startPage;
 				nPages++; //there is always 1 page to rip
-				for (PPageIndex = dataVectorTable[i].startPage; nPages; PPageIndex++, nPages--) {
+				for (PPageIndex = dataVectorTable[i].startPage; nPages && (result == 1); PPageIndex++, nPages--) {
 					SMSetPPage(PPageIndex); //set Ppage register
 
 					firstAddress = dataVectorTable[i].startAddress;
 					lastAddress = dataVectorTable[i].stopAddress;
 					//                  bytesInRange = lastAddress - firstAddress;
-					s19Record->setRecordAddress(firstAddress);
+					s19Record.setRecordAddress(firstAddress);
 					numSectors = (lastAddress - firstAddress) / bytesPerRecord + 1;
 					//TODO add error for invalid range or improper modulus
 					rxBuffer.clear();
@@ -139,7 +141,8 @@ int FreeEMS_LoaderComms::ripDevice() {
 						loaderBusy.lock();
 						if (loaderAbort) {
 							loaderBusy.unlock();
-							return -2;
+							result = -2;
+							break;
 						}
 						loaderBusy.unlock();
 						//Read Block
@@ -148,16 +151,17 @@ int FreeEMS_LoaderComms::ripDevice() {
 						pagedAddress += address;
 						if (SMReadByteBlock((unsigned short) address, bytesPerRecord, rxBuffer) < 0) {
 							emit udProgress(0);
-							return -1;
+							result = -1;
+							break;
 						}
-						s19Record->initVariables(); // clear record
-						s19Record->setTypeIndex(S2);
-						s19Record->setRecordAddress(pagedAddress);
-						s19Record->fillRecord(rxBuffer);
-						s19Record->buildRecord();
+						s19Record.initVariables(); // clear record
+						s19Record.setTypeIndex(S2);
+						s19Record.setRecordAddress(pagedAddress);
+						s19Record.fillRecord(rxBuffer);
+						s19Record.buildRecord();
 						emit udProgress(totalBytesTX); //Update Progress Bar
-						if (s19Record->recordIsNull == false) {
-							outFile.write(s19Record->retRecordString().c_str(), s19Record->retRecordSize());
+						if (s19Record.recordIsNull == false) {
+							outFile.write(s19Record.retRecordString().c_str(), s19Record.retRecordSize());
 							outFile.write("\n", 1);
 						}
 					}
@@ -166,12 +170,12 @@ int FreeEMS_LoaderComms::ripDevice() {
 		}
 		//emit udProgress(totalBytes);
 	} else {
-		//setGUI(ERROR)
+		result = -1;
 		emit displayMessage(MESSAGE_ERROR, "error SM not ready");
 	}
 	outFile.close();
-	delete s19Record;
-	return 1;
+//	delete s19Record;
+	return result;
 }
 
 void FreeEMS_LoaderComms::setFlashType(const char *commonName) {
@@ -197,7 +201,7 @@ void FreeEMS_LoaderComms::SMSetPPage(unsigned char PPage) {
 	}
 }
 
-void FreeEMS_LoaderComms::SMReadChars(const char *data, size_t size) {
+void FreeEMS_LoaderComms::SMReadChars(const char *data, unsigned int size) {
 	int i;
 	printf("\n about to write char(s) ");
 	for (i = (int) size; i > 0; i--) {
@@ -226,7 +230,7 @@ void FreeEMS_LoaderComms::setSM() {
 	return;
 }
 
-void FreeEMS_LoaderComms::write(const unsigned char *data, size_t size) {
+void FreeEMS_LoaderComms::write(const unsigned char *data, unsigned int size) {
 	//sleep(1);
 	serPort->writeData(data, size);
 }
@@ -250,7 +254,7 @@ void FreeEMS_LoaderComms::writeString(const std::string& s) {
 }
 
 //TODO add parity "double read" option
-void FreeEMS_LoaderComms::read(unsigned char* data, size_t size) {
+void FreeEMS_LoaderComms::read(unsigned char* data, unsigned int size) {
 	int readResult = serPort->readData(data, size);
 
 	if (readResult < 0) {
@@ -260,7 +264,7 @@ void FreeEMS_LoaderComms::read(unsigned char* data, size_t size) {
 	}
 }
 
-std::vector<unsigned char> FreeEMS_LoaderComms::read(size_t size) {
+std::vector<unsigned char> FreeEMS_LoaderComms::read(unsigned int size) {
 	vector<unsigned char> result(size, '\0'); //Allocate a vector with the desired size
 	read(&result[0], size); //Fill it with values
 	return result;
@@ -268,9 +272,9 @@ std::vector<unsigned char> FreeEMS_LoaderComms::read(size_t size) {
 
 FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
 	//TODO populate with proper code
-	serPort->closePort();
-	delete serPort;
+	close();
 	delete [] s19SetOne;
+	delete serPort;
 }
 
 void FreeEMS_LoaderComms::returnFlashType(unsigned char *responce) {

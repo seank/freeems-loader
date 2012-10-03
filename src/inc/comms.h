@@ -129,7 +129,7 @@ public:
 
 	int SMReadByteBlock(unsigned int address, unsigned int plusBytes, std::vector<unsigned char> &vec);
 
-	void SMReadChars(const char *data, size_t size);
+	void SMReadChars(const char *data, unsigned int size);
 
 	void flushRXStream();
 
@@ -178,7 +178,7 @@ public:
 	 * \param size array size
 	 * \throws boost::system::system_error if any error
 	 */
-	void write(const unsigned char *data, size_t size);
+	void write(const unsigned char *data, unsigned int size);
 
 	/**
 	 * Write data
@@ -208,7 +208,7 @@ public:
 	 */
 //	void read(char *data, size_t size);
 
-	void read(unsigned char *data, size_t size);
+	void read(unsigned char *data, unsigned int size);
 	/**
 	 * Read some data, blocking
 	 * \param size how much data to read
@@ -216,7 +216,7 @@ public:
 	 * \throws boost::system::system_error if any error
 	 * \throws timeout_exception in case of timeout
 	 */
-	std::vector<unsigned char> read(size_t size);
+	std::vector<unsigned char> read(unsigned int size);
 
 	/**
 	 * Read a string, blocking
@@ -228,7 +228,7 @@ public:
 	 * \throws boost::system::system_error if any error
 	 * \throws timeout_exception in case of timeout
 	 */
-	std::string	readString(size_t size);
+	std::string	readString(unsigned int size);
 
 	/**
 	 * Read a line, blocking
@@ -287,7 +287,7 @@ private:
 		resultInProgress, resultSuccess, resultError, resultTimeoutExpired
 	};
 	enum ReadResult result; ///< Used by read with timeout
-	size_t bytesTransferred; ///< Used by async read callback
+	unsigned int bytesTransferred; ///< Used by async read callback
 
 	FreeEMS_LoaderSREC *s19SetOne;
 	FreeEMS_LoaderSREC *s19SetTwo;
