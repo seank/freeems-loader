@@ -55,10 +55,10 @@ bool FreeEMS_LoaderComms::isOpen() {
 
 void FreeEMS_LoaderComms::init() {
 	_recordSetLoaded = false;
-	s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
+	//s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
 	//s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
 	lastLoadAddress = 0;
-	clearSets();
+	//clearSets();
 	s19SetOneCount = 0;
 	serPort = new IPDS::SerialIO;
 	m_actionErase = false;
@@ -67,14 +67,6 @@ void FreeEMS_LoaderComms::init() {
 	m_actionConnect = false;
 	m_actionDisConnect = false;
 
-}
-
-void FreeEMS_LoaderComms::clearSets() {
-	unsigned int i;
-	for (i = 0; i < ONE_TWENTY_EIGHT_K_RECORDS; i++) {
-		s19SetOne[i].initVariables();
-		// s19SetTwo[i].initVariables();
-	}
 }
 
 void FreeEMS_LoaderComms::close() {
@@ -617,7 +609,6 @@ void FreeEMS_LoaderComms::abortOperation() {
 }
 
 void FreeEMS_LoaderComms::parseFile() {
-	clearSets();
 	_badCheckSums = 0;
 	_loadableRecords = 0;
 	s19SetOneCount = 0;
@@ -630,11 +621,13 @@ void FreeEMS_LoaderComms::parseFile() {
 		emit displayMessage(MESSAGE_ERROR, "Error opening file");
 		return;
 	}
+
 	while (getline(ifs, line)) {
 		lineArray.push_back(line);
 		linesRead++;
 	}
 	ifs.close();
+	initRecordSet(linesRead);
 	generateRecords(lineArray);
 }
 
@@ -717,4 +710,14 @@ void FreeEMS_LoaderComms::setupPort(QString portName, unsigned int baud, unsigne
 	m_portStopBits = stopBits;
 	m_portParity = parity;
 	//TODO finish other stuff
+}
+
+void FreeEMS_LoaderComms::initRecordSet(unsigned int numRecords) {
+	unsigned int i;
+	s19SetOne = new FreeEMS_LoaderSREC[numRecords];
+	//s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
+	for (i = 0; i < numRecords; i++) {
+		s19SetOne[i].initVariables();
+		// s19SetTwo[i].initVariables();
+	}
 }
