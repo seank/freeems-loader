@@ -230,7 +230,7 @@ int FreeEMS_Loader::fillDevice() {
 	}
 #endif
 #ifdef __WIN32__
-	ui.comboDevice->addItem("COM1");
+//	ui.comboDevice->addItem("COM1");
 	//TODO scan the windows registry for valid ports
 #endif
 
