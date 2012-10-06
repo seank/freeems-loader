@@ -365,16 +365,24 @@ void FreeEMS_Loader::connect() {
 
 void FreeEMS_Loader::rip() {
 	QSettings loaderSettings(settingsFile, QSettings::IniFormat);
-
+	QString
 	loadRipDirectory = loaderSettings.value("lastRipDirectory").toString();
 	ui.chkRip->setEnabled(0);
-	ripFileName = QFileDialog::getSaveFileName(this, tr("Save s19 as"), loadRipDirectory, tr("s19 (*.s19)"));
-	if (ripFileName.isNull()) {
+	QFileDialog fileDialog(this, "Save s19 as");
+	fileDialog.setNameFilter("s19 Files (*.s19)");
+	fileDialog.setDirectory(loadRipDirectory);
+	fileDialog.setDefaultSuffix("s19");
+	fileDialog.setViewMode(QFileDialog::Detail);
+	fileDialog.setFileMode(QFileDialog::AnyFile);
+	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+	fileDialog.exec();
+	ripFileName = fileDialog.selectedFiles().first();
+	if(!ripFileName.endsWith(".s19")) {
 		displayMessage(MESSAGE_INFO, "no rip file name specified");
 		return;
 	}
-	if (!ripFileName.endsWith(".s19"))
-		ripFileName.append(".s19");
+	qDebug() << "Ripping flash as " << ripFileName;
+	ripFileName = fileDialog.selectedFiles().first();
 	loaderSettings.setValue("lastRipDirectory", ripFileName);
 	loaderComms->setRipFilename(ripFileName);
 	loaderComms->setAction("RIP");
