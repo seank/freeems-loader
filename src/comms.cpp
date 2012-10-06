@@ -61,6 +61,7 @@ void FreeEMS_LoaderComms::init() {
 	//clearSets();
 	s19SetOneCount = 0;
 	serPort = new IPDS::SerialIO;
+	s19SetOne = NULL;
 	m_actionErase = false;
 	m_actionRip = false;
 	m_actionLoad = false;
@@ -265,7 +266,8 @@ std::vector<unsigned char> FreeEMS_LoaderComms::read(unsigned int size) {
 FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
 	//TODO populate with proper code
 	close();
-	delete [] s19SetOne;
+	if(s19SetOne != NULL)
+		delete [] s19SetOne;
 	delete serPort;
 }
 
