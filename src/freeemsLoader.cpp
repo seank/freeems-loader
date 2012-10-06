@@ -371,6 +371,8 @@ void FreeEMS_Loader::rip() {
 		displayMessage(MESSAGE_INFO, "no rip file name specified");
 		return;
 	}
+	if (!ripFileName.endsWith(".s19"))
+		ripFileName.append(".s19");
 	loaderSettings.setValue("lastRipDirectory", ripFileName);
 	loaderComms->setRipFilename(ripFileName);
 	loaderComms->setAction("RIP");
