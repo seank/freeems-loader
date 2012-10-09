@@ -570,7 +570,7 @@ void FreeEMS_Loader::displayMessage(MESSAGE_TYPE type, QString message) {
 			cout << endl << "Argument: " << message.toStdString();
 		break;
 		case MESSAGE_GENERIC:
-			cout << message.toStdString();
+			cout << endl << message.toStdString();
 		break;
 		case MESSAGE_ERROR:
 			writeText(message.toStdString());

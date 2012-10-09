@@ -200,16 +200,19 @@ int FreeEMS_LoaderSREC::retRecordSize() {
 }
 
 bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
+
 	char type = *(lineIn->c_str() + 1);
 	if (*lineIn->c_str() == 'S') //start of record
 	{
 		switch (type) {
-		case '0': //vendor specific data
+		case '0': //vendor specific data rangeerror hiNibble
 			setTypeIndex(S0);
 			memcpy(recordTypeIdChars, lineIn->c_str(), TWO_BYTES);
 			memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
-			//TODO finish
+			//cout << "TODO S0 records are not currently handled, skipping" << endl;
 		case '1':
+			cout << endl << "TODO S1 records are not currently handled, skipping";
+			return false;
 			break;
 		case '2': //Record is S2
 			setTypeIndex(S2);
@@ -225,22 +228,23 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			recordLoadedChkSum = FreeEMS_LoaderParsing::asciiPairToChar(recordCheckSumChars);
 			FreeEMS_LoaderParsing::asciiPairToArray(recordPayload, recordBytes, recordPayloadBytes);
 			setNumPairsInRecord();
-			calculateCheckSum();
+			calculateCheckSum(); // this asserts that the data is good
 			if (recordChkSum != recordLoadedChkSum) {
 				//emit displayMessage(MESSAGE_ERROR, "CHECKSUM DOES NOT MATCH CALCUATED SUM IN LINE->");
 				//FreeEMS_Loader::displayMessage(MESSAGE_ERROR, "CHECKSUM DOES NOT MATCH CALCUATED SUM IN LINE->");
-				cout<<"CHECKSUM DOES NOT MATCH CALCUATED SUM IN LINE->";
+				cout << endl << "CHECKSUM DOES NOT MATCH CALCUATED SUM AT LINE->";
 				return false;
 			}
 			break;
 		case '3':
+			cout << endl << "TODO S3 records are not currently handled";
 			break;
 		default:
-			cout << "LINE DOES NOT CONTAIN LOADABLE RECORD OR IS UNRECOGNIZED";
+			cout << endl <<"LINE DOES NOT CONTAIN LOADABLE RECORD OR IS UNRECOGNIZED";
 			break;
 		}
 	} else {
-		cout << "LINE DOES NOT CONTAIN LOADABLE RECORD";
+		cout << endl << "LINE DOES NOT CONTAIN LOADABLE RECORD";
 	}
 	return true;
 }

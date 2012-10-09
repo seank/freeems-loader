@@ -427,6 +427,7 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 		if (parser.lineIsLoadable(&line)) {
 			result = s19SetOne[linesLoadable].createFromString(&line);
 			if(result == false){
+				cout << (i + 1);
 				_badCheckSums++;
 				return result;
 			}

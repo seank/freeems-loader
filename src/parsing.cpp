@@ -54,7 +54,8 @@ unsigned char FreeEMS_LoaderParsing::asciiPairToChar(char *ascii_pair) {
 		} else if (pair_char >= 'A' && pair_char <= 'F') {
 			byte |= (pair_char - 'A') + 10;
 		} else {
-			cout << "error converting ascii hiNibble: out of range";
+			cout << endl << "error converting ascii pair to byte out of range(0-F allowed)";
+			break;
 		}
 		if (i == 0) // right shift the first pair
 			byte <<= 4;
@@ -74,7 +75,7 @@ unsigned char FreeEMS_LoaderParsing::asciiPairToChar(const char *ascii_pair) {
 		} else if (pair_char >= 'A' && pair_char <= 'F') {
 			byte |= (pair_char - 'A') + 10;
 		} else {
-			cout << "error converting ascii hiNibble: out of range";
+			cout << endl << "error converting ascii pair to byte out of range(0-F allowed)";
 		}
 		if (i == 0) // right shift the first pair
 			byte <<= 4;
