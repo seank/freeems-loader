@@ -55,8 +55,6 @@ bool FreeEMS_LoaderComms::isOpen() {
 
 void FreeEMS_LoaderComms::init() {
 	_recordSetLoaded = false;
-	//s19SetOne = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
-	//s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
 	lastLoadAddress = 0;
 	//clearSets();
 	s19SetOneCount = 0;
@@ -266,8 +264,10 @@ std::vector<unsigned char> FreeEMS_LoaderComms::read(unsigned int size) {
 FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
 	//TODO populate with proper code
 	close();
-	if(s19SetOne != NULL)
+	if(s19SetOne != NULL) {
+		qDebug() << "calling delete [] for s19Records";
 		delete [] s19SetOne;
+	}
 	delete serPort;
 }
 
@@ -428,7 +428,7 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 			result = s19SetOne[linesLoadable].createFromString(&line);
 			if(result == false){
 				cout << (i + 1);
-				_badCheckSums++;
+				_badCheckSums++; //this is somewhat misleading as this will be incremented if the parse fails for whatever reason TODO fix
 				return result;
 			}
 			s19SetOneCount++;

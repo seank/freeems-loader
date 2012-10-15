@@ -43,6 +43,7 @@ FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(int type) {
 }
 
 FreeEMS_LoaderSREC::~FreeEMS_LoaderSREC() {
+	qDebug() << "called FreeEMS_LoaderSREC::~FreeEMS_LoaderSREC()";
 	// TODO Auto-generated destructor stub
 }
 
@@ -200,12 +201,14 @@ int FreeEMS_LoaderSREC::retRecordSize() {
 }
 
 bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
-
+	//Byte count, two hex digits, indicating the number of bytes
+	//(hex digit pairs) that follow in the rest of the record (in the address, data and checksum fields).
+	//todo replace couts
 	char type = *(lineIn->c_str() + 1);
 	if (*lineIn->c_str() == 'S') //start of record
 	{
 		switch (type) {
-		case '0': //vendor specific data rangeerror hiNibble
+		case '0':
 			setTypeIndex(S0);
 			memcpy(recordTypeIdChars, lineIn->c_str(), TWO_BYTES);
 			memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
@@ -218,8 +221,13 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			setTypeIndex(S2);
 			memcpy(recordTypeIdChars, lineIn->c_str(), TWO_BYTES);
 			memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
-			recordPayloadBytes = (int) FreeEMS_LoaderParsing::asciiPairToChar(recordPayloadPairCountChars);
-			recordPayloadBytes -= 4; //TODO make proper maybe make a function to call setNumPairsInRecord too
+			bytePairCount = (int) FreeEMS_LoaderParsing::asciiPairToChar(recordPayloadPairCountChars);
+			/* Check to make sure the pair count matches */
+			if ((lineIn->length() - 2 - 2 - 1) != (bytePairCount * 2)) {
+				cout << "Error, the reported pair count does not match the expected count in " << *lineIn << endl;
+				return false;
+			}
+			recordPayloadBytes = bytePairCount - 4; //TODO make proper maybe make a function to call setNumPairsInRecord too
 			memcpy(recordAddressChars, lineIn->c_str() + S2_ADDRESS_OFFSET, 6); //S2 has 6 chars in address
 			setRecordAddress(recordAddressChars);
 			memcpy(recordPayload, lineIn->c_str() + S2_PAYLOAD_OFFSET, recordPayloadBytes * 2);

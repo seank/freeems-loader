@@ -36,7 +36,9 @@ CONFIG *= qt \
     warn_on \
     thread \
     release \
+    console \
     debug
+
 QT *= core \
     gui
 HEADERS += inc/globals.h \

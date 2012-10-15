@@ -36,6 +36,7 @@
 #include <string>
 #include <QString>
 #include <QObject>
+#include <QDebug>
 
 #include <parsing.h>
 #include <loaderTypes.h>
@@ -117,10 +118,10 @@ private:
 
 	unsigned char recordChkSum;
 	unsigned char recordLoadedChkSum;
-	//char checksum;
 
 	int charsInAddress;
 	int recordIndex;
+	int bytePairCount; //These characters when paired and interpreted as a hexadecimal value, display the count of remaining character pairs in the record.
 
 	int typeIndex;
 	int numHexValues;

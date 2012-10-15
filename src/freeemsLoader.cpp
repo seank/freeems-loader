@@ -497,7 +497,7 @@ void FreeEMS_Loader::load() {
 //		loadFileName = fileDialog.getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
 //	}
 	if (!_fileLoaded) {
-		displayMessage(MESSAGE_INFO, "s19 records have not been loaded");
+		displayMessage(MESSAGE_INFO, "s19 records have not been loaded or there was a problem parsing the input file");
 		return;
 	}
 	if (ui.chkVerify->isChecked()) {
@@ -601,11 +601,9 @@ void FreeEMS_Loader::openFile() {
 		loaderComms->setLoadFilename(loadFileName);
 		loaderComms->parseFile();
 		if(loaderComms->numLoadableRecords() == 0){
-			displayMessage(MESSAGE_ERROR, "no load-able records parsed");
-			return;
+			displayMessage(MESSAGE_ERROR, "no load-able records parsed, or there was a problem with the first record");
 		}else if(loaderComms->numBadSums()){
-			displayMessage(MESSAGE_ERROR, "there are " + qSNum.setNum(loaderComms->numBadSums(), 10) + " records with bad checksums");
-			return;
+			displayMessage(MESSAGE_ERROR, "there are " + qSNum.setNum(loaderComms->numBadSums(), 10) + " records with bad checksums or lengths , loading will be disabled");
 		} else {
 			displayMessage(MESSAGE_INFO,"found " + 	qSNum.setNum(loaderComms->numLoadableRecords(), 10) +" loadable records in file");
 			if(_loaderState == STATE_CONNECTED)
