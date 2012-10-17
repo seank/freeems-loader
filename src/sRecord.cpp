@@ -147,7 +147,7 @@ void FreeEMS_LoaderSREC::calculateCheckSum() {
 		recordChkSum += numHexValues; // add char count to checksum
 		recordChkSum = ~(recordChkSum & 0x00ff);
 	} else {
-		cout << "Address or type is not set";
+		cout << "Checksum cannot be calculated because, address or type has not been set yet";
 	}
 	return;
 }
@@ -223,8 +223,12 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
 			bytePairCount = (int) FreeEMS_LoaderParsing::asciiPairToChar(recordPayloadPairCountChars);
 			/* Check to make sure the pair count matches */
-			if ((lineIn->length() - 2 - 2 - 1) != (bytePairCount * 2)) {
+			if ((lineIn->length() - 2 - 2 - LINE_RETURN_CHAR_SIZE) != (bytePairCount * 2)) {
 				cout << "Error, the reported pair count does not match the expected count in " << *lineIn << endl;
+				return false;
+			}
+			if((lineIn->length() + LINE_RETURN_CHAR_SIZE) % 2) {
+				cout << "Error, the number of HEX pairs must be even " << *lineIn << endl;
 				return false;
 			}
 			recordPayloadBytes = bytePairCount - 4; //TODO make proper maybe make a function to call setNumPairsInRecord too

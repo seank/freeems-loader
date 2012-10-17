@@ -52,6 +52,7 @@ using namespace std;
 #define ONE_KB                  0x0400 // one kilo byte
 #define CH_PAIR_COUNT_BYTE      0x01
 #define ASCII_PAIR              0x02
+#define LINE_RETURN_CHAR_SIZE	 0x01
 
 //enum BOOL {READONLY, READWRITE}
 
