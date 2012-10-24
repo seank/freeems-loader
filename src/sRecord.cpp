@@ -204,6 +204,10 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 	//Byte count, two hex digits, indicating the number of bytes
 	//(hex digit pairs) that follow in the rest of the record (in the address, data and checksum fields).
 	//todo replace couts
+	if ((lineIn->length() + LINE_RETURN_CHAR_SIZE) % 2) {
+		cout << "Error, the number of HEX pairs must be even, nibbles are not supported by s19 " << *lineIn << endl;
+		return false;
+	}
 	char type = *(lineIn->c_str() + 1);
 	if (*lineIn->c_str() == 'S') //start of record
 	{
@@ -225,10 +229,6 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			/* Check to make sure the pair count matches */
 			if ((lineIn->length() - 2 - 2 - LINE_RETURN_CHAR_SIZE) != (bytePairCount * 2)) {
 				cout << "Error, the reported pair count does not match the expected count in " << *lineIn << endl;
-				return false;
-			}
-			if((lineIn->length() + LINE_RETURN_CHAR_SIZE) % 2) {
-				cout << "Error, the number of HEX pairs must be even " << *lineIn << endl;
 				return false;
 			}
 			recordPayloadBytes = bytePairCount - 4; //TODO make proper maybe make a function to call setNumPairsInRecord too
