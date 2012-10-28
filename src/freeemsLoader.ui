@@ -42,7 +42,7 @@
         <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
        </property>
        <property name="text">
-        <string>Device:</string>
+        <string>Serial Port:</string>
        </property>
       </widget>
       <widget class="QComboBox" name="comboDevice">
