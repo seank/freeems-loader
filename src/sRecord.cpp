@@ -67,6 +67,9 @@ void FreeEMS_LoaderSREC::initVariables() {
 	typeIsSet = false;
 	recordIsNull = true;
 	numPairsSet = false;
+	mismatchedCheckSum = false;
+	correctLineLength = true;
+	charactersValid = true;
 }
 
 FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress) {
@@ -206,6 +209,7 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 	//todo replace couts
 	if ((lineIn->length() + LINE_RETURN_CHAR_SIZE) % 2) {
 		cout << "Error, the number of HEX pairs must be even, nibbles are not supported by s19 " << *lineIn << endl;
+		correctLineLength = false;
 		return false;
 	}
 	char type = *(lineIn->c_str() + 1);
@@ -245,6 +249,7 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 				//emit displayMessage(MESSAGE_ERROR, "CHECKSUM DOES NOT MATCH CALCUATED SUM IN LINE->");
 				//FreeEMS_Loader::displayMessage(MESSAGE_ERROR, "CHECKSUM DOES NOT MATCH CALCUATED SUM IN LINE->");
 				cout << endl << "CHECKSUM DOES NOT MATCH CALCUATED SUM AT LINE->";
+				mismatchedCheckSum = true;
 				return false;
 			}
 			break;
@@ -259,4 +264,32 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 		cout << endl << "LINE DOES NOT CONTAIN LOADABLE RECORD";
 	}
 	return true;
+}
+
+unsigned int FreeEMS_LoaderSREC::getRecordAddress() {
+	return payloadAddress;
+}
+
+int FreeEMS_LoaderSREC::getRecordTypeIndex() {
+	return typeIndex;
+}
+
+bool FreeEMS_LoaderSREC::isRecordNull() {
+	return recordIsNull;
+}
+
+unsigned char FreeEMS_LoaderSREC::getCalculatedSum() {
+	return recordChkSum;
+}
+
+bool FreeEMS_LoaderSREC::isCheckSumMismatched() {
+	return mismatchedCheckSum;
+}
+
+bool FreeEMS_LoaderSREC::isLineLengthCorrect() {
+	return correctLineLength;
+}
+
+bool FreeEMS_LoaderSREC::areCharactersValid() {
+	return charactersValid;
 }

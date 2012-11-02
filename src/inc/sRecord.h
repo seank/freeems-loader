@@ -70,15 +70,19 @@ public:
 	 * calculate a records checksum and compre it to the stored value.
 	 */
 	bool verifyRecord();
-	int	getRecordAddress();
+	unsigned int	getRecordAddress();
 	char getNextByte();
-	char getRecordType();
+	int getRecordTypeIndex();
 	void buildRecord();
 	void printRecord();
 	bool createFromString(string* lineIn);
-	std::string
-	retRecordString();
+	std::string	retRecordString();
 	QString getAllVendorData();
+	bool isRecordNull();
+	bool mismatchedCheckSum;
+	bool correctLineLength;
+	bool charactersValid;
+
 
 	/*
 	 These characters when paired and interpreted as a hexadecimal value display
@@ -97,8 +101,11 @@ public:
 	void initVariables();
 	int retRecordSize();
 	bool lineIsLoadable(string* line);
+	unsigned char getCalculatedSum();
+	bool isCheckSumMismatched();
+	bool isLineLengthCorrect();
+	bool areCharactersValid();
 
-	bool recordIsNull;
 	char recordPayload[512]; //ascii pair representaion of the payload
 
 	unsigned int payloadAddress;
@@ -132,7 +139,7 @@ private:
 	bool addressIsSet;
 	bool typeIsSet;
 	bool numPairsSet;
-
+	bool recordIsNull;
 };
 
 #else
