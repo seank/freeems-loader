@@ -151,7 +151,7 @@ int FreeEMS_LoaderComms::ripDevice() {
 						s19Record.fillRecord(rxBuffer);
 						s19Record.buildRecord();
 						emit udProgress(totalBytesTX); //Update Progress Bar
-						if (s19Record.recordIsNull == false) {
+						if (s19Record.isRecordNull() == false) {
 							outFile.write(s19Record.retRecordString().c_str(), s19Record.retRecordSize());
 							outFile.write("\n", 1);
 						}
