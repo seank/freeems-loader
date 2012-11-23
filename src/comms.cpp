@@ -31,7 +31,7 @@
 using namespace std;
 
 FreeEMS_LoaderComms::FreeEMS_LoaderComms() :
-				verifyLastWrite(false), flashTypeIndex(0), fDeviceIsSet(false), smIsReady(false) {
+				verifyLastWrite(false), m_fDeviceIsSet(false), m_smIsReady(false), m_flashTypeIndex(0) {
 	init();
 }
 
@@ -40,26 +40,26 @@ void FreeEMS_LoaderComms::openTest(QString serPortName) {
 }
 
 void FreeEMS_LoaderComms::open() {
-	serPort->openPort(m_portName);
-	serPort->setupPort(m_portBaud, m_portDataBits, m_portParity, m_portStopBits);
-	serPort->communicate();
+	m_serPort->openPort(m_portName);
+	m_serPort->setupPort(m_portBaud, m_portDataBits, m_portParity, m_portStopBits);
+	m_serPort->communicate();
 }
 
 bool FreeEMS_LoaderComms::isReady() const {
-	return smIsReady ? true : false;
+	return m_smIsReady ? true : false;
 }
 
 bool FreeEMS_LoaderComms::isOpen() {
-	return serPort->isOpen();
+	return m_serPort->isOpen();
 }
 
 void FreeEMS_LoaderComms::init() {
-	_recordSetLoaded = false;
-	lastLoadAddress = 0;
+	m_recordSetLoaded = false;
+	m_lastLoadAddress = 0;
 	//clearSets();
-	s19SetOneCount = 0;
-	serPort = new IPDS::SerialIO;
-	s19SetOne = NULL;
+	m_s19SetOneCount = 0;
+	m_serPort = new IPDS::SerialIO;
+	m_s19SetOne = NULL;
 	m_actionErase = false;
 	m_actionRip = false;
 	m_actionLoad = false;
@@ -72,17 +72,17 @@ void FreeEMS_LoaderComms::close() {
 	if (isOpen() == false)
 		return;
 	emit displayMessage(MESSAGE_INFO, "closing serial port");
-	serPort->closePort();
+	m_serPort->closePort();
 	m_actionConnect = false;
 	m_actionErase = false;
 	m_actionDisConnect = false;
 	m_actionLoad = false;
 	m_actionRip = false;
-	smIsReady = false;
+	m_smIsReady = false;
 }
 
 int FreeEMS_LoaderComms::loadDevice() {
-	if(_recordSetLoaded) {
+	if(m_recordSetLoaded) {
 		return writeBlocks();
 	} else {
 		emit displayMessage(MESSAGE_ERROR, "can't perform load, record set not yet loaded");
@@ -106,15 +106,15 @@ int FreeEMS_LoaderComms::ripDevice() {
 	int result = 1;
 
 	std::vector<unsigned char> rxBuffer(bytesPerRecord);
-	ofstream outFile(ripFilename.toAscii(), ios::out | ios::binary);
+	ofstream outFile(m_ripFilename.toAscii(), ios::out | ios::binary);
 	//FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
 	FreeEMS_LoaderSREC s19Record(S2);
 	totalBytes = getDeviceByteCount();
 	emit configureProgress(0, totalBytes - 1);
 
-	if (smIsReady) {
+	if (m_smIsReady) {
 		for (i = 0; i < numDataVectorTableEntries; i++) {
-			if (!strcmp(flashModuleTable[flashTypeIndex].name, dataVectorTable[i].association)) {
+			if (!strcmp(flashModuleTable[m_flashTypeIndex].name, dataVectorTable[i].association)) {
 				nPages = dataVectorTable[i].stopPage - dataVectorTable[i].startPage;
 				nPages++; //there is always 1 page to rip
 				for (PPageIndex = dataVectorTable[i].startPage; nPages && (result == 1); PPageIndex++, nPages--) {
@@ -173,9 +173,9 @@ void FreeEMS_LoaderComms::setFlashType(const char *commonName) {
 	int i;
 	for (i = 0; flashModuleTable[i].name; i++) {
 		if (!strcmp(flashModuleTable[i].name, commonName)) {
-			flashTypeIndex = i;
+			m_flashTypeIndex = i;
 			//cout << " set flash type to " << commonName; //TODO MAKE THREAD SAFE
-			fDeviceIsSet = true;
+			m_fDeviceIsSet = true;
 			return;
 		}
 	}
@@ -211,19 +211,19 @@ void FreeEMS_LoaderComms::resetSM() {
 }
 
 void FreeEMS_LoaderComms::setSM() {
-	serPort->flushRX();
+	m_serPort->flushRX();
 	write(&SMReturn, 1);
 	if (verifyReturn(SETSM) > 0) {
-		smIsReady = true;
+		m_smIsReady = true;
 	} else {
-		smIsReady = false;
+		m_smIsReady = false;
 	}
 	return;
 }
 
 void FreeEMS_LoaderComms::write(const unsigned char *data, unsigned int size) {
 	//sleep(1);
-	serPort->writeData(data, size);
+	m_serPort->writeData(data, size);
 }
 
 void FreeEMS_LoaderComms::write(const std::vector<unsigned char>& data) {
@@ -246,7 +246,7 @@ void FreeEMS_LoaderComms::writeString(const std::string& s) {
 
 //TODO add parity "double read" option
 void FreeEMS_LoaderComms::read(unsigned char* data, unsigned int size) {
-	int readResult = serPort->readData(data, size);
+	int readResult = m_serPort->readData(data, size);
 
 	if (readResult < 0) {
 		close();
@@ -264,11 +264,11 @@ std::vector<unsigned char> FreeEMS_LoaderComms::read(unsigned int size) {
 FreeEMS_LoaderComms::~FreeEMS_LoaderComms() {
 	//TODO populate with proper code
 	close();
-	if(s19SetOne != NULL) {
+	if(m_s19SetOne != NULL) {
 		qDebug() << "calling delete [] for s19Records";
-		delete [] s19SetOne;
+		delete [] m_s19SetOne;
 	}
-	delete serPort;
+	delete m_serPort;
 }
 
 void FreeEMS_LoaderComms::returnFlashType(unsigned char *responce) {
@@ -358,10 +358,10 @@ int FreeEMS_LoaderComms::eraseDevice() {
 	char PPageIndex;
 	//setSM(); //change to checkSM Incase the SM has been reset by the user
 	// TODO change all errors to a SM check call back or something
-	if (smIsReady) {
+	if (m_smIsReady) {
 		//calculate total bytes in device
 		for (i = 0; i < numDataVectorTableEntries; i++) {
-			if (!strcmp(flashModuleTable[flashTypeIndex].name, dataVectorTable[i].association)) {
+			if (!strcmp(flashModuleTable[m_flashTypeIndex].name, dataVectorTable[i].association)) {
 				nPages = dataVectorTable[i].stopPage - dataVectorTable[i].startPage + 1;
 				emit
 				configureProgress((unsigned char) dataVectorTable[i].startPage,
@@ -389,19 +389,19 @@ int FreeEMS_LoaderComms::eraseDevice() {
 }
 
 void FreeEMS_LoaderComms::setRipFilename(QString name) {
-	ripFilename = name;
+	m_ripFilename = name;
 }
 
 void FreeEMS_LoaderComms::setLoadFilename(QString name) {
-	loadFilename = name;
+	m_loadFilename = name;
 }
 
 int FreeEMS_LoaderComms::getDeviceByteCount() {
 	int totalBytes = 0;
 	int i;
-	if (fDeviceIsSet == true) {
+	if (m_fDeviceIsSet == true) {
 		for (i = 0; i < numDataVectorTableEntries; i++) {
-			if (!strcmp(flashModuleTable[flashTypeIndex].name, dataVectorTable[i].association)) {
+			if (!strcmp(flashModuleTable[m_flashTypeIndex].name, dataVectorTable[i].association)) {
 				totalBytes += (dataVectorTable[i].stopPage - dataVectorTable[i].startPage)
 								* (dataVectorTable[i].stopAddress - dataVectorTable[i].startAddress);
 			}
@@ -419,41 +419,41 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 	unsigned int linesNotLodable;
 	bool result = false;
 	string line;
-	_loadableRecords = 0;
-	_badCheckSums = 0;
+	m_loadableRecords = 0;
+	m_badCheckSums = 0;
 	FreeEMS_LoaderParsing parser;
 	for (i = 0, linesLoadable = 0; i < lineArray.size(); i++) {
 		line = lineArray.at(i);
 		if (parser.lineIsLoadable(&line)) {
-			result = s19SetOne[linesLoadable].createFromString(&line);
+			result = m_s19SetOne[linesLoadable].createFromString(&line);
 			if(result == false){
 				cout << (i + 1);
-				_badCheckSums++; //this is somewhat misleading as this will be incremented if the parse fails for whatever reason TODO fix
+				m_badCheckSums++; //this is somewhat misleading as this will be incremented if the parse fails for whatever reason TODO fix
 				return result;
 			}
-			s19SetOneCount++;
+			m_s19SetOneCount++;
 			linesLoadable++;
-			_loadableRecords++;
+			m_loadableRecords++;
 			result++;
 		} else {
 			linesNotLodable++;
 		}
 	}
-	_recordSetLoaded = true;
+	m_recordSetLoaded = true;
 	return true;
 }
 
 int FreeEMS_LoaderComms::loadRecordSet() {
 	int i;
-	emit configureProgress(0, s19SetOneCount - 1);
-	for (i = 0; i < s19SetOneCount; i++) {
+	emit configureProgress(0, m_s19SetOneCount - 1);
+	for (i = 0; i < m_s19SetOneCount; i++) {
 		loaderBusy.lock();
 		if (loaderAbort) {
 			loaderBusy.unlock();
 			return -2;
 		}
 		loaderBusy.unlock();
-		if (SMWriteByteBlock(s19SetOne[i].payloadAddress, s19SetOne[i].recordBytes, s19SetOne[i].recordPayloadBytes) < 0) {
+		if (SMWriteByteBlock(m_s19SetOne[i].payloadAddress, m_s19SetOne[i].recordBytes, m_s19SetOne[i].recordPayloadBytes) < 0) {
 			emit displayMessage(MESSAGE_ERROR, "Unable to load record set");
 			emit udProgress(0);
 			return -1;
@@ -480,11 +480,11 @@ int FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bufPtr, un
 
 	switch (typeID) {
 	case S2:
-		if ((address & 0x0FF0000) != (lastLoadAddress & 0x0FF0000)) {
+		if ((address & 0x0FF0000) != (m_lastLoadAddress & 0x0FF0000)) {
 			Ppage = address >> 16;
 			SMSetPPage((char) Ppage); //change page if necessary
 		}
-		lastLoadAddress = address; // save address
+		m_lastLoadAddress = address; // save address
 		highByte = (address & 0xFF00) >> 8;
 		lowByte = address & 0x00FF;
 		bytesToWrite = (char) numBytes - 1;
@@ -612,14 +612,14 @@ void FreeEMS_LoaderComms::abortOperation() {
 }
 
 void FreeEMS_LoaderComms::parseFile() {
-	_badCheckSums = 0;
-	_loadableRecords = 0;
-	s19SetOneCount = 0;
-	_recordSetLoaded = false;
+	m_badCheckSums = 0;
+	m_loadableRecords = 0;
+	m_s19SetOneCount = 0;
+	m_recordSetLoaded = false;
 	int linesRead = 0;
 	vector < string > lineArray;
 	string line;
-	ifstream ifs(loadFilename.toAscii());
+	ifstream ifs(m_loadFilename.toAscii());
 	if (ifs.fail()) {
 		emit displayMessage(MESSAGE_ERROR, "Error opening file");
 		return;
@@ -639,22 +639,22 @@ int FreeEMS_LoaderComms::writeBlocks() {
 }
 
 bool FreeEMS_LoaderComms::isRecordSetLoaded() {
-	if(_recordSetLoaded){
+	if(m_recordSetLoaded){
 		return true;
 	}
 	return false;
 }
 
 int FreeEMS_LoaderComms::numLoadableRecords() {
-	return _loadableRecords;
+	return m_loadableRecords;
 }
 
 int FreeEMS_LoaderComms::numBadSums() {
-	return _badCheckSums;
+	return m_badCheckSums;
 }
 
 void FreeEMS_LoaderComms::setDataMode(QString& mode) {
-	serPort->setMode(mode);
+	m_serPort->setMode(mode);
 }
 
 void FreeEMS_LoaderComms::connect() {
@@ -717,10 +717,10 @@ void FreeEMS_LoaderComms::setupPort(QString portName, unsigned int baud, unsigne
 
 void FreeEMS_LoaderComms::initRecordSet(unsigned int numRecords) {
 	unsigned int i;
-	s19SetOne = new FreeEMS_LoaderSREC[numRecords];
+	m_s19SetOne = new FreeEMS_LoaderSREC[numRecords];
 	//s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
 	for (i = 0; i < numRecords; i++) {
-		s19SetOne[i].initVariables();
+		m_s19SetOne[i].initVariables();
 		// s19SetTwo[i].initVariables();
 	}
 }

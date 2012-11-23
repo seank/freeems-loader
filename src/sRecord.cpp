@@ -231,7 +231,7 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
 			bytePairCount = (int) FreeEMS_LoaderParsing::asciiPairToChar(recordPayloadPairCountChars);
 			/* Check to make sure the pair count matches */
-			if ((lineIn->length() - 2 - 2 - LINE_RETURN_CHAR_SIZE) != (bytePairCount * 2)) {
+			if ((lineIn->length() - 2 - 2 - LINE_RETURN_CHAR_SIZE) != (unsigned int)(bytePairCount * 2)) {
 				cout << "Error, the reported pair count does not match the expected count in " << *lineIn << endl;
 				return false;
 			}
