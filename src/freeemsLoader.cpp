@@ -34,7 +34,7 @@
 #include <about.h>
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
-QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPerformed(0), _fileLoaded(false) {
+QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPerformed(0), m_fileLoaded(false) {
 	ui.setupUi(this);
 	qRegisterMetaType<string>("string");
 	qRegisterMetaType<unsigned int>("MESSAGE_TYPE");
@@ -206,8 +206,9 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	}
 
 	if (unattended) {
-		connect();
-		load();
+	cout << "TODO unattended mode";
+		//	connect();
+	//	load();
 	}
 }
 
@@ -337,33 +338,23 @@ void FreeEMS_Loader::fillParity() {
 	ui.comboDataBits->setCurrentIndex(ui.comboParity->count() - 1);
 }
 
-//TODO combine setGUIState code into this function
 void FreeEMS_Loader::connect() {
-	// chk to see if user has custom port settings
-	if (ui.comboBaud->currentText().compare("115200") ||
-			ui.comboDataBits->currentText().compare("8") ||
-			ui.comboParity->currentText().compare("NONE") ||
-			ui.comboStopBits->currentText().compare("1")) {
-		displayMessage(MESSAGE_INFO, "Warning you are not using default COM port settings");
-		displayMessage(MESSAGE_INFO, "Defaults are 115200, 8, NONE, 1");
+	if (m_loaderState == STATE_WORKING) {
+		abort();
+	} else {
+		if (ui.comboBaud->currentText().compare("115200") || ui.comboDataBits->currentText().compare("8")
+				|| ui.comboParity->currentText().compare("NONE") || ui.comboStopBits->currentText().compare("1")) {
+			displayMessage(MESSAGE_INFO, "Warning you are not using default COM port settings");
+			displayMessage(MESSAGE_INFO, "Defaults are 115200, 8, NONE, 1");
+		}
+		loaderComms->setupPort(ui.comboDevice->currentText(), ui.comboBaud->currentText().toUInt(),
+				ui.comboStopBits->currentText().toUInt(), ui.comboDataBits->currentText().toUInt(),
+				ui.comboParity->currentText());
 	}
-	if (_loaderState == STATE_CONNECTED) {
-		loaderComms->setAction("DISCONNECT");
-	} else if (_loaderState == STATE_NOT_CONNECTED) {
-		loaderComms->setupPort(ui.comboDevice->currentText(),
-		ui.comboBaud->currentText().toUInt(), ui.comboStopBits->currentText().toUInt(),
-		ui.comboDataBits->currentText().toUInt(), ui.comboParity->currentText());
-		loaderComms->setAction("CONNECT");
-	} else if (_loaderState == STATE_WORKING) {
-		loaderBusy.lock();
-		loaderAbort = true;
-		loaderBusy.unlock();
-		return;
-	}
-	loaderComms->start();
 }
 
 void FreeEMS_Loader::rip() {
+	connect();
 	QSettings loaderSettings(settingsFile, QSettings::IniFormat);
 	QString
 	loadRipDirectory = loaderSettings.value("lastRipDirectory").toString();
@@ -397,49 +388,22 @@ void FreeEMS_Loader::getFileName(QString name) {
 }
 
 void FreeEMS_Loader::initGUI() {
-	changeGUIState(STATE_NOT_CONNECTED);
+	changeGUIState(STATE_STANDING_BY);
 	ui.progressBar->setValue(0);
 	ui.radioRX->setEnabled(false);
 	ui.radioTX->setEnabled(false);
-	_fileLoaded = false;
+	m_fileLoaded = false;
 }
 
 void FreeEMS_Loader::changeGUIState(int state) {
-	_loaderState = state;
+	m_loaderState = state;
 	updateGUIState();
 }
 
 void FreeEMS_Loader::updateGUIState() {
-	switch (_loaderState) {
-	case STATE_NOT_CONNECTED:
-		loaderComms->close();
-		ui.progressBar->setValue(0);
-		ui.pushLoad->setEnabled(false);
-		ui.pushRip->setEnabled(false);
-		ui.pushConnect->setText("Connect");
-		ui.pushErase->setEnabled(false);
-		ui.chkRip->setEnabled(true);
-		ui.chkVerify->setEnabled(true);
-		ui.pushOpenFile->setEnabled(true);
-		break;
-	case STATE_LOAD_COMPLETE:
-		ui.pushLoad->setEnabled(false);
-		_fileLoaded = false;
-		_loaderState = STATE_CONNECTED;
-	case STATE_CONNECTED:
-		ui.progressBar->setValue(0);
-		ui.pushRip->setEnabled(true);
-		ui.pushConnect->setText("Close/Rst");
-		ui.pushErase->setEnabled(true);
-		ui.chkRip->setEnabled(true);
-		ui.chkVerify->setEnabled(true);
-		ui.pushLoad->setEnabled(true);
-		ui.pushOpenFile->setEnabled(true);
-//		if(_fileLoaded)
-			ui.pushLoad->setEnabled(true);
-		break;
+	switch (m_loaderState) {
 	case STATE_WORKING:
-		ui.pushConnect->setText("Abort");
+		ui.pushAbort->setEnabled(true);
 		ui.pushLoad->setEnabled(false);
 		ui.pushRip->setEnabled(false);
 		ui.pushErase->setEnabled(false);
@@ -447,34 +411,27 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.chkVerify->setEnabled(false);
 		ui.pushOpenFile->setEnabled(false);
 		break;
-	case STATE_ERROR:
-		loaderComms->setAction("NONE"); //This may need a mutex
-		ui.pushLoad->setEnabled(false);
-		ui.pushRip->setEnabled(false);
-		ui.pushConnect->setText("Connect");
-		ui.pushErase->setEnabled(false);
-		ui.pushLoad->setEnabled(true);
-		ui.pushOpenFile->setEnabled(true);
-		break;
-	case STATE_ABORT: //same as connected except actions are cleared
+	case STATE_LOAD_COMPLETE:
+		m_fileLoaded = false; // force user to reopoen or select new file
+	case STATE_STANDING_BY: //same as connected except actions are cleared
 		loaderComms->setAction("NONE"); //This may need a mutex
 		ui.progressBar->setValue(0);
 		ui.pushRip->setEnabled(true);
-		ui.pushConnect->setText("Close/Rst");
 		ui.pushErase->setEnabled(true);
 		ui.chkRip->setEnabled(true);
 		ui.chkVerify->setEnabled(true);
 		ui.pushOpenFile->setEnabled(true);
-//		if(_fileLoaded)
-			ui.pushLoad->setEnabled(true);
-		_loaderState = STATE_CONNECTED;
+		ui.pushLoad->setEnabled(true);
+		ui.pushAbort->setEnabled(false);
 		break;
 	default:
+		displayMessage(MESSAGE_ERROR, "INVALID STATE REQUESTED, THIS IS A BUG");
 		break;
 	}
 }
 
 void FreeEMS_Loader::eraseFlash() {
+	connect();
 	QSettings loaderSettings(settingsFile, QSettings::IniFormat); //TODO this should be done will a call back to be proper
 	_numBurnsPerformed++;
 	loaderSettings.setValue("numBurnsPerformed", _numBurnsPerformed);
@@ -483,6 +440,7 @@ void FreeEMS_Loader::eraseFlash() {
 }
 
 void FreeEMS_Loader::load() {
+	connect();
 	QSettings loaderSettings(settingsFile, QSettings::IniFormat);
 	_numBurnsPerformed++;
 	loaderSettings.setValue("numBurnsPerformed", _numBurnsPerformed);
@@ -496,7 +454,7 @@ void FreeEMS_Loader::load() {
 //		//loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
 //		loadFileName = fileDialog.getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
 //	}
-	if (!_fileLoaded) {
+	if (!m_fileLoaded) {
 		displayMessage(MESSAGE_INFO, "s19 records have not been loaded or there was a problem parsing the input file");
 		return;
 	}
@@ -523,11 +481,9 @@ void FreeEMS_Loader::load() {
 	loaderComms->setRipFilename(m_autoRipDirectory);
 	if (ui.chkRip->isChecked()) {
 		loaderComms->setAction("RIP");
-		loaderComms->setAction("ERASE");
 		loaderComms->setAction("LOAD");
 		loaderComms->start();
 	} else {
-		loaderComms->setAction("ERASE");
 		loaderComms->setAction("LOAD");
 		loaderComms->start();
 	}
@@ -606,9 +562,9 @@ void FreeEMS_Loader::openFile() {
 			displayMessage(MESSAGE_ERROR, "there are " + qSNum.setNum(loaderComms->numBadSums(), 10) + " records with bad checksums or lengths , loading will be disabled");
 		} else {
 			displayMessage(MESSAGE_INFO,"found " + 	qSNum.setNum(loaderComms->numLoadableRecords(), 10) +" loadable records in file");
-			if(_loaderState == STATE_CONNECTED)
+			//if(_loaderState == STATE_CONNECTED)
 				ui.pushLoad->setEnabled(true);
-			_fileLoaded = true;
+			m_fileLoaded = true;
 		}
 	}
 }
@@ -640,4 +596,10 @@ void FreeEMS_Loader::saveSettings() {
 	loaderSettings.setValue("chkVerify", ui.chkVerify->isChecked());
 	loaderSettings.setValue("lastRipFileName", ripFileName);
 	loaderSettings.setValue("numBurnsPerformed", _numBurnsPerformed);
+}
+
+void FreeEMS_Loader::abort() {
+	loaderBusy.lock();
+	loaderAbort = true;
+	loaderBusy.unlock();
 }

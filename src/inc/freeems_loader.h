@@ -102,11 +102,12 @@ private:
 	QString appDataDir;
 	QString settingsFile;
 	int flashTypeIndex;
-	int _loaderState; /* holds the current state of the loader see LOADER_STATES enum */
+	int m_loaderState; /* holds the current state of the loader see LOADER_STATES enum */
 	int _numBurnsPerformed;
-	bool _fileLoaded;
+	bool m_fileLoaded;
 
 public slots:
+void abort();
 void setAutoRipDir();
 void openFile();
 void connect();

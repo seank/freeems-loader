@@ -202,11 +202,11 @@ void FreeEMS_LoaderComms::SMReadChars(const char *data, unsigned int size) {
 
 void FreeEMS_LoaderComms::resetSM() {
 	write(&SMReset, 1);
-	if (verifyReturn(GENERIC)) {
-		emit displayMessage(MESSAGE_INFO, "SM Reset ACK received");
-	} else {
-		emit displayMessage(MESSAGE_ERROR, "SM Reset ACK not received, TODO check for packets");
-	}
+	//if (verifyReturn(GENERIC)) {
+	//	emit displayMessage(MESSAGE_INFO, "SM Reset ACK received");
+	//} else {
+	//	emit displayMessage(MESSAGE_ERROR, "SM Reset ACK not received, TODO check for packets");
+	//}
 	return;
 }
 
@@ -251,7 +251,8 @@ void FreeEMS_LoaderComms::read(unsigned char* data, unsigned int size) {
 	if (readResult < 0) {
 		close();
 		displayMessage(MESSAGE_ERROR,"Problem reading from the device, is seems to have gone away, aborting");
-		emit setGUI(STATE_ERROR);
+		close();
+		emit setGUI(STATE_STANDING_BY);
 	}
 }
 
@@ -482,7 +483,9 @@ int FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bufPtr, un
 	case S2:
 		if ((address & 0x0FF0000) != (m_lastLoadAddress & 0x0FF0000)) {
 			Ppage = address >> 16;
-			SMSetPPage((char) Ppage); //change page if necessary
+			//SMSetPPage((char)Ppage); //change page if necessary
+			erasePage((char)Ppage); //sets the page and erases it
+			cout << "setting and erasing page";
 		}
 		m_lastLoadAddress = address; // save address
 		highByte = (address & 0xFF00) >> 8;
@@ -540,12 +543,16 @@ void FreeEMS_LoaderComms::setAction(QString action) {
 void FreeEMS_LoaderComms::run() {
 	loaderAbort = false;
 	int result;
-	if (m_actionConnect) {
-		emit setGUI(STATE_WORKING);
-		m_actionConnect = false;
-		connect();
-		if (!isReady())
-			return;
+	emit setGUI(STATE_WORKING);
+	m_actionConnect = false;
+	connect();
+	if (!isReady()) {
+		//emit displayMessage(MESSAGE_ERROR, "Serial Monitor Not Found, Maybe Check Your Load Jumper");
+		/* Error Message already displayed if SM was not set at this point */
+		m_actionRip = 0;
+		m_actionErase = 0;
+		m_actionLoad = 0;
+		//return;
 	}
 	if (m_actionRip) {
 		emit setGUI(STATE_WORKING);
@@ -554,15 +561,10 @@ void FreeEMS_LoaderComms::run() {
 		result = ripDevice();
 		if (result == -1) {
 			emit displayMessage(MESSAGE_ERROR, "Failed To Rip");
-			emit setGUI(STATE_NOT_CONNECTED);
-			return;
 		} else if (result == -2) {
 			emit displayMessage(MESSAGE_INFO, "User Aborted!");
-			emit setGUI(STATE_ABORT);
-			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Rip Successful!");
-			emit setGUI(STATE_CONNECTED);
 		}
 	}
 	if (m_actionErase) {
@@ -572,15 +574,10 @@ void FreeEMS_LoaderComms::run() {
 		result = eraseDevice();
 		if (result == -1) {
 			emit displayMessage(MESSAGE_ERROR, "Failed To Erase");
-			emit setGUI(STATE_NOT_CONNECTED);
-			return;
 		} else if (result == -2) {
 			emit displayMessage(MESSAGE_INFO, "User Aborted!");
-			emit setGUI(STATE_ABORT);
-			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Erase Successful!");
-			emit setGUI(STATE_CONNECTED);
 		}
 	}
 	if (m_actionLoad) {
@@ -590,21 +587,16 @@ void FreeEMS_LoaderComms::run() {
 		result = loadDevice();
 		if (result == -1) {
 			emit displayMessage(MESSAGE_INFO, "Failed To Load");
-			emit setGUI(STATE_NOT_CONNECTED);
-			return;
 		} else if (result == -2) {
 			emit displayMessage(MESSAGE_INFO, "User Aborted!");
-			emit setGUI(STATE_ABORT);
-			return;
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Load Successful!");
-			emit setGUI(STATE_LOAD_COMPLETE);
 		}
 	}
-	if (m_actionDisConnect) {
-			m_actionDisConnect = false;
-			disConnect();
-		}
+	resetSM();
+	this->sleep(1); //temp hack, this should be done via a callback after the outgoing serial buffer is empty
+	disConnect();
+	emit setGUI(STATE_STANDING_BY);
 }
 
 void FreeEMS_LoaderComms::abortOperation() {
@@ -661,47 +653,31 @@ void FreeEMS_LoaderComms::connect() {
 	QFile file;
 	file.setFileName(m_portName);
 	bool fileIsOpen = 0;
-	if (!isReady()) {
-		//setFlashType();
-		fileIsOpen = file.open(QIODevice::ReadWrite); //TODO further try to detect the problem
-		file.close();
+	fileIsOpen = file.open(QIODevice::ReadWrite); //TODO further try to detect the problem
+	file.close();
 #ifdef __WIN32__
-		fileIsOpen = true; /* TODO fix always set OK for windows, for now */
+	fileIsOpen = true; /* TODO fix always set OK for windows, for now */
 #endif
-		if (fileIsOpen) {
-			//TODO add code to check for packets here, before going into RAM mode for SM
-			QString mode = "RAW";
-			setDataMode(mode);
-			open();
-			setSM();
-			setFlashType(defFlashType);
-			if (!isReady()) {
-				emit displayMessage(MESSAGE_INFO, "Unable to summon SerialMonitor");
-				emit setGUI(STATE_NOT_CONNECTED);
-				close();
-			} else {
-				emit setGUI(STATE_CONNECTED);
-			}
-		} else {
-			emit displayMessage(MESSAGE_INFO, "Unable to open port " + m_portName);
-			emit setGUI(STATE_NOT_CONNECTED);
+	if (fileIsOpen) {
+		//TODO add code to check for packets here, before going into RAM mode for SM
+		QString mode = "RAW";
+		setDataMode(mode);
+		open();
+		setSM();
+		setFlashType(defFlashType);
+		if (!isReady()) {
+			emit displayMessage(MESSAGE_INFO, "Unable to summon SerialMonitor");
 		}
 	} else {
-		emit displayMessage(MESSAGE_INFO, "Already connected to SerialMonitor");
-		//TODO maybe flush buffer?
-		emit setGUI(STATE_CONNECTED);
+		emit displayMessage(MESSAGE_INFO, "Unable to open port " + m_portName);
 	}
 }
 
 void FreeEMS_LoaderComms::disConnect() {
-	if (!isReady()) {
-		emit displayMessage(MESSAGE_INFO, "Already disconnected");
-		emit setGUI(STATE_NOT_CONNECTED);
-	} else {
+	if (isReady()) {
 		emit displayMessage(MESSAGE_INFO, "Requesting CPU reset then disconnecting");
-		resetSM();
+//		resetSM();
 		close();
-		emit setGUI(STATE_NOT_CONNECTED);
 	}
 }
 
