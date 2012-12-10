@@ -181,6 +181,8 @@ void FreeEMS_LoaderSREC::buildRecord() {
 	for (i = 0; i < TWO_BYTES; i++) {
 		record += recordCheckSumChars[i];
 	}
+	// write line ending
+	record.append("\r\n");
 }
 
 void FreeEMS_LoaderSREC::setNumPairsInRecord() { //TODO add isSet
@@ -204,15 +206,10 @@ int FreeEMS_LoaderSREC::retRecordSize() {
 }
 
 bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
-	//Byte count, two hex digits, indicating the number of bytes
-	//(hex digit pairs) that follow in the rest of the record (in the address, data and checksum fields).
-	//todo replace couts
-	if ((lineIn->length() + LINE_RETURN_CHAR_SIZE) % 2) {
-		cout << "Error, the number of HEX pairs must be even, nibbles are not supported by s19 " << *lineIn << endl;
-		correctLineLength = false;
-		return false;
-	}
+
 	char type = *(lineIn->c_str() + 1);
+	//int lineEndSequenceLenth;
+
 	if (*lineIn->c_str() == 'S') //start of record
 	{
 		switch (type) {
@@ -231,8 +228,21 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
 			bytePairCount = (int) FreeEMS_LoaderParsing::asciiPairToChar(recordPayloadPairCountChars);
 			/* Check to make sure the pair count matches */
-			if ((lineIn->length() - 2 - 2 - LINE_RETURN_CHAR_SIZE) != (unsigned int)(bytePairCount * 2)) {
-				cout << "Error, the reported pair count does not match the expected count in " << *lineIn << endl;
+			//TODO once used in other cases move this to its own function
+			/* readline() precedes this code so we should have clean ending strings already.  Maybe revise it all and determine our own
+			 * line endings */
+			int lengthDifference;
+			lengthDifference = (lineIn->length() - 2 - 2) - (unsigned int) (bytePairCount * 2);
+			if (lengthDifference == 1) {
+				if ((lineIn->at(lineIn->length() - 1)) != '\r') {
+					cout << " Error, there seems to be garbage in record  " << *lineIn << endl;
+					return false;
+				}
+			} else if (lengthDifference > 1) {
+				cout << " Error, there seems to be garbage in record  " << *lineIn << endl;
+				return false;
+			}else if (lengthDifference < 0) {
+				cout << " Error, record is short  " << *lineIn << endl;
 				return false;
 			}
 			recordPayloadBytes = bytePairCount - 4; //TODO make proper maybe make a function to call setNumPairsInRecord too

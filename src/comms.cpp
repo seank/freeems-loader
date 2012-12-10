@@ -109,7 +109,6 @@ int FreeEMS_LoaderComms::ripDevice() {
 
 	std::vector<unsigned char> rxBuffer(bytesPerRecord);
 	ofstream outFile(m_ripFilename.toAscii(), ios::out | ios::binary);
-	//FreeEMS_LoaderSREC *s19Record = new FreeEMS_LoaderSREC(S2);
 	FreeEMS_LoaderSREC s19Record(S2);
 	totalBytes = getDeviceByteCount();
 	emit configureProgress(0, totalBytes - 1);
@@ -154,8 +153,7 @@ int FreeEMS_LoaderComms::ripDevice() {
 						s19Record.buildRecord();
 						emit udProgress(totalBytesTX); //Update Progress Bar
 						if (s19Record.isRecordNull() == false) {
-							outFile.write(s19Record.retRecordString().c_str(), s19Record.retRecordSize());
-							outFile.write("\n", 1);
+							outFile << s19Record.retRecordString();
 						}
 					}
 				}
@@ -429,7 +427,7 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 		if (parser.lineIsLoadable(&line)) {
 			result = m_s19SetOne[linesLoadable].createFromString(&line);
 			if(result == false){
-				cout << (i + 1);
+				cout << " Problem Loading Record #" << (i + 1) << endl;
 				m_badCheckSums++; //this is somewhat misleading as this will be incremented if the parse fails for whatever reason TODO fix
 				return result;
 			}
@@ -438,6 +436,7 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 			m_loadableRecords++;
 			result++;
 		} else {
+			cout << " Line is not loadable " << line;
 			linesNotLodable++;
 		}
 	}
@@ -619,6 +618,7 @@ void FreeEMS_LoaderComms::parseFile() {
 	}
 
 	while (getline(ifs, line)) {
+		cout << line << endl;
 		lineArray.push_back(line);
 		linesRead++;
 	}
@@ -686,11 +686,5 @@ void FreeEMS_LoaderComms::setupPort(QString portName, unsigned int baud, unsigne
 }
 
 void FreeEMS_LoaderComms::initRecordSet(unsigned int numRecords) {
-	unsigned int i;
 	m_s19SetOne = new FreeEMS_LoaderSREC[numRecords];
-	//s19SetTwo = new FreeEMS_LoaderSREC[ONE_TWENTY_EIGHT_K_RECORDS];
-	for (i = 0; i < numRecords; i++) {
-		m_s19SetOne[i].initVariables();
-		// s19SetTwo[i].initVariables();
-	}
 }

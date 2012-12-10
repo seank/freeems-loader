@@ -121,7 +121,7 @@ public:
 	~FreeEMS_LoaderComms();
 
 	signals:
-	void displayMessage(MESSAGE_TYPE type, QString text);
+	void displayMessage(MESSAGE_TYPE type, QString text); //see about moving this to a global header
 	void udProgress(int percent);
 	void configureProgress(int min, int max);
 	void setGUI(int);
