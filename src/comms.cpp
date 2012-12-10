@@ -43,6 +43,8 @@ void FreeEMS_LoaderComms::open() {
 	m_serPort->openPort(m_portName);
 	m_serPort->setupPort(m_portBaud, m_portDataBits, m_portParity, m_portStopBits);
 	m_serPort->communicate();
+	m_serPort->flushRX();
+	this->sleep(1); //temp hack to be replace by a callback, we need to wait for the flush to complete via another thread
 }
 
 bool FreeEMS_LoaderComms::isReady() const {
@@ -211,7 +213,6 @@ void FreeEMS_LoaderComms::resetSM() {
 }
 
 void FreeEMS_LoaderComms::setSM() {
-	m_serPort->flushRX();
 	write(&SMReturn, 1);
 	if (verifyReturn(SETSM) > 0) {
 		m_smIsReady = true;
@@ -595,7 +596,7 @@ void FreeEMS_LoaderComms::run() {
 	}
 	resetSM();
 	this->sleep(1); //temp hack, this should be done via a callback after the outgoing serial buffer is empty
-	disConnect();
+	close();
 	emit setGUI(STATE_STANDING_BY);
 }
 
@@ -673,13 +674,6 @@ void FreeEMS_LoaderComms::connect() {
 	}
 }
 
-void FreeEMS_LoaderComms::disConnect() {
-	if (isReady()) {
-		emit displayMessage(MESSAGE_INFO, "Requesting CPU reset then disconnecting");
-//		resetSM();
-		close();
-	}
-}
 
 void FreeEMS_LoaderComms::setupPort(QString portName, unsigned int baud, unsigned int stopBits, unsigned int dataBits,
 										QString parity) {
