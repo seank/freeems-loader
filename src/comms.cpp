@@ -483,9 +483,7 @@ int FreeEMS_LoaderComms::SMWriteByteBlock(unsigned int address, char* bufPtr, un
 	case S2:
 		if ((address & 0x0FF0000) != (m_lastLoadAddress & 0x0FF0000)) {
 			Ppage = address >> 16;
-			//SMSetPPage((char)Ppage); //change page if necessary
 			erasePage((char)Ppage); //sets the page and erases it
-			cout << "setting and erasing page";
 		}
 		m_lastLoadAddress = address; // save address
 		highByte = (address & 0xFF00) >> 8;
@@ -618,7 +616,6 @@ void FreeEMS_LoaderComms::parseFile() {
 	}
 
 	while (getline(ifs, line)) {
-		cout << line << endl;
 		lineArray.push_back(line);
 		linesRead++;
 	}
