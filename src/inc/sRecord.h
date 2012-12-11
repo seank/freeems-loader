@@ -54,21 +54,15 @@ using namespace std;
 #define ASCII_PAIR              0x02
 #define LINE_RETURN_CHAR_SIZE	 0x01
 
-//enum BOOL {READONLY, READWRITE}
 
 class FreeEMS_LoaderSREC {
+
 public:
 	FreeEMS_LoaderSREC(int type);
 	FreeEMS_LoaderSREC();
 	FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress);
-	virtual
-	~FreeEMS_LoaderSREC();
-	//	bool verifyFile(int *file);
-	int
-	fillRecord(std::vector<unsigned char> binaryChars);
-	/*
-	 * calculate a records checksum and compre it to the stored value.
-	 */
+	virtual ~FreeEMS_LoaderSREC();
+	int	fillRecord(std::vector<unsigned char> binaryChars);
 	bool verifyRecord();
 	unsigned int	getRecordAddress();
 	char getNextByte();
@@ -82,16 +76,7 @@ public:
 	bool mismatchedCheckSum;
 	bool correctLineLength;
 	bool charactersValid;
-
-
-	/*
-	 These characters when paired and interpreted as a hexadecimal value display
-	 the least significant byte of the ones complement of the sum of the byte values
-	 represented by the pairs of characters making up the count, the address, and
-	 the data fields.
-	 */
 	void calculateCheckSum();
-
 	int putNextByte(char byte);
 	int setRecordAddress(unsigned int address);
 	int setRecordAddress(char* address);
@@ -105,35 +90,24 @@ public:
 	bool isCheckSumMismatched();
 	bool isLineLengthCorrect();
 	bool areCharactersValid();
-
 	char recordPayload[512]; //ascii pair representaion of the payload
-
 	unsigned int payloadAddress;
 	int recordPayloadBytes;
 	char recordBytes[256]; //char string representaion of the payload  according to the s-rec specs 256 is the max TODO maybe vector this
 
-	signals:
-	void WOInfo(string text);
-	void displayMessage(MESSAGE_TYPE type, QString text);
-
 private:
 	string record;
-
 	char recordAddressChars[12]; //ascii pair representation of the address
 	char recordTypeIdChars[TWO_BYTES];
 	char recordPayloadPairCountChars[TWO_BYTES];
 	char recordCheckSumChars[TWO_BYTES];
-
 	unsigned char recordChkSum;
 	unsigned char recordLoadedChkSum;
-
 	int charsInAddress;
 	int recordIndex;
 	int bytePairCount; //These characters when paired and interpreted as a hexadecimal value, display the count of remaining character pairs in the record.
-
 	int typeIndex;
 	int numHexValues;
-
 	bool writeAccess;
 	bool recordStatus;
 	bool addressIsSet;

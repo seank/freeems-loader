@@ -137,6 +137,12 @@ int FreeEMS_LoaderSREC::setRecordAddress(char* address) {
 	return 0;
 }
 
+/*
+ These characters when paired and interpreted as a hexadecimal value display
+ the least significant byte of the ones complement of the sum of the byte values
+ represented by the pairs of characters making up the count, the address, and
+ the data fields.
+ */
 void FreeEMS_LoaderSREC::calculateCheckSum() {
 	int index;
 	if (addressIsSet && typeIsSet && numPairsSet) {
@@ -235,14 +241,14 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			lengthDifference = (lineIn->length() - 2 - 2) - (unsigned int) (bytePairCount * 2);
 			if (lengthDifference == 1) {
 				if ((lineIn->at(lineIn->length() - 1)) != '\r') {
-					cout << " Error, there seems to be garbage in record  " << *lineIn << endl;
+					cout << " Error, there seems to be garbage in record ->" << *lineIn << endl;
 					return false;
 				}
 			} else if (lengthDifference > 1) {
-				cout << " Error, there seems to be garbage in record  " << *lineIn << endl;
+				cout << " Error, there seems to be garbage in record ->" << *lineIn << endl;
 				return false;
 			}else if (lengthDifference < 0) {
-				cout << " Error, record is short  " << *lineIn << endl;
+				cout << " Error, record is short ->" << *lineIn << endl;
 				return false;
 			}
 			recordPayloadBytes = bytePairCount - 4; //TODO make proper maybe make a function to call setNumPairsInRecord too
@@ -256,9 +262,7 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			setNumPairsInRecord();
 			calculateCheckSum(); // this asserts that the data is good
 			if (recordChkSum != recordLoadedChkSum) {
-				//emit displayMessage(MESSAGE_ERROR, "CHECKSUM DOES NOT MATCH CALCUATED SUM IN LINE->");
-				//FreeEMS_Loader::displayMessage(MESSAGE_ERROR, "CHECKSUM DOES NOT MATCH CALCUATED SUM IN LINE->");
-				cout << endl << "CHECKSUM DOES NOT MATCH CALCUATED SUM AT LINE->";
+				cout << "Error, checksum does not match calculated sum in record ->" << *lineIn << endl;;
 				mismatchedCheckSum = true;
 				return false;
 			}

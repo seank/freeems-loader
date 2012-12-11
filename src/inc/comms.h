@@ -75,7 +75,6 @@ public:
 	bool generateRecords(vector<string> lineArray);
 	bool lineIsLoadable(string* line);
 	void initRecordSet(unsigned int numRecords);
-//	void setThreadAction(QString action);
 	void setRipFilename(QString name);
 	void setLoadFilename(QString name);
 	int numBadSums();

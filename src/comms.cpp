@@ -249,7 +249,7 @@ void FreeEMS_LoaderComms::read(unsigned char* data, unsigned int size) {
 
 	if (readResult < 0) {
 		close();
-		displayMessage(MESSAGE_ERROR,"Problem reading from the device, is seems to have gone away, aborting");
+		emit displayMessage(MESSAGE_ERROR,"Problem reading from the device, is seems to have gone away, aborting");
 		close();
 		emit setGUI(STATE_STANDING_BY);
 	}
@@ -427,7 +427,7 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 		if (parser.lineIsLoadable(&line)) {
 			result = m_s19SetOne[linesLoadable].createFromString(&line);
 			if(result == false){
-				cout << " Problem Loading Record #" << (i + 1) << endl;
+				emit displayMessage(MESSAGE_ERROR, "Problem Loading Record #" + QString::number(i+1) + " see console for details");
 				m_badCheckSums++; //this is somewhat misleading as this will be incremented if the parse fails for whatever reason TODO fix
 				return result;
 			}
@@ -436,7 +436,7 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 			m_loadableRecords++;
 			result++;
 		} else {
-			cout << " Line is not loadable " << line;
+			//emit displayMessage(MESSAGE_GENERIC, "Line #" + QString::number(i+1) + "is not load-able ->" + line);
 			linesNotLodable++;
 		}
 	}

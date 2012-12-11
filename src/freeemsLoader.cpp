@@ -539,15 +539,12 @@ void FreeEMS_Loader::displayMessage(MESSAGE_TYPE type, QString message) {
 }
 
 void FreeEMS_Loader::openFile() {
-//	QDate date = QDate::currentDate();
-//	QTime time = QTime::currentTime();
+
 	QSettings loaderSettings(settingsFile, QSettings::IniFormat);
 	loadDirectory = loaderSettings.value("lastDirectory").toString();
-
 	QFileDialog fileDialog;
 	fileDialog.setViewMode(QFileDialog::Detail);
 	QString qSNum;
-	//loadFileName = QFileDialog::getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
 	loadFileName = fileDialog.getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
 	if (loadFileName.isNull()) {
 		displayMessage(MESSAGE_ERROR, "no file selected");
@@ -557,13 +554,12 @@ void FreeEMS_Loader::openFile() {
 		loaderComms->setLoadFilename(loadFileName);
 		loaderComms->parseFile();
 		if(loaderComms->numLoadableRecords() == 0){
-			displayMessage(MESSAGE_ERROR, "no load-able records parsed, or there was a problem with the first record");
+			displayMessage(MESSAGE_ERROR, "no load-able records parsed");
 		}else if(loaderComms->numBadSums()){
 			displayMessage(MESSAGE_ERROR, "there are " + qSNum.setNum(loaderComms->numBadSums(), 10) + " records with bad checksums or lengths , loading will be disabled");
 		} else {
-			displayMessage(MESSAGE_INFO,"found " + 	qSNum.setNum(loaderComms->numLoadableRecords(), 10) +" loadable records in file");
-			//if(_loaderState == STATE_CONNECTED)
-				ui.pushLoad->setEnabled(true);
+			displayMessage(MESSAGE_INFO,"found " + 	qSNum.setNum(loaderComms->numLoadableRecords(), 10) +" load-able records in file");
+			ui.pushLoad->setEnabled(true);
 			m_fileLoaded = true;
 		}
 	}
