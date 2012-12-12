@@ -26,6 +26,7 @@
 
 #include <about.h>
 #include <Qt>
+#include <inc/externalData.h>
 
 About::About(QWidget *parent) :
   QDialog(parent, Qt::Window | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint) 
@@ -56,7 +57,7 @@ About::About(QWidget *parent) :
 
 	textBrowser->append(message);
 	textBrowser->append("Build Hash");
-	textBrowser->append(fwdDeclare(GIT_HASH_FULL));
+	textBrowser->append(externalData::gitHASHLong);
 	textBrowser->append("\n");
 	textBrowser->append(license);
 	textBrowser->moveCursor(QTextCursor::Start) ;

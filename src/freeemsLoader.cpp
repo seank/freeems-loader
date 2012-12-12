@@ -32,14 +32,16 @@
 #include <algorithm>
 #include <iostream>
 #include <about.h>
+#include <externalData.h>
 
 FreeEMS_Loader::FreeEMS_Loader(QWidget *parent) :
 QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPerformed(0), m_fileLoaded(false) {
 	ui.setupUi(this);
 	qRegisterMetaType<string>("string");
 	qRegisterMetaType<unsigned int>("MESSAGE_TYPE");
-	this->setWindowTitle(QString("FreeEMS-Loader ") + fwdDeclare(GIT_HASH));
-	ui.label_build_info->setText(fwdDeclare(GIT_HASH_FULL));
+	this->setWindowTitle(QString("FreeEMS-Loader ") + externalData::gitHASHShort);
+	ui.label_build_info->setText(externalData::gitHASHLong);
+
 	loaderComms = new FreeEMS_LoaderComms;
 	fillBaud();
 	fillDataBits();

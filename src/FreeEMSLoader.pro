@@ -23,7 +23,6 @@
 # * Thank you for choosing FreeEMS-Loader to load your firmware!
 # *
 # */
-
 TEMPLATE = app
 TARGET = FreeEMS-Loader
 VERSION = 0.1.0
@@ -38,10 +37,10 @@ CONFIG *= qt \
     release \
     console \
     debug
-
 QT *= core \
     gui
-HEADERS += inc/globals.h \
+HEADERS += inc/externalData.h \
+    inc/globals.h \
     inc/about.h \
     inc/freeems_loader.h \
     inc/sRecord.h \
@@ -55,7 +54,8 @@ SOURCES += globals.cpp \
     parsing.cpp \
     comms.cpp \
     types.cpp \
-    about.cpp
+    about.cpp \
+    externalData.cpp
 FORMS *= freeemsLoader.ui \
     about.ui
 RESOURCES += resource-root.qrc
@@ -63,8 +63,7 @@ RC_FILE += loader.rc
 
 # We are making use of QMAKE_POST_LINK so we always get fresh GIT hashes in our builds
 QMAKE_POST_LINK += touch \
-    freeemsLoader.cpp \
-    about.cpp
+    externalData.cpp
 CONFIG(debug, debug|release):message("Building Debug Version, expect spew!")
 else { 
     DEFINES += QT_NO_WARNING_OUTPUT \
