@@ -2,7 +2,7 @@ Source: freeems-loader
 Section: unknown
 Priority: extra
 Maintainer: Sean Keys <skeys@ipdatasys.com>
-Build-Depends: debhelper (>= 8.0.0), libqt4-core (>= 4.8.0), libqt4-declarative (>= 4.8.0), libqt4-gui (>= 4.8.0), libqwt5-qt4(>=5.2.1), libqt4-opengl (>=4.8.0), libqjson0 (>=0.7.1)
+Build-Depends: debhelper (>= 8.0.0), libqt4-core (>= 4.8.0), libqt4-declarative (>= 4.8.0), libqt4-gui (>= 4.8.0), libqwt5-qt4(>= 5.2.1), libqt4-opengl (>= 4.8.0), libqjson0 (>= 0.7.1), freeems-serialio (>= 0.0.1)
 Standards-Version: 3.9.2
 Homepage: http://powerefi.com/loader
 #Vcs-Git: git://github.com/seank/freeems-loader.git
@@ -10,6 +10,6 @@ Homepage: http://powerefi.com/loader
 
 Package: freeems-loader
 Architecture: any
-Depends: libqt4-core (>= 4.8.0), libqt4-declarative (>= 4.8.0), libqt4-gui (>= 4.8.0), libqwt5-qt4(>=5.2.1), libqt4-opengl (>=4.8.0)
+Depends: libqt4-core (>= 4.8.0), libqt4-declarative (>= 4.8.0), libqt4-gui (>= 4.8.0), libqwt5-qt4(>=5.2.1), libqt4-opengl (>= 4.8.0), freeems-serialio (>= 0.0.1)
 Description: FreeEMS Firmware Loading Application
  <insert long description, indented with spaces>
