@@ -31,6 +31,9 @@ QMAKE_CXXFLAGS *= -Wall
 QMAKE_CXXFLAGS *= -Werror
 QMAKE_CXXFLAGS_DEBUG += -pg
 QMAKE_LFLAGS_DEBUG += -pg
+OBJECTS_DIR = build
+MOC_DIR = build
+UI_DIR = build
 CONFIG *= qt \
     warn_on \
     thread \
@@ -39,31 +42,31 @@ CONFIG *= qt \
     debug
 QT *= core \
     gui
-HEADERS += inc/externalData.h \
-    inc/globals.h \
-    inc/about.h \
-    inc/freeems_loader.h \
-    inc/sRecord.h \
-    inc/parsing.h \
-    inc/comms.h \
-    inc/loaderTypes.h
-SOURCES += globals.cpp \
-    freeemsLoader.cpp \
-    main.cpp \
-    sRecord.cpp \
-    parsing.cpp \
-    comms.cpp \
-    types.cpp \
-    about.cpp \
-    externalData.cpp
-FORMS *= freeemsLoader.ui \
-    about.ui
-RESOURCES += resource-root.qrc
-RC_FILE += loader.rc
+HEADERS += src/inc/externalData.h \
+    src/inc/globals.h \
+    src/inc/about.h \
+    src/inc/freeems_loader.h \
+    src/inc/sRecord.h \
+    src/inc/parsing.h \
+    src/inc/comms.h \
+    src/inc/loaderTypes.h
+SOURCES += src/globals.cpp \
+    src/freeemsLoader.cpp \
+    src/main.cpp \
+    src/sRecord.cpp \
+    src/parsing.cpp \
+    src/comms.cpp \
+    src/types.cpp \
+    src/about.cpp \
+    src/externalData.cpp
+FORMS *= src/freeemsLoader.ui \
+    src/about.ui
+RESOURCES += src/resource-root.qrc
+RC_FILE += src/loader.rc
 
 # We are making use of QMAKE_POST_LINK so we always get fresh GIT hashes in our builds
 QMAKE_POST_LINK += touch \
-    externalData.cpp
+    src/externalData.cpp
 CONFIG(debug, debug|release):message("Building Debug Version, expect spew!")
 else { 
     DEFINES += QT_NO_WARNING_OUTPUT \
@@ -71,8 +74,19 @@ else {
     message("Building Release Version")
 }
 
+# Default install paths
+unix {
+  isEmpty(PREFIX) {
+    PREFIX = /usr/local
+  }
+ message("ATTENTION, running 'make install' will install files under '" $$PREFIX "'. If \
+    	 you wish to change this, rerun qmake as follows 'qmake PREFIX=/desiredPath' instead.")  
+unix:target.path = $$PREFIX/bin
+unix:INSTALLS += target
+}
+
 # Default make specs
-INCLUDEPATH += inc
+INCLUDEPATH += src/inc
 unix:INCLUDEPATH += $$quote(/usr/local/include/)
 unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so.$$LIB_VERSION)
 unix:PRE_TARGETDEPS += $$quote(/usr/local/lib/libSerialIO.so.$$LIB_VERSION)

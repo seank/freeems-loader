@@ -62,7 +62,7 @@ void FreeEMS_LoaderSREC::initVariables() {
 	typeIndex = 0;
 	numHexValues = 0;
 	writeAccess = true;
-	recordStatus = false;
+	m_payloadDisabled = false;
 	addressIsSet = false;
 	typeIsSet = false;
 	recordIsNull = true;
@@ -306,4 +306,12 @@ bool FreeEMS_LoaderSREC::isLineLengthCorrect() {
 
 bool FreeEMS_LoaderSREC::areCharactersValid() {
 	return charactersValid;
+}
+
+void FreeEMS_LoaderSREC::disablePayload(bool disable) {
+	m_payloadDisabled = disable;
+}
+
+bool FreeEMS_LoaderSREC::isPayloadDisabled() {
+	return m_payloadDisabled;
 }

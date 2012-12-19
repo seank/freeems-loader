@@ -55,8 +55,6 @@ enum MESSAGE_TYPE {
 };
 
 enum LOADER_STATE {
-	//STATE_NOT_CONNECTED = 1, STATE_CONNECTED, STATE_WORKING, STATE_ERROR, STATE_FILELOADED,
-	//STATE_LOAD_COMPLETE, STATE_ABORT
 	STATE_WORKING = 1, STATE_LOAD_COMPLETE, STATE_STANDING_BY
 };
 
@@ -71,6 +69,10 @@ enum s19ID {
 	S8, // The type of record field is 'S8' (0x5338)
 	S9
 	// The type of record field is 'S9' (0x5339)
+};
+
+enum rangePurpose {
+	EXCLUSION
 };
 
 struct dataVector_tag {
@@ -96,6 +98,13 @@ struct s19Info {
 	const char *s19ID; // type in ascii
 	int addressBytes;
 	bool dataSequence;
+};
+
+struct dataRange {
+	const char *dataName;
+	unsigned int purpose;
+	unsigned int startAddress;
+	unsigned int stopAddress;
 };
 
 extern const struct dataVector_tag dataVectorTable[];

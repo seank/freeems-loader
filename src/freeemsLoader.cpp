@@ -131,6 +131,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 		ui.comboStopBits->setCurrentIndex(2);
 		ui.chkRip->setChecked(true);
 		ui.chkVerify->setChecked(true);
+		ui.chkRipSMCode->setChecked(false);
 		_numBurnsPerformed = 0;
 	} else {
 		ui.comboDevice->addItem(loaderSettings.value("serialDevice").toString());
@@ -144,7 +145,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 		loaderSettings.setValue("appDataDir", appDataDir);
 		resize(loaderSettings.value("size", QSize(400, 320)).toSize());
 		move(loaderSettings.value("pos", QPoint(50, 50)).toPoint());
-		//TODO other vars that may matter here
+		ui.chkRipSMCode->setChecked(loaderSettings.value("ripSMCode").toBool());
 	}
 
 	qDebug() << "Settings location is -> " << appDataDir;
@@ -379,6 +380,11 @@ void FreeEMS_Loader::rip() {
 	loaderSettings.setValue("lastRipDirectory", ripFileName);
 	loaderComms->setRipFilename(ripFileName);
 	loaderComms->setAction("RIP");
+	if (ui.chkRipSMCode->isChecked()) {
+		loaderComms->ripSMCode(true);
+	} else {
+		loaderComms->ripSMCode(false);
+	}
 	loaderComms->start();
 }
 
@@ -594,6 +600,7 @@ void FreeEMS_Loader::saveSettings() {
 	loaderSettings.setValue("chkVerify", ui.chkVerify->isChecked());
 	loaderSettings.setValue("lastRipFileName", ripFileName);
 	loaderSettings.setValue("numBurnsPerformed", _numBurnsPerformed);
+	loaderSettings.setValue("ripSMCode", ui.chkRipSMCode->isChecked());
 }
 
 void FreeEMS_Loader::abort() {

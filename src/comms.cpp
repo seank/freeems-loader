@@ -67,7 +67,7 @@ void FreeEMS_LoaderComms::init() {
 	m_actionLoad = false;
 	m_actionConnect = false;
 	m_actionDisConnect = false;
-
+	m_RipSMCode = false;
 }
 
 void FreeEMS_LoaderComms::close() {
@@ -113,56 +113,54 @@ int FreeEMS_LoaderComms::ripDevice() {
 	totalBytes = getDeviceByteCount();
 	emit configureProgress(0, totalBytes - 1);
 
-	if (m_smIsReady) {
-		for (i = 0; i < numDataVectorTableEntries; i++) {
-			if (!strcmp(flashModuleTable[m_flashTypeIndex].name, dataVectorTable[i].association)) {
-				nPages = dataVectorTable[i].stopPage - dataVectorTable[i].startPage;
-				nPages++; //there is always 1 page to rip
-				for (PPageIndex = dataVectorTable[i].startPage; nPages && (result == 1); PPageIndex++, nPages--) {
-					SMSetPPage(PPageIndex); //set Ppage register
-
-					firstAddress = dataVectorTable[i].startAddress;
-					lastAddress = dataVectorTable[i].stopAddress;
-					//                  bytesInRange = lastAddress - firstAddress;
-					s19Record.setRecordAddress(firstAddress);
-					numSectors = (lastAddress - firstAddress) / bytesPerRecord + 1;
-					//TODO add error for invalid range or improper modulus
-					rxBuffer.clear();
-					for (address = firstAddress; numSectors; address += bytesPerRecord, numSectors--, totalBytesTX +=
-							bytesPerRecord) {
-						loaderBusy.lock();
-						if (loaderAbort) {
-							loaderBusy.unlock();
-							result = -2;
-							break;
-						}
+	for (i = 0; i < numDataVectorTableEntries; i++) {
+		if (!strcmp(flashModuleTable[m_flashTypeIndex].name, dataVectorTable[i].association)) {
+			nPages = dataVectorTable[i].stopPage - dataVectorTable[i].startPage;
+			nPages++; //there is always 1 page to rip
+			for (PPageIndex = dataVectorTable[i].startPage; nPages && (result == 1); PPageIndex++, nPages--) {
+				SMSetPPage(PPageIndex); //set Ppage register
+				firstAddress = dataVectorTable[i].startAddress;
+				lastAddress = dataVectorTable[i].stopAddress;
+				s19Record.setRecordAddress(firstAddress);
+				numSectors = (lastAddress - firstAddress) / bytesPerRecord + 1;
+				//TODO add error for invalid range or improper modulus
+				rxBuffer.clear();
+				for (address = firstAddress; numSectors; address += bytesPerRecord, numSectors--, totalBytesTX +=
+						bytesPerRecord) {
+					loaderBusy.lock();
+					if (loaderAbort) { // see if the user has requested we abort
 						loaderBusy.unlock();
-						//Read Block
-						pagedAddress = PPageIndex;
-						pagedAddress <<= 16;
-						pagedAddress += address;
-						if (SMReadByteBlock((unsigned short) address, bytesPerRecord, rxBuffer) < 0) {
-							emit udProgress(0);
-							result = -1;
-							break;
-						}
-						s19Record.initVariables(); // clear record
-						s19Record.setTypeIndex(S2);
-						s19Record.setRecordAddress(pagedAddress);
-						s19Record.fillRecord(rxBuffer);
-						s19Record.buildRecord();
-						emit udProgress(totalBytesTX); //Update Progress Bar
-						if (s19Record.isRecordNull() == false) {
-							outFile << s19Record.retRecordString();
-						}
+						result = -2;
+						break;
+					}
+					loaderBusy.unlock();
+					// Check to see if this range needs to be skipped
+					if (m_RipSMCode == false && address >= (0xFFFF & SM_CODE_START_ADDRESS)
+							&& PPageIndex == (SM_CODE_START_ADDRESS >> 16)) {
+						qDebug() << "Skipping serial monitor address " << address;
+						continue; //TODO replace this with defined vectors rather than a static number
+					}
+					//Read Block
+					pagedAddress = PPageIndex;
+					pagedAddress <<= 16;
+					pagedAddress += address;
+					if (SMReadByteBlock((unsigned short) address, bytesPerRecord, rxBuffer) < 0) {
+						emit udProgress(0);
+						result = -1;
+						break;
+					}
+					s19Record.initVariables(); // clear record
+					s19Record.setTypeIndex(S2);
+					s19Record.setRecordAddress(pagedAddress);
+					s19Record.fillRecord(rxBuffer);
+					s19Record.buildRecord();
+					emit udProgress(totalBytesTX); //Update Progress Bar
+					if (s19Record.isRecordNull() == false) {
+						outFile << s19Record.retRecordString();
 					}
 				}
 			}
 		}
-		//emit udProgress(totalBytes);
-	} else {
-		result = -1;
-		emit displayMessage(MESSAGE_ERROR, "error SM not ready");
 	}
 	outFile.close();
 //	delete s19Record;
@@ -422,21 +420,29 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 	m_loadableRecords = 0;
 	m_badCheckSums = 0;
 	FreeEMS_LoaderParsing parser;
+	// TODO this needs to be refactored so that all S19 lines are parsed and full statistics are generated later
 	for (i = 0, linesLoadable = 0; i < lineArray.size(); i++) {
 		line = lineArray.at(i);
 		if (parser.lineIsLoadable(&line)) {
 			result = m_s19SetOne[linesLoadable].createFromString(&line);
-			if(result == false){
+			if (result == false) {
 				emit displayMessage(MESSAGE_ERROR, "Problem Loading Record #" + QString::number(i+1) + " see console for details");
 				m_badCheckSums++; //this is somewhat misleading as this will be incremented if the parse fails for whatever reason TODO fix
 				return result;
 			}
+			if (m_s19SetOne[i].payloadAddress >= SM_CODE_START_ADDRESS) {
+				qDebug() << "Disabling a record's pay-load which lies within the SerialMonitor area";
+				m_s19SetOne[i].disablePayload(true);
+				linesNotLodable++;
+			} else {
+				linesLoadable++;
+			}
 			m_s19SetOneCount++;
-			linesLoadable++;
 			m_loadableRecords++;
 			result++;
 		} else {
 			//emit displayMessage(MESSAGE_GENERIC, "Line #" + QString::number(i+1) + "is not load-able ->" + line);
+			qDebug() << "Skipping non load-able line";
 			linesNotLodable++;
 		}
 	}
@@ -454,7 +460,9 @@ int FreeEMS_LoaderComms::loadRecordSet() {
 			return -2;
 		}
 		loaderBusy.unlock();
-		if (SMWriteByteBlock(m_s19SetOne[i].payloadAddress, m_s19SetOne[i].recordBytes, m_s19SetOne[i].recordPayloadBytes) < 0) {
+		if (m_s19SetOne[i].isPayloadDisabled()){
+			qDebug() << "Skipping attempted write to SerialMonitor area";
+		}else if (SMWriteByteBlock(m_s19SetOne[i].payloadAddress, m_s19SetOne[i].recordBytes, m_s19SetOne[i].recordPayloadBytes) < 0) {
 			emit displayMessage(MESSAGE_ERROR, "Unable to load record set");
 			emit udProgress(0);
 			return -1;
@@ -685,3 +693,12 @@ void FreeEMS_LoaderComms::setupPort(QString portName, unsigned int baud, unsigne
 void FreeEMS_LoaderComms::initRecordSet(unsigned int numRecords) {
 	m_s19SetOne = new FreeEMS_LoaderSREC[numRecords];
 }
+
+void FreeEMS_LoaderComms::ripSMCode(bool includeSM) {
+	m_RipSMCode = includeSM;
+}
+
+//bool FreeEMS_LoaderComms::isWithinVector(unsigned int address, QString name, rangePurpose) {
+//
+//}
+

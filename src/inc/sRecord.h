@@ -63,6 +63,8 @@ public:
 	FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress);
 	virtual ~FreeEMS_LoaderSREC();
 	int	fillRecord(std::vector<unsigned char> binaryChars);
+	void disablePayload(bool);
+	bool isPayloadDisabled();
 	bool verifyRecord();
 	unsigned int	getRecordAddress();
 	char getNextByte();
@@ -109,7 +111,7 @@ private:
 	int typeIndex;
 	int numHexValues;
 	bool writeAccess;
-	bool recordStatus;
+	bool m_payloadDisabled;
 	bool addressIsSet;
 	bool typeIsSet;
 	bool numPairsSet;

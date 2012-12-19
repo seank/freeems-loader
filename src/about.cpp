@@ -26,7 +26,7 @@
 
 #include <about.h>
 #include <Qt>
-#include <inc/externalData.h>
+#include <externalData.h>
 
 About::About(QWidget *parent) :
   QDialog(parent, Qt::Window | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint) 

@@ -43,6 +43,7 @@
 
 #define SM_READY_CHAR_SIZE      0x03
 #define ONE_TWENTY_EIGHT_K_RECORDS     15000  //enough records to hold 4MB at 16bytes each
+#define SM_CODE_START_ADDRESS			0xFFB800  // where serial monitor code starts
 using namespace std;
 
 enum SM_COMMAND_TYPE{
@@ -116,8 +117,10 @@ public:
 	void setupPort(QString portName, unsigned int baud, unsigned int stopBits, unsigned int dataBits,
 					QString parity);
 	void run();
+	bool isWithinVector(unsigned int);
 	bool verifyLastWrite;
 	~FreeEMS_LoaderComms();
+	void ripSMCode(bool);
 
 	signals:
 	void displayMessage(MESSAGE_TYPE type, QString text); //see about moving this to a global header
@@ -136,6 +139,7 @@ private:
 	bool m_fDeviceIsSet;
 	bool m_recordSetLoaded;
 	bool m_smIsReady;
+	bool m_RipSMCode;
 
 	unsigned int m_lastLoadAddress;
 	unsigned int m_portBaud;
