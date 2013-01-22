@@ -224,21 +224,44 @@ FreeEMS_Loader::~FreeEMS_Loader() {
 }
 
 int FreeEMS_Loader::fillDevice() {
+	ui.comboDevice->clear();
+	QStringList prefixes;
+	QDir path("/dev");
 #ifdef __linux__
-	ui.comboDevice->addItem("/dev/ttyUSB0");
-	QDir dir("/dev");
-	QStringList filters;
-	filters << "serial*"<<"tty*";
-	dir.setNameFilters(filters);
-	foreach ( QString file, dir.entryList(QDir::AllEntries) )
-	{
-		ui.comboDevice->addItem(file);
+	//TOOD consider full file info for permissions troubleshooting.
+	prefixes += "ttyS*";
+	prefixes += "ttyUSB*";
+	QStringList list = path.entryList(prefixes, QDir::System);
+	QStringList filteredList = list.filter(QRegExp("^ttyS[0-9]{1,1}$|^ttyUSB[0-9]$"));
+#elif __APPLE__
+	prefixes += "cu.*";
+	prefixes += "tty.*";
+	QStringList filteredList = path.entryList(prefixes, QDir::System);
+#elif __WIN32__
+		//TODO scan the windows registry for valid ports
+	filteredList += "COM1";
+	filteredList += "COM2";
+	filteredList += "COM3";
+	filteredList += "COM4";
+	filteredList += "COM5";
+	filteredList += "COM6";
+	filteredList += "COM7";
+	filteredList += "COM8";
+	filteredList += "COM9";
+#endif
+	//Ensure there are no duplicates by using a hashMap
+	int i;
+	for(i = 0; i < filteredList.size(); ++i) {
+	#ifdef __WIN32__
+		deviceMap.insert(filteredList[i], i);
+	#else
+		deviceMap.insert('/' + path.dirName() + '/' + filteredList[i], i);
+	#endif
 	}
-#endif
-#ifdef __WIN32__
-//	ui.comboDevice->addItem("COM1");
-	//TODO scan the windows registry for valid ports
-#endif
+	QMap<QString, int>::const_iterator iter;
+	for(iter = deviceMap.constBegin(); iter != deviceMap.constEnd(); ++iter) {
+		ui.comboDevice->addItem(iter.key());
+	}
 
 	return 0;
 }

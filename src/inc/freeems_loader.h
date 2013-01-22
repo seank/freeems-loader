@@ -37,6 +37,8 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QObject>
+#include <QMap>
+#include <QRegExp>
 
 #include <ui_freeemsLoader.h>
 #include <comms.h>
@@ -86,6 +88,7 @@ protected:
 
 private:
 	void saveSettings();
+	QMap<QString, int> deviceMap;
 	Ui::FreeEMS_LoaderClass ui;
 	FreeEMS_LoaderComms *loaderComms;
 	bool unattended;
