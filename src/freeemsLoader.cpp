@@ -41,6 +41,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	qRegisterMetaType<unsigned int>("MESSAGE_TYPE");
 	this->setWindowTitle(QString("FreeEMS-Loader ") + externalData::gitHASHShort);
 	ui.label_build_info->setText(externalData::gitHASHLong);
+	ui.comboDevice->installEventFilter(this);
 
 	loaderComms = new FreeEMS_LoaderComms;
 	fillBaud();
@@ -158,7 +159,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	/* process arguments */
 	QString arg;
 	cmdline_args = QCoreApplication::arguments();
-	fillDevice();
+	//fillDevice();
 
 	bool isFileName = false;
 	bool isDevice = false;
@@ -223,7 +224,7 @@ FreeEMS_Loader::~FreeEMS_Loader() {
 		delete loaderComms;
 }
 
-int FreeEMS_Loader::fillDevice() {
+void FreeEMS_Loader::fillDevice() {
 	ui.comboDevice->clear();
 	QStringList prefixes;
 	QDir path("/dev");
@@ -238,7 +239,8 @@ int FreeEMS_Loader::fillDevice() {
 	prefixes += "tty.*";
 	QStringList filteredList = path.entryList(prefixes, QDir::System);
 #elif __WIN32__
-		//TODO scan the windows registry for valid ports
+	//TODO scan the windows registry for valid ports
+	QStringList filteredList;
 	filteredList += "COM1";
 	filteredList += "COM2";
 	filteredList += "COM3";
@@ -263,7 +265,6 @@ int FreeEMS_Loader::fillDevice() {
 		ui.comboDevice->addItem(iter.key());
 	}
 
-	return 0;
 }
 
 void FreeEMS_Loader::fillBaud() {
@@ -630,4 +631,14 @@ void FreeEMS_Loader::abort() {
 	loaderBusy.lock();
 	loaderAbort = true;
 	loaderBusy.unlock();
+}
+
+bool FreeEMS_Loader::eventFilter(QObject *target, QEvent *event) {
+	if ( event->type() == QEvent::MouseButtonPress && target->objectName() == "comboDevice" ) {
+		fillDevice();
+		//qDebug() << "caught event" << target->objectName();
+		//return TRUE;
+	}
+	//qDebug() << "sending event to qwidget" << event->type();
+	return QWidget::eventFilter(target, event);
 }

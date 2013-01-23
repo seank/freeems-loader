@@ -71,6 +71,7 @@ public:
 		}
 		return false;
 	}
+	bool eventFilter(QObject *, QEvent *);
 
 protected:
 	void fillBaud();
@@ -80,7 +81,6 @@ protected:
 	void redirectCLI();
 	void updateGUIState();
 	void initGUI();
-	int fillDevice();
 	void getFileName(QString name);
 	void setFlashType();
 	bool isUnattended();
@@ -106,20 +106,21 @@ private:
 	bool m_fileLoaded;
 
 public slots:
-void abort();
-void setAutoRipDir();
-void openFile();
-void connect();
-void rip();
-void eraseFlash();
-void load();
-void writeText(string message);
-void updateProgress(int percent);
-void configureProgress(int min, int max);
-void showAbout();
-void closeReset();
-void changeGUIState(int);
-void displayMessage(MESSAGE_TYPE type, QString message);
+	void abort();
+	void setAutoRipDir();
+	void openFile();
+	void connect();
+	void rip();
+	void eraseFlash();
+	void load();
+	void writeText(string message);
+	void updateProgress(int percent);
+	void configureProgress(int min, int max);
+	void showAbout();
+	void closeReset();
+	void changeGUIState(int);
+	void displayMessage(MESSAGE_TYPE type, QString message);
+	void fillDevice();
 };
 
 #else
