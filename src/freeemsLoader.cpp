@@ -57,101 +57,8 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	QObject::connect(loaderComms, SIGNAL( udProgress(int) ), this, SLOT( updateProgress(int) ));
 	QObject::connect(loaderComms, SIGNAL( configureProgress(int, int) ), this, SLOT( configureProgress(int, int) ));
 
-	/* restore settings */
-//	QSettings settings("FreeEMS", "Loader");
-#ifdef __WIN32__
-		QString appDataDir = getenv("AppData");
-		m_autoRipDirectory = appDataDir;
-		m_autoRipDirectory += "\\FreeEMS-Loader\\";
-		appDataDir = m_autoRipDirectory;
-		if (!QDir(appDataDir).exists(appDataDir))
-			QDir(appDataDir).mkpath(appDataDir);
-		appDataDir += "settings\\";
-		if (!QDir(appDataDir).exists(appDataDir))
-			QDir(appDataDir).mkpath(appDataDir);
-		m_autoRipDirectory += "rips\\";
-		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
-			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
-#else
-		appDataDir = getenv("HOME");
-		m_autoRipDirectory = appDataDir;
-		appDataDir += "/.FreeEMS-Loader/";
-		m_autoRipDirectory += "/FreeEMS-Loader/";
-		if (!QDir(appDataDir).exists(appDataDir))
-			QDir(appDataDir).mkpath(appDataDir);
-		appDataDir += "settings/";
-		if (!QDir(appDataDir).exists(appDataDir))
-			QDir(appDataDir).mkpath(appDataDir);
-		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
-			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
-		m_autoRipDirectory += "rips/";
-		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
-			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
-#endif
-	settingsFile = appDataDir + "settings.ini";
-	qDebug() << "settings file is -> " << settingsFile;
-	QSettings loaderSettings(settingsFile, QSettings::IniFormat);
-
-	/* initialize file and dir locations */
-	if (loaderSettings.value("autoRipDirectory").isNull()) {
-		displayMessage(MESSAGE_INFO, "This appears to be the first time FreeEMS Loader has been "
-				"run on this host, initializing settings..");
-#ifdef __WIN32__
-		QString appDataDir = getenv("AppData");
-		m_autoRipDirectory = appDataDir;
-		m_autoRipDirectory += "\\FreeEMS-Loader\\";
-		appDataDir = m_autoRipDirectory;
-		if (!QDir(appDataDir).exists(appDataDir))
-			QDir(appDataDir).mkpath(appDataDir);
-		appDataDir += "settings\\";
-		if (!QDir(appDataDir).exists(appDataDir))
-			QDir(appDataDir).mkpath(appDataDir);
-		m_autoRipDirectory += "rips\\";
-		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
-			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
-#else
-		appDataDir = getenv("HOME");
-		m_autoRipDirectory = appDataDir;
-		appDataDir += "/.FreeEMS-Loader/";
-		m_autoRipDirectory += "/FreeEMS-Loader/";
-		if (!QDir(appDataDir).exists(appDataDir))
-			QDir(appDataDir).mkpath(appDataDir);
-		appDataDir += "settings/";
-		if (!QDir(appDataDir).exists(appDataDir))
-			QDir(appDataDir).mkpath(appDataDir);
-
-		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
-			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
-		m_autoRipDirectory += "rips/";
-		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
-			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
-#endif
-		ui.comboBaud->setCurrentIndex(21);
-		ui.comboDataBits->setCurrentIndex(3);
-		ui.comboParity->setCurrentIndex(4);
-		ui.comboStopBits->setCurrentIndex(2);
-		ui.chkRip->setChecked(true);
-		ui.chkVerify->setChecked(true);
-		ui.chkRipSMCode->setChecked(false);
-		_numBurnsPerformed = 0;
-	} else {
-		ui.comboDevice->addItem(loaderSettings.value("serialDevice").toString());
-		ui.comboDataBits->setCurrentIndex(loaderSettings.value("dataBits").toUInt());
-		ui.comboStopBits->setCurrentIndex((loaderSettings.value("stopBits").toUInt()));
-		ui.comboParity->setCurrentIndex((loaderSettings.value("parity").toUInt()));
-		ui.chkRip->setChecked(loaderSettings.value("chkRip").toBool());
-		ui.chkVerify->setChecked(loaderSettings.value("chkVerify").toBool());
-		_numBurnsPerformed = loaderSettings.value("numBurnsPerformed").toInt();
-		m_autoRipDirectory = loaderSettings.value("autoRipDirectory").toString();
-		loaderSettings.setValue("appDataDir", appDataDir);
-		resize(loaderSettings.value("size", QSize(400, 320)).toSize());
-		move(loaderSettings.value("pos", QPoint(50, 50)).toPoint());
-		ui.chkRipSMCode->setChecked(loaderSettings.value("ripSMCode").toBool());
-	}
-
-	qDebug() << "Settings location is -> " << appDataDir;
-	qDebug() << "Auto RIP directory is -> " << m_autoRipDirectory;
-
+	fillDevice();
+	restoreSettings();
 	QString loadsNum;
 	loadsNum.setNum(_numBurnsPerformed, 10);
 	displayMessage(MESSAGE_INFO, "number of burns executed " + loadsNum);
@@ -159,9 +66,7 @@ QWidget(parent), showHelp(false), fileArg(false), unattended(false), _numBurnsPe
 	/* process arguments */
 	QString arg;
 	cmdline_args = QCoreApplication::arguments();
-	//fillDevice();
-
-	bool isFileName = false;
+		bool isFileName = false;
 	bool isDevice = false;
 	foreach(arg, cmdline_args)
 	{
@@ -641,4 +546,106 @@ bool FreeEMS_Loader::eventFilter(QObject *target, QEvent *event) {
 	}
 	//qDebug() << "sending event to qwidget" << event->type();
 	return QWidget::eventFilter(target, event);
+}
+
+int FreeEMS_Loader::restoreSettings() {
+	/* restore settings */
+//	QSettings settings("FreeEMS", "Loader");
+#ifdef __WIN32__
+		QString appDataDir = getenv("AppData");
+		m_autoRipDirectory = appDataDir;
+		m_autoRipDirectory += "\\FreeEMS-Loader\\";
+		appDataDir = m_autoRipDirectory;
+		if (!QDir(appDataDir).exists(appDataDir))
+			QDir(appDataDir).mkpath(appDataDir);
+		appDataDir += "settings\\";
+		if (!QDir(appDataDir).exists(appDataDir))
+			QDir(appDataDir).mkpath(appDataDir);
+		m_autoRipDirectory += "rips\\";
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
+#else
+		appDataDir = getenv("HOME");
+		m_autoRipDirectory = appDataDir;
+		appDataDir += "/.FreeEMS-Loader/";
+		m_autoRipDirectory += "/FreeEMS-Loader/";
+		if (!QDir(appDataDir).exists(appDataDir))
+			QDir(appDataDir).mkpath(appDataDir);
+		appDataDir += "settings/";
+		if (!QDir(appDataDir).exists(appDataDir))
+			QDir(appDataDir).mkpath(appDataDir);
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
+		m_autoRipDirectory += "rips/";
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
+#endif
+	settingsFile = appDataDir + "settings.ini";
+	qDebug() << "settings file is -> " << settingsFile;
+	QSettings loaderSettings(settingsFile, QSettings::IniFormat);
+
+	/* initialize file and dir locations */
+	if (loaderSettings.value("autoRipDirectory").isNull()) {
+		displayMessage(MESSAGE_INFO, "This appears to be the first time FreeEMS Loader has been "
+				"run on this host, initializing settings..");
+#ifdef __WIN32__
+		QString appDataDir = getenv("AppData");
+		m_autoRipDirectory = appDataDir;
+		m_autoRipDirectory += "\\FreeEMS-Loader\\";
+		appDataDir = m_autoRipDirectory;
+		if (!QDir(appDataDir).exists(appDataDir))
+			QDir(appDataDir).mkpath(appDataDir);
+		appDataDir += "settings\\";
+		if (!QDir(appDataDir).exists(appDataDir))
+			QDir(appDataDir).mkpath(appDataDir);
+		m_autoRipDirectory += "rips\\";
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
+#else
+		appDataDir = getenv("HOME");
+		m_autoRipDirectory = appDataDir;
+		appDataDir += "/.FreeEMS-Loader/";
+		m_autoRipDirectory += "/FreeEMS-Loader/";
+		if (!QDir(appDataDir).exists(appDataDir))
+			QDir(appDataDir).mkpath(appDataDir);
+		appDataDir += "settings/";
+		if (!QDir(appDataDir).exists(appDataDir))
+			QDir(appDataDir).mkpath(appDataDir);
+
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
+		m_autoRipDirectory += "rips/";
+		if (!QDir(m_autoRipDirectory).exists(m_autoRipDirectory))
+			QDir(m_autoRipDirectory).mkpath(m_autoRipDirectory);
+#endif
+		ui.comboBaud->setCurrentIndex(21);
+		ui.comboDataBits->setCurrentIndex(3);
+		ui.comboParity->setCurrentIndex(4);
+		ui.comboStopBits->setCurrentIndex(2);
+		ui.chkRip->setChecked(true);
+		ui.chkVerify->setChecked(true);
+		ui.chkRipSMCode->setChecked(false);
+		_numBurnsPerformed = 0;
+	} else {
+		//ui.comboDevice->addItem(loaderSettings.value("serialDevice").toString());
+		//deviceMap.find(loaderSettings.value("serialDevice").toString());
+		int comboIndex = deviceMap[loaderSettings.value("serialDevice").toString()];
+		ui.comboDevice->setCurrentIndex(comboIndex);
+
+		ui.comboDataBits->setCurrentIndex(loaderSettings.value("dataBits").toUInt());
+		ui.comboStopBits->setCurrentIndex((loaderSettings.value("stopBits").toUInt()));
+		ui.comboParity->setCurrentIndex((loaderSettings.value("parity").toUInt()));
+		ui.chkRip->setChecked(loaderSettings.value("chkRip").toBool());
+		ui.chkVerify->setChecked(loaderSettings.value("chkVerify").toBool());
+		_numBurnsPerformed = loaderSettings.value("numBurnsPerformed").toInt();
+		m_autoRipDirectory = loaderSettings.value("autoRipDirectory").toString();
+		loaderSettings.setValue("appDataDir", appDataDir);
+		resize(loaderSettings.value("size", QSize(400, 320)).toSize());
+		move(loaderSettings.value("pos", QPoint(50, 50)).toPoint());
+		ui.chkRipSMCode->setChecked(loaderSettings.value("ripSMCode").toBool());
+	}
+
+	qDebug() << "Settings location is -> " << appDataDir;
+	qDebug() << "Auto RIP directory is -> " << m_autoRipDirectory;
+	return 1;
 }

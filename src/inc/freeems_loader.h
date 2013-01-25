@@ -88,6 +88,7 @@ protected:
 
 private:
 	void saveSettings();
+	int restoreSettings();
 	QMap<QString, int> deviceMap;
 	Ui::FreeEMS_LoaderClass ui;
 	FreeEMS_LoaderComms *loaderComms;
