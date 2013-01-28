@@ -627,11 +627,8 @@ int FreeEMS_Loader::restoreSettings() {
 		ui.chkRipSMCode->setChecked(false);
 		_numBurnsPerformed = 0;
 	} else {
-		//ui.comboDevice->addItem(loaderSettings.value("serialDevice").toString());
-		//deviceMap.find(loaderSettings.value("serialDevice").toString());
 		int comboIndex = deviceMap[loaderSettings.value("serialDevice").toString()];
 		ui.comboDevice->setCurrentIndex(comboIndex);
-
 		ui.comboDataBits->setCurrentIndex(loaderSettings.value("dataBits").toUInt());
 		ui.comboStopBits->setCurrentIndex((loaderSettings.value("stopBits").toUInt()));
 		ui.comboParity->setCurrentIndex((loaderSettings.value("parity").toUInt()));

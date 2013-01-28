@@ -623,10 +623,36 @@ void FreeEMS_LoaderComms::parseFile() {
 		return;
 	}
 
-	while (getline(ifs, line)) {
+	int begin = ifs.tellg();
+	ifs.seekg (0, ios::end);
+	int end = ifs.tellg();
+	ifs.seekg(ios_base::beg);
+	cout << endl << "File size is: " << (end-begin) << " bytes.\n";
+	char * filteredStream = new char[end-begin];
+	ifs.read(filteredStream, (end-begin));
+	int i;
+
+	//TODO Temp hack, carriage returns breaks the getline function when running in linux
+	for(i = 0; i < (end-begin); i++) {
+#ifdef __WIN32__
+
+#else
+		if(filteredStream[i] == '\r') {
+			filteredStream[i] = '\n';
+			qDebug() << "Replaced carriage return with POSIX newline";
+		} else {
+					//qDebug() << filteredStream[i];
+		}
+#endif
+	}
+	std::stringstream s;
+	s << filteredStream;
+	while (getline(s, line)) {
 		lineArray.push_back(line);
 		linesRead++;
 	}
+
+	qDebug() << "Lines read " << linesRead;
 	ifs.close();
 	initRecordSet(linesRead);
 	generateRecords(lineArray);
