@@ -86,12 +86,13 @@ unix:INSTALLS += target
 }
 
 # Default make specs
-INCLUDEPATH += src/inc
-unix:INCLUDEPATH += $$quote(/usr/local/include/)
-unix:LIBS += $$quote(/usr/local/lib/libSerialIO.so.$$LIB_VERSION)
-unix:PRE_TARGETDEPS += $$quote(/usr/local/lib/libSerialIO.so.$$LIB_VERSION)
-unix:DEFINES += GIT_HASH=$$system(git describe --dirty=-DEV --always)
-unix:DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)
+ INCLUDEPATH += src/inc
+ unix:INCLUDEPATH += $$quote($$PREFIX/include/)
+ unix:LIBS += $$quote(/usr/lib/libSerialIO.so.$$LIB_VERSION)
+ unix:PRE_TARGETDEPS += $$quote(/usr/lib/libSerialIO.so.$$LIB_VERSION)
+ unix:DEFINES += GIT_HASH=$$system(git describe --dirty=-DEV --always)
+ unix:DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)
+ 
 
 # Cross compilation
 win32-x-g++ { 
