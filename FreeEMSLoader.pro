@@ -88,8 +88,8 @@ unix:INSTALLS += target
 # Default make specs
  INCLUDEPATH += src/inc
  unix:INCLUDEPATH += $$quote($$PREFIX/include/)
- unix:LIBS += $$quote($$PREFIX/lib/libSerialIO.so.$$LIB_VERSION)
- unix:PRE_TARGETDEPS += $$quote($$PREFIX/lib/libSerialIO.so.$$LIB_VERSION)
+ unix:LIBS += -lSerialIO
+ #unix:PRE_TARGETDEPS += $$quote($$PREFIX/lib/libSerialIO.so.$$LIB_VERSION)
  unix:DEFINES += GIT_HASH=$$system(git describe --dirty=-DEV --always)
  unix:DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)
  
@@ -110,8 +110,8 @@ mac {
 linux-g++ { 
     message("Straight Linux Build")
     unix:INCLUDEPATH += $$quote($$PREFIX/include/)
-    unix:LIBS += $$quote($$PREFIX/lib/libSerialIO.so.$$LIB_VERSION)
-    PRE_TARGETDEPS += $$quote($$PREFIX/lib/libSerialIO.so.$$LIB_VERSION)
+    unix:LIBS += -lSerialIO
+    #PRE_TARGETDEPS += $$quote($$PREFIX/lib/libSerialIO.so.$$LIB_VERSION)
     DEFINES += GIT_HASH=$$system(git describe --dirty=-DEV --always)
     DEFINES += GIT_HASH_FULL=$$system(git rev-parse HEAD)
 }
