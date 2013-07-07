@@ -358,7 +358,7 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.chkRip->setEnabled(true);
 		ui.chkVerify->setEnabled(true);
 		ui.pushOpenFile->setEnabled(true);
-		ui.pushLoad->setEnabled(true);
+		ui.pushLoad->setEnabled(false);
 		ui.pushAbort->setEnabled(false);
 		break;
 	default:
@@ -489,6 +489,7 @@ void FreeEMS_Loader::openFile() {
 	} else{
 		loaderSettings.setValue("lastDirectory", loadFileName);
 		loaderComms->setLoadFilename(loadFileName);
+		displayMessage(MESSAGE_INFO,"Attempting to parse " + loadFileName);
 		loaderComms->parseFile();
 		if(loaderComms->numLoadableRecords() == 0){
 			displayMessage(MESSAGE_ERROR, "no load-able records parsed");
@@ -550,7 +551,6 @@ bool FreeEMS_Loader::eventFilter(QObject *target, QEvent *event) {
 
 int FreeEMS_Loader::restoreSettings() {
 	/* restore settings */
-//	QSettings settings("FreeEMS", "Loader");
 #ifdef __WIN32__
 		QString appDataDir = getenv("AppData");
 		m_autoRipDirectory = appDataDir;
