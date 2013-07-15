@@ -39,6 +39,7 @@ CONFIG *= qt \
     thread \
     release \
     console \
+    exceptions \
     debug
 QT *= core \
     gui
