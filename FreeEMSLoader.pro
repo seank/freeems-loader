@@ -98,6 +98,8 @@ unix:INSTALLS += target
 # Cross compilation
 win32-x-g++ { 
     message("Crosscompiling on Unix to Windows")
+    # for mikes CI 
+    LIBS += -L/home/michael/QtWin32/lib
     QMAKE_CXXFLAGS -= -Werror
 }
 
