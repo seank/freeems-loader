@@ -481,8 +481,10 @@ void FreeEMS_Loader::openFile() {
 	loadDirectory = loaderSettings.value("lastDirectory").toString();
 	QFileDialog fileDialog;
 	fileDialog.setViewMode(QFileDialog::Detail);
+	fileDialog.restoreGeometry(loaderSettings.value("lastOpenDialogGeo").toByteArray());
 	QString qSNum;
 	loadFileName = fileDialog.getOpenFileName(this, tr("Load s19 file"), loadDirectory, tr("s19 (*.s19)"));
+	loaderSettings.setValue("lastOpenDialogGeo", fileDialog.saveGeometry());
 	if (loadFileName.isNull()) {
 		displayMessage(MESSAGE_ERROR, "no file selected");
 		return;

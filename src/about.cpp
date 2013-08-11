@@ -27,6 +27,8 @@
 #include <about.h>
 #include <Qt>
 #include <externalData.h>
+#include <QThread>
+#include <SerialIO.h>
 
 About::About(QWidget *parent) :
   QDialog(parent, Qt::Window | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint) 
@@ -60,6 +62,12 @@ About::About(QWidget *parent) :
 	textBrowser->append(externalData::gitHASHLong);
 	textBrowser->append("\n");
 	textBrowser->append(license);
+	textBrowser->append("\n");
+	// Get Lib Version information
+	IPDS::SerialIO info;
+	QString version = info.getVersion();
+	textBrowser->append("SerialIO Lib Information");
+	textBrowser->append("	Version:" + version);
 	textBrowser->moveCursor(QTextCursor::Start) ;
 }
 

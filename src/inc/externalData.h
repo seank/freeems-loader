@@ -24,6 +24,9 @@
  *
  */
 
+#ifndef EXTERNALDATA_H_
+#define EXTERNALDATA_H_
+
 /* data collected externally, here to prevent our IDE from telling us the file has changed */
 
 #include <QString>
@@ -38,3 +41,7 @@ public:
 	static const char gitHASHShort[];
 	static const char gitHASHLong[];
 };
+
+#else
+#warning "EXTERNALDATA_H_ already defined sort it out!"
+#endif /* SERIALIOP_H_ */
