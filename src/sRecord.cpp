@@ -62,7 +62,6 @@ void FreeEMS_LoaderSREC::initVariables() {
 	typeIndex = 0;
 	numHexValues = 0;
 	writeAccess = true;
-	m_payloadDisabled = false;
 	addressIsSet = false;
 	typeIsSet = false;
 	recordIsNull = true;
@@ -70,6 +69,7 @@ void FreeEMS_LoaderSREC::initVariables() {
 	mismatchedCheckSum = false;
 	correctLineLength = true;
 	charactersValid = true;
+	m_payloadStatus = RECORD_NULL;
 }
 
 FreeEMS_LoaderSREC::FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress) {
@@ -211,10 +211,10 @@ int FreeEMS_LoaderSREC::retRecordSize() {
 	return record.length();
 }
 
-bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
+int FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 
 	char type = *(lineIn->c_str() + 1);
-	//int lineEndSequenceLenth;
+	//int lineEndSequenceLenth; Unable to load record set
 
 	if (*lineIn->c_str() == 'S') //start of record
 	{
@@ -223,10 +223,10 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			setTypeIndex(S0);
 			memcpy(recordTypeIdChars, lineIn->c_str(), TWO_BYTES);
 			memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
-			//cout << "TODO S0 records are not currently handled, skipping" << endl;
+			m_payloadStatus = RECORD_UNHANDLED;
+			break;
 		case '1':
-			cout << endl << "TODO S1 records are not currently handled, skipping";
-			return false;
+			m_payloadStatus = RECORD_UNHANDLED;
 			break;
 		case '2': //Record is S2
 			setTypeIndex(S2);
@@ -241,15 +241,12 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			lengthDifference = (lineIn->length() - 2 - 2) - (unsigned int) (bytePairCount * 2);
 			if (lengthDifference == 1) {
 				if ((lineIn->at(lineIn->length() - 1)) != '\r') {
-					cout << " Error, there seems to be garbage in record ->" << *lineIn << endl;
-					return false;
+					m_payloadStatus = UNLOADABLE_BAD_LENGTH;
 				}
 			} else if (lengthDifference > 1) {
-				cout << " Error, there seems to be garbage in record ->" << *lineIn << endl;
-				return false;
+				m_payloadStatus = UNLOADABLE_BAD_LENGTH;
 			}else if (lengthDifference < 0) {
-				cout << " Error, record is short ->" << *lineIn << endl;
-				return false;
+				m_payloadStatus = UNLOADABLE_BAD_LENGTH_TOO_SHORT;
 			}
 			recordPayloadBytes = bytePairCount - 4; //TODO make proper maybe make a function to call setNumPairsInRecord too
 			memcpy(recordAddressChars, lineIn->c_str() + S2_ADDRESS_OFFSET, 6); //S2 has 6 chars in address
@@ -262,22 +259,22 @@ bool FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			setNumPairsInRecord();
 			calculateCheckSum(); // this asserts that the data is good
 			if (recordChkSum != recordLoadedChkSum) {
-				cout << "Error, checksum does not match calculated sum in record ->" << *lineIn << endl;;
-				mismatchedCheckSum = true;
-				return false;
+				m_payloadStatus = UNLOADABLE_BAD_CSUM;
+			}else{
+				m_payloadStatus = LOADABLE;
 			}
 			break;
 		case '3':
-			cout << endl << "TODO S3 records are not currently handled";
+			m_payloadStatus = RECORD_UNHANDLED;
 			break;
 		default:
-			cout << endl <<"LINE DOES NOT CONTAIN LOADABLE RECORD OR IS UNRECOGNIZED";
+			//m_payloadStatus = UNLOADABLE_BAD_START_CHAR;
 			break;
 		}
 	} else {
-		cout << endl << "LINE DOES NOT CONTAIN LOADABLE RECORD";
+		m_payloadStatus = UNLOADABLE_BAD_START_CHAR;
 	}
-	return true;
+	return m_payloadStatus;
 }
 
 unsigned int FreeEMS_LoaderSREC::getRecordAddress() {
@@ -308,10 +305,10 @@ bool FreeEMS_LoaderSREC::areCharactersValid() {
 	return charactersValid;
 }
 
-void FreeEMS_LoaderSREC::disablePayload(bool disable) {
-	m_payloadDisabled = disable;
+void FreeEMS_LoaderSREC::setPayloadStatus(int status) {
+	m_payloadStatus = status;
 }
 
-bool FreeEMS_LoaderSREC::isPayloadDisabled() {
-	return m_payloadDisabled;
+int FreeEMS_LoaderSREC::getPayloadStatus() {
+	return m_payloadStatus;
 }

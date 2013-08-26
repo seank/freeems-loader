@@ -54,6 +54,20 @@ using namespace std;
 #define ASCII_PAIR              0x02
 #define LINE_RETURN_CHAR_SIZE	 0x01
 
+/* record status codes */
+enum recordStatus{
+	LOADABLE = 0,
+	RECORD_NULL,
+	RECORD_UNHANDLED,
+	SKIP_SM_RANGE,
+	UNLOADABLE_BAD_CSUM = 50,
+	UNLOADABLE_CORRUPT,
+	UNLOADABLE_SKIPPED,
+	UNLOADABLE_BAD_LENGTH,
+	UNLOADABLE_BAD_LENGTH_TOO_SHORT,
+	UNLOADABLE_BAD_START_CHAR
+};
+
 
 class FreeEMS_LoaderSREC {
 
@@ -63,15 +77,15 @@ public:
 	FreeEMS_LoaderSREC(char *input, int numBytes, int type, unsigned int recordAddress);
 	virtual ~FreeEMS_LoaderSREC();
 	int	fillRecord(std::vector<unsigned char> binaryChars);
-	void disablePayload(bool);
-	bool isPayloadDisabled();
+	void setPayloadStatus(int);
+	int getPayloadStatus();
 	bool verifyRecord();
 	unsigned int	getRecordAddress();
 	char getNextByte();
 	int getRecordTypeIndex();
 	void buildRecord();
 	void printRecord();
-	bool createFromString(string* lineIn);
+	int createFromString(string* lineIn);
 	std::string	retRecordString();
 	QString getAllVendorData();
 	bool isRecordNull();
@@ -111,11 +125,11 @@ private:
 	int typeIndex;
 	int numHexValues;
 	bool writeAccess;
-	bool m_payloadDisabled;
 	bool addressIsSet;
 	bool typeIsSet;
 	bool numPairsSet;
 	bool recordIsNull;
+	int m_payloadStatus;
 };
 
 #else

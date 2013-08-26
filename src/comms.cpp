@@ -56,7 +56,7 @@ bool FreeEMS_LoaderComms::isOpen() {
 }
 
 void FreeEMS_LoaderComms::init() {
-	m_recordSetLoaded = false;
+	m_recordSetReady = false;
 	m_lastLoadAddress = 0;
 	//clearSets();
 	m_s19SetOneCount = 0;
@@ -84,7 +84,7 @@ void FreeEMS_LoaderComms::close() {
 }
 
 int FreeEMS_LoaderComms::loadDevice() {
-	if(m_recordSetLoaded) {
+	if(m_recordSetReady) {
 		return writeBlocks();
 	} else {
 		emit displayMessage(MESSAGE_ERROR, "can't perform load, record set not yet loaded");
@@ -413,41 +413,82 @@ int FreeEMS_LoaderComms::getDeviceByteCount() {
 
 bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 	unsigned int i;
-	unsigned int linesLoadable;
-	unsigned int linesNotLodable;
-	bool result = false;
+//	unsigned int linesLoadable;
+//	unsigned int linesNotLodable;
+//	bool result = false;
+	int status;
+	bool result = true;
 	string line;
 	m_loadableRecords = 0;
 	m_badCheckSums = 0;
 	FreeEMS_LoaderParsing parser;
-	// TODO this needs to be refactored so that all S19 lines are parsed and full statistics are generated later
-	for (i = 0, linesLoadable = 0; i < lineArray.size(); i++) {
+	for (i = 0; i < lineArray.size(); i++) {
 		line = lineArray.at(i);
-		if (parser.lineIsLoadable(&line)) {
-			result = m_s19SetOne[linesLoadable].createFromString(&line);
-			if (result == false) {
-				emit displayMessage(MESSAGE_ERROR, "Problem Loading Record #" + QString::number(i+1) + " see console for details");
-				m_badCheckSums++; //this is somewhat misleading as this will be incremented if the parse fails for whatever reason TODO fix
-				return result;
-			}
-			if (m_s19SetOne[i].payloadAddress >= SM_CODE_START_ADDRESS) {
-				qDebug() << "Disabling a record's pay-load which lies within the SerialMonitor area";
-				m_s19SetOne[i].disablePayload(true);
-				linesNotLodable++;
-			} else {
-				linesLoadable++;
-			}
-			m_s19SetOneCount++;
+		cout << endl << "Parsing line: " << line;
+		//TODO have createFromString return status record set not yet loaded error with line
+		status = m_s19SetOne[i].createFromString(&line);
+		if (status == LOADABLE) {
 			m_loadableRecords++;
-			result++;
 		} else {
-			//emit displayMessage(MESSAGE_GENERIC, "Line #" + QString::number(i+1) + "is not load-able ->" + line);
-			qDebug() << "Skipping non load-able line";
-			linesNotLodable++;
+			cout << "error with line " << status;
+			switch (status) {
+			case RECORD_NULL:
+				break;
+			case RECORD_UNHANDLED:
+				break;
+			case SKIP_SM_RANGE:
+				break;
+			case UNLOADABLE_BAD_CSUM:
+				m_badCheckSums++;
+				result = false;
+				break;
+			case UNLOADABLE_CORRUPT:
+				result = false;
+				break;
+			case UNLOADABLE_SKIPPED:
+				break;
+			case UNLOADABLE_BAD_LENGTH:
+				result = false;
+				break;
+			case UNLOADABLE_BAD_LENGTH_TOO_SHORT:
+				result = false;
+				break;
+			case UNLOADABLE_BAD_START_CHAR:
+				result = false;
+				break;
+			default:
+				cout << "TODO figure out odd-ball problem" << endl;
+				result = false;
+				break;
+			}
 		}
+
+		//m_s19SetOneCount++;
+//		if (parser.lineIsLoadable(&line)) {
+//			result = m_s19SetOne[linesLoadable].createFromString(&line);
+//			if (result == false) {
+//				emit displayMessage(MESSAGE_ERROR, "Problem Loading Record #" + QString::number(i+1) + " see console for details");
+//				m_badCheckSums++; //this is somewhat misleading as this will be incremented if the parse fails for whatever reason TODO fix
+//				return result;
+//			}
+//			if (m_s19SetOne[i].payloadAddress >= SM_CODE_START_ADDRESS) {
+//				qDebug() << "Disabling a record's pay-load which lies within the SerialMonitor area";
+//				m_s19SetOne[i].disablePayload(true);
+//				linesNotLodable++;
+//			} else {
+//				linesLoadable++;
+//			}
+//			m_s19SetOneCount++;
+//			m_loadableRecords++;
+//			result++;
+//		} else {
+//			//emit displayMessage(MESSAGE_GENERIC, "Line #" + QString::number(i+1) + "is not load-able ->" + line);
+//			qDebug() << "Skipping non load-able line";
+//			linesNotLodable++;
+//		}
 	}
-	m_recordSetLoaded = true;
-	return true;
+	//m_recordSetReady = validateRecordSet();
+	return result;
 }
 
 int FreeEMS_LoaderComms::loadRecordSet() {
@@ -460,14 +501,17 @@ int FreeEMS_LoaderComms::loadRecordSet() {
 			return -2;
 		}
 		loaderBusy.unlock();
-		if (m_s19SetOne[i].isPayloadDisabled()){
-			qDebug() << "Skipping attempted write to SerialMonitor area";
-		}else if (SMWriteByteBlock(m_s19SetOne[i].payloadAddress, m_s19SetOne[i].recordBytes, m_s19SetOne[i].recordPayloadBytes) < 0) {
-			emit displayMessage(MESSAGE_ERROR, "Unable to load record set");
-			emit udProgress(0);
-			return -1;
+		if (m_s19SetOne[i].getPayloadStatus() == LOADABLE) {
+			if (SMWriteByteBlock(m_s19SetOne[i].payloadAddress,	m_s19SetOne[i].recordBytes, m_s19SetOne[i].recordPayloadBytes) != 1) {
+				emit displayMessage(MESSAGE_ERROR, "Unable to load record set");
+				emit udProgress(0);
+				return -1;
+			} else {
+				emit udProgress(i);
+			}
+		} else {
+			qDebug() << "Skipping unloadable record";
 		}
-		emit udProgress(i);
 	}
 	return 1;
 }
@@ -613,7 +657,7 @@ void FreeEMS_LoaderComms::parseFile() {
 	m_badCheckSums = 0;
 	m_loadableRecords = 0;
 	m_s19SetOneCount = 0;
-	m_recordSetLoaded = false;
+	m_recordSetReady = false;
 	int linesRead = 0;
 	vector < string > lineArray;
 	string line;
@@ -622,40 +666,51 @@ void FreeEMS_LoaderComms::parseFile() {
 		emit displayMessage(MESSAGE_ERROR, "Error opening file");
 		return;
 	}
-
 	int begin = ifs.tellg();
 	ifs.seekg (0, ios::end);
 	int end = ifs.tellg();
 	ifs.seekg(ios_base::beg);
 	cout << endl << "File size is: " << (end-begin) << " bytes.\n";
-	char * filteredStream = new char[end-begin];
+	char *filteredStream = new char[end-begin];
+	char *readyStream = new char[end-begin]; //this will be slightly too big due to clipping the extra return char
 	ifs.read(filteredStream, (end-begin));
-	int i;
+	int i, j;
 
-	//TODO Temp hack, carriage returns breaks the getline function when running in linux
-	for(i = 0; i < (end-begin); i++) {
+	//TODO Temp hack, carriage returns breaks the getline function when running in linux can't perform load
+	char c;
+	bool expectingReturn;
+	for(i = 0, j = 0, expectingReturn = false; i < (end-begin); i++) {
 #ifdef __WIN32__
-
+		//yep we are just fine using readline in windows, lamers
 #else
-		if(filteredStream[i] == '\r') {
-			filteredStream[i] = '\n';
+		c = filteredStream[i];
+		if(c == '\n') {
+			if(!expectingReturn) {
+				//todo emit visible error
+				qDebug() << "bogus line ending found";
+			}
+		}else if(c == '\r') {
+			expectingReturn = true;
+			readyStream[j++] = '\n';
 			qDebug() << "Replaced carriage return with POSIX newline";
 		} else {
-					//qDebug() << filteredStream[i];
+			readyStream[j++] = c;
+			expectingReturn = false;
 		}
 #endif
 	}
 	std::stringstream s;
-	s << filteredStream;
+	s << readyStream;
 	while (getline(s, line)) {
 		lineArray.push_back(line);
 		linesRead++;
 	}
-
 	qDebug() << "Lines read " << linesRead;
 	ifs.close();
 	initRecordSet(linesRead);
-	generateRecords(lineArray);
+	m_recordSetReady = generateRecords(lineArray);
+	delete filteredStream;
+	delete readyStream;
 }
 
 int FreeEMS_LoaderComms::writeBlocks() {
@@ -663,7 +718,7 @@ int FreeEMS_LoaderComms::writeBlocks() {
 }
 
 bool FreeEMS_LoaderComms::isRecordSetLoaded() {
-	if(m_recordSetLoaded){
+	if(m_recordSetReady){
 		return true;
 	}
 	return false;
@@ -718,12 +773,59 @@ void FreeEMS_LoaderComms::setupPort(QString portName, unsigned int baud, unsigne
 
 void FreeEMS_LoaderComms::initRecordSet(unsigned int numRecords) {
 	m_s19SetOne = new FreeEMS_LoaderSREC[numRecords];
+	m_s19SetOneCount = numRecords;
 }
 
 void FreeEMS_LoaderComms::ripSMCode(bool includeSM) {
 	m_RipSMCode = includeSM;
 }
 
+bool FreeEMS_LoaderComms::validateRecordSet() {
+	m_loadableRecords = 0;
+	int status;
+	int i;
+	bool result = true;
+	// a hierarchy actually exists to some extent TODO fall-though appropriately
+	for (i = 0; i < m_s19SetOneCount; i++) {
+		status = m_s19SetOne[i].getPayloadStatus();
+		if (status == LOADABLE) {
+			m_loadableRecords++;
+		} else {
+			cout << "error status " << status;
+			switch (status) {
+			case RECORD_NULL:
+				break;
+			case RECORD_UNHANDLED:
+				break;
+			case SKIP_SM_RANGE:
+				break;
+			case UNLOADABLE_BAD_CSUM:
+				m_badCheckSums++;
+				result = false;
+				break;
+			case UNLOADABLE_CORRUPT:
+				result = false;
+				break;
+			case UNLOADABLE_SKIPPED:
+				break;
+			case UNLOADABLE_BAD_LENGTH:
+				result = false;
+				break;
+			case UNLOADABLE_BAD_LENGTH_TOO_SHORT:
+				result = false;
+				break;
+			case UNLOADABLE_BAD_START_CHAR:
+
+				result = false;
+				break;
+			default:
+				result = false;
+				break;
+			}
+		}
+	}
+	return result;
+}
 //bool FreeEMS_LoaderComms::isWithinVector(unsigned int address, QString name, rangePurpose) {
 //
 //}

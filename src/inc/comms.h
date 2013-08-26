@@ -121,6 +121,7 @@ public:
 	bool verifyLastWrite;
 	~FreeEMS_LoaderComms();
 	void ripSMCode(bool);
+	bool validateRecordSet();
 
 	signals:
 	void displayMessage(MESSAGE_TYPE type, QString text); //see about moving this to a global header
@@ -137,7 +138,7 @@ private:
 	bool m_actionLoad;
 	bool m_actionRip;
 	bool m_fDeviceIsSet;
-	bool m_recordSetLoaded;
+	bool m_recordSetReady;
 	bool m_smIsReady;
 	bool m_RipSMCode;
 
