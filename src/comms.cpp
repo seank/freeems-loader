@@ -413,16 +413,13 @@ int FreeEMS_LoaderComms::getDeviceByteCount() {
 
 bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 	unsigned int i;
-//	unsigned int linesLoadable;
-//	unsigned int linesNotLodable;
-//	bool result = false;
 	int status;
 	bool result = true;
 	string line;
 	m_loadableRecords = 0;
 	m_badCheckSums = 0;
-	FreeEMS_LoaderParsing parser;
-	for (i = 0; i < lineArray.size(); i++) {
+
+    for (i = 0; i < lineArray.size(); i++) {
 		line = lineArray.at(i);
 		cout << endl << "Parsing line: " << line;
 		//TODO have createFromString return status record set not yet loaded error with line
@@ -462,32 +459,7 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
 				break;
 			}
 		}
-
-		//m_s19SetOneCount++;
-//		if (parser.lineIsLoadable(&line)) {
-//			result = m_s19SetOne[linesLoadable].createFromString(&line);
-//			if (result == false) {
-//				emit displayMessage(MESSAGE_ERROR, "Problem Loading Record #" + QString::number(i+1) + " see console for details");
-//				m_badCheckSums++; //this is somewhat misleading as this will be incremented if the parse fails for whatever reason TODO fix
-//				return result;
-//			}
-//			if (m_s19SetOne[i].payloadAddress >= SM_CODE_START_ADDRESS) {
-//				qDebug() << "Disabling a record's pay-load which lies within the SerialMonitor area";
-//				m_s19SetOne[i].disablePayload(true);
-//				linesNotLodable++;
-//			} else {
-//				linesLoadable++;
-//			}
-//			m_s19SetOneCount++;
-//			m_loadableRecords++;
-//			result++;
-//		} else {
-//			//emit displayMessage(MESSAGE_GENERIC, "Line #" + QString::number(i+1) + "is not load-able ->" + line);
-//			qDebug() << "Skipping non load-able line";
-//			linesNotLodable++;
-//		}
 	}
-	//m_recordSetReady = validateRecordSet();
 	return result;
 }
 
@@ -702,8 +674,13 @@ void FreeEMS_LoaderComms::parseFile() {
 	std::stringstream s;
 	s << readyStream;
 	while (getline(s, line)) {
-		lineArray.push_back(line);
-		linesRead++;
+        if(line.length() > 0){
+            lineArray.push_back(line);
+            linesRead++;
+        } else{
+            //TODO increment a blank line counter
+            qDebug() << "Skipping blank line";
+        }
 	}
 	qDebug() << "Lines read " << linesRead;
 	ifs.close();
