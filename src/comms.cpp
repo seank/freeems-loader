@@ -645,19 +645,21 @@ void FreeEMS_LoaderComms::parseFile() {
 	int end = ifs.tellg();
 	ifs.seekg(ios_base::beg);
 	cout << endl << "File size is: " << (end-begin) << " bytes.\n";
-	char *filteredStream = new char[end-begin];
+    char *rawStream = new char[end-begin];
 	char *readyStream = new char[end-begin]; //this will be slightly too big due to clipping the extra return char
-	ifs.read(filteredStream, (end-begin));
+    ifs.read(rawStream, (end-begin));
 	int i, j;
+    std::stringstream s;
 
-	//TODO Temp hack, carriage returns breaks the getline function when running in linux can't perform load
-	char c;
-	bool expectingReturn;
-	for(i = 0, j = 0, expectingReturn = false; i < (end-begin); i++) {
+    //There doesnt seem to exist a STD function to convert line endings
 #ifdef __WIN32__
-		//yep we are just fine using readline in windows, lamers
+    //yep we are just fine using readline in windows
+    s << rawStream;
 #else
-		c = filteredStream[i];
+    char c;
+    bool expectingReturn;
+    for(i = 0, j = 0, expectingReturn = false; i < (end-begin); i++) {
+        c = rawStream[i];
 		if(c == '\n') {
 			if(!expectingReturn) {
 				//todo emit visible error
@@ -671,10 +673,9 @@ void FreeEMS_LoaderComms::parseFile() {
 			readyStream[j++] = c;
 			expectingReturn = false;
 		}
+    }
+    s << readyStream;
 #endif
-	}
-	std::stringstream s;
-	s << readyStream;
 	while (getline(s, line)) {
         if(line.length() > 0){
             lineArray.push_back(line);
@@ -688,7 +689,7 @@ void FreeEMS_LoaderComms::parseFile() {
 	ifs.close();
 	initRecordSet(linesRead);
 	m_recordSetReady = generateRecords(lineArray);
-	delete filteredStream;
+    delete rawStream;
 	delete readyStream;
 }
 
