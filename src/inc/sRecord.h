@@ -60,14 +60,28 @@ enum recordStatus{
 	RECORD_NULL,
 	RECORD_UNHANDLED,
 	SKIP_SM_RANGE,
+    SKIP_UNLOADABLE,
+    VENDOR_RECORD,
 	UNLOADABLE_BAD_CSUM = 50,
-	UNLOADABLE_CORRUPT,
-	UNLOADABLE_SKIPPED,
 	UNLOADABLE_BAD_LENGTH,
 	UNLOADABLE_BAD_LENGTH_TOO_SHORT,
-	UNLOADABLE_BAD_START_CHAR
+    UNLOADABLE_INVALID_START_CHAR
 };
 
+/* GP struct for counting statistics */
+typedef struct recordStats{
+    int numLoadable;
+    int numNull;
+    int numUnhandled;
+    int numSMRange;
+    int numBadCSum;
+    int numCorrupt;
+    int numUnLoadable;  //eg S0xxxxxx valid but not loadable
+    int numBadLength;
+    int numLengthShort;
+    int numInvalidStartChar; //must always start with 'S'
+    int numVendorData;
+}recordStatistics;
 
 class FreeEMS_LoaderSREC {
 

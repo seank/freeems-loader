@@ -223,7 +223,7 @@ int FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			setTypeIndex(S0);
 			memcpy(recordTypeIdChars, lineIn->c_str(), TWO_BYTES);
 			memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
-			m_payloadStatus = RECORD_UNHANDLED;
+            m_payloadStatus = VENDOR_RECORD;
 			break;
 		case '1':
 			m_payloadStatus = RECORD_UNHANDLED;
@@ -272,7 +272,7 @@ int FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			break;
 		}
 	} else {
-		m_payloadStatus = UNLOADABLE_BAD_START_CHAR;
+		m_payloadStatus = UNLOADABLE_INVALID_START_CHAR;
 	}
 	return m_payloadStatus;
 }

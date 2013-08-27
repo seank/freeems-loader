@@ -121,7 +121,8 @@ public:
 	bool verifyLastWrite;
 	~FreeEMS_LoaderComms();
 	void ripSMCode(bool);
-	bool validateRecordSet();
+    bool payloadOverlapCheck();
+    bool payloadSort();
 
 	signals:
 	void displayMessage(MESSAGE_TYPE type, QString text); //see about moving this to a global header
@@ -147,9 +148,7 @@ private:
 	unsigned int m_portDataBits;
 	unsigned int m_portStopBits;
 
-	int m_badCheckSums;
 	int m_flashTypeIndex;
-	int m_loadableRecords;
 	int m_s19SetOneCount;
 	int m_s19SetTwoCount;
 
@@ -161,6 +160,8 @@ private:
 	FreeEMS_LoaderSREC *m_s19SetOne;
 	FreeEMS_LoaderSREC *m_s19SetTwo;
 	IPDS::SerialIO	*m_serPort;
+
+    recordStatistics m_parsingResults;
 
 	int writeBlocks();
 

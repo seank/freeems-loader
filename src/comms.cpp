@@ -412,55 +412,58 @@ int FreeEMS_LoaderComms::getDeviceByteCount() {
 }
 
 bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
-	unsigned int i;
-	int status;
-	bool result = true;
-	string line;
-	m_loadableRecords = 0;
-	m_badCheckSums = 0;
+    unsigned int i;
+    int status;
+    bool result = true; //innocient until proven guilty
+    string line;
+    memset(&m_parsingResults, 0, sizeof(m_parsingResults));
 
     for (i = 0; i < lineArray.size(); i++) {
-		line = lineArray.at(i);
-		cout << endl << "Parsing line: " << line;
-		//TODO have createFromString return status record set not yet loaded error with line
-		status = m_s19SetOne[i].createFromString(&line);
-		if (status == LOADABLE) {
-			m_loadableRecords++;
-		} else {
-			cout << "error with line " << status;
-			switch (status) {
-			case RECORD_NULL:
-				break;
-			case RECORD_UNHANDLED:
-				break;
-			case SKIP_SM_RANGE:
-				break;
-			case UNLOADABLE_BAD_CSUM:
-				m_badCheckSums++;
-				result = false;
-				break;
-			case UNLOADABLE_CORRUPT:
-				result = false;
-				break;
-			case UNLOADABLE_SKIPPED:
-				break;
-			case UNLOADABLE_BAD_LENGTH:
-				result = false;
-				break;
-			case UNLOADABLE_BAD_LENGTH_TOO_SHORT:
-				result = false;
-				break;
-			case UNLOADABLE_BAD_START_CHAR:
-				result = false;
-				break;
-			default:
-				cout << "TODO figure out odd-ball problem" << endl;
-				result = false;
-				break;
-			}
-		}
-	}
-	return result;
+        line = lineArray.at(i);
+        cout << endl << "Analysing: " << line;
+        status = m_s19SetOne[i].createFromString(&line);
+        switch (status) {
+        case LOADABLE:
+            m_parsingResults.numLoadable++;
+            cout << " OK";
+            break;
+        case RECORD_NULL:
+            //TODO review, since the readline code clips blank lines before we get there this should never be encountered
+            //
+            break;
+        case RECORD_UNHANDLED:
+            cout << " UNHANDLED SKIPPING BUG AUTHOR FOR IMPLIMENTATION";
+            break;
+        case SKIP_SM_RANGE:
+            m_parsingResults.numSMRange++;
+            cout << " SKIPPING SM RANGE PAYLOAD";
+            break;
+        case UNLOADABLE_BAD_CSUM:
+            m_parsingResults.numBadCSum++;
+            cout << " CHECKSUM MISMATCH";
+            result = false;
+            break;
+        case UNLOADABLE_BAD_LENGTH:
+            result = false;
+            break;
+        case UNLOADABLE_BAD_LENGTH_TOO_SHORT:
+            result = false;
+            break;
+        case UNLOADABLE_INVALID_START_CHAR:
+            cout << " CHECKSUM MISMATCH";
+            result = false;
+            break;
+        case VENDOR_RECORD:
+            m_parsingResults.numVendorData++;
+            cout << " VENDOR DATA";
+            break;
+        default:
+            cout << "TODO figure out odd-ball problem" << endl;
+            result = false;
+            break;
+        }
+    }
+    return result;
 }
 
 int FreeEMS_LoaderComms::loadRecordSet() {
@@ -626,8 +629,7 @@ void FreeEMS_LoaderComms::abortOperation() {
 }
 
 void FreeEMS_LoaderComms::parseFile() {
-	m_badCheckSums = 0;
-	m_loadableRecords = 0;
+
 	m_s19SetOneCount = 0;
 	m_recordSetReady = false;
 	int linesRead = 0;
@@ -702,11 +704,11 @@ bool FreeEMS_LoaderComms::isRecordSetLoaded() {
 }
 
 int FreeEMS_LoaderComms::numLoadableRecords() {
-	return m_loadableRecords;
+    return m_parsingResults.numLoadable;
 }
 
 int FreeEMS_LoaderComms::numBadSums() {
-	return m_badCheckSums;
+    return m_parsingResults.numBadCSum;
 }
 
 void FreeEMS_LoaderComms::setDataMode(QString& mode) {
@@ -757,53 +759,13 @@ void FreeEMS_LoaderComms::ripSMCode(bool includeSM) {
 	m_RipSMCode = includeSM;
 }
 
-bool FreeEMS_LoaderComms::validateRecordSet() {
-	m_loadableRecords = 0;
-	int status;
-	int i;
-	bool result = true;
-	// a hierarchy actually exists to some extent TODO fall-though appropriately
-	for (i = 0; i < m_s19SetOneCount; i++) {
-		status = m_s19SetOne[i].getPayloadStatus();
-		if (status == LOADABLE) {
-			m_loadableRecords++;
-		} else {
-			cout << "error status " << status;
-			switch (status) {
-			case RECORD_NULL:
-				break;
-			case RECORD_UNHANDLED:
-				break;
-			case SKIP_SM_RANGE:
-				break;
-			case UNLOADABLE_BAD_CSUM:
-				m_badCheckSums++;
-				result = false;
-				break;
-			case UNLOADABLE_CORRUPT:
-				result = false;
-				break;
-			case UNLOADABLE_SKIPPED:
-				break;
-			case UNLOADABLE_BAD_LENGTH:
-				result = false;
-				break;
-			case UNLOADABLE_BAD_LENGTH_TOO_SHORT:
-				result = false;
-				break;
-			case UNLOADABLE_BAD_START_CHAR:
-
-				result = false;
-				break;
-			default:
-				result = false;
-				break;
-			}
-		}
-	}
-	return result;
+bool FreeEMS_LoaderComms::payloadOverlapCheck() {
+    //TODO make sure none of the payloads overlap each other in anyway
+    //TODO we *may also want to support this at some point
+    return true;
 }
-//bool FreeEMS_LoaderComms::isWithinVector(unsigned int address, QString name, rangePurpose) {
-//
-//}
 
+bool FreeEMS_LoaderComms::payloadSort() {
+    //TODO sort by destination address
+    return true;
+}
