@@ -239,29 +239,32 @@ int FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			 * line endings */
 			int lengthDifference;
 			lengthDifference = (lineIn->length() - 2 - 2) - (unsigned int) (bytePairCount * 2);
-			if (lengthDifference == 1) {
-				if ((lineIn->at(lineIn->length() - 1)) != '\r') {
-					m_payloadStatus = UNLOADABLE_BAD_LENGTH;
-				}
-			} else if (lengthDifference > 1) {
-				m_payloadStatus = UNLOADABLE_BAD_LENGTH;
-			}else if (lengthDifference < 0) {
+			//if (lengthDifference == 1) {
+			//	if ((lineIn->at(lineIn->length() - 1)) != '\r') {
+			//		m_payloadStatus = UNLOADABLE_BAD_LENGTH;
+			//	}
+			//} else
+			if (lengthDifference > 1) {
+				m_payloadStatus = UNLOADABLE_BAD_LENGTH_TOO_LONG;
+				//technically if the line is two long a valid s19 may exist in the rubble.
+			} else if (lengthDifference < 0) {
 				m_payloadStatus = UNLOADABLE_BAD_LENGTH_TOO_SHORT;
-			}
-			recordPayloadBytes = bytePairCount - 4; //TODO make proper maybe make a function to call setNumPairsInRecord too
-			memcpy(recordAddressChars, lineIn->c_str() + S2_ADDRESS_OFFSET, 6); //S2 has 6 chars in address
-			setRecordAddress(recordAddressChars);
-			memcpy(recordPayload, lineIn->c_str() + S2_PAYLOAD_OFFSET, recordPayloadBytes * 2);
-			memcpy(recordCheckSumChars,
-					lineIn->c_str() + S2_PAIR_COUNT_OFFSET + (recordPayloadBytes * 2) + charsInAddress + 2, TWO_BYTES);
-			recordLoadedChkSum = FreeEMS_LoaderParsing::asciiPairToChar(recordCheckSumChars);
-			FreeEMS_LoaderParsing::asciiPairToArray(recordPayload, recordBytes, recordPayloadBytes);
-			setNumPairsInRecord();
-			calculateCheckSum(); // this asserts that the data is good
-			if (recordChkSum != recordLoadedChkSum) {
-				m_payloadStatus = UNLOADABLE_BAD_CSUM;
-			}else{
-				m_payloadStatus = LOADABLE;
+			} else {
+				recordPayloadBytes = bytePairCount - 4; //TODO make proper maybe make a function to call setNumPairsInRecord too
+				memcpy(recordAddressChars, lineIn->c_str() + S2_ADDRESS_OFFSET, 6); //S2 has 6 chars in address
+				setRecordAddress(recordAddressChars);
+				memcpy(recordPayload, lineIn->c_str() + S2_PAYLOAD_OFFSET, recordPayloadBytes * 2);
+				memcpy(recordCheckSumChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET
+								+ (recordPayloadBytes * 2) + charsInAddress + 2, TWO_BYTES);
+				recordLoadedChkSum = FreeEMS_LoaderParsing::asciiPairToChar(recordCheckSumChars);
+				FreeEMS_LoaderParsing::asciiPairToArray(recordPayload, recordBytes, recordPayloadBytes);
+				setNumPairsInRecord();
+				calculateCheckSum(); // this asserts that the data is good
+				if (recordChkSum != recordLoadedChkSum) {
+					m_payloadStatus = UNLOADABLE_BAD_CSUM;
+				} else {
+					m_payloadStatus = LOADABLE;
+				}
 			}
 			break;
 		case '3':

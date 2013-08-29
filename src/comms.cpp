@@ -429,7 +429,7 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
             break;
         case RECORD_NULL:
             //TODO review, since the readline code clips blank lines before we get there this should never be encountered
-            //
+        	cout << " REMOVE THIS CASE";
             break;
         case RECORD_UNHANDLED:
             cout << " UNHANDLED SKIPPING BUG AUTHOR FOR IMPLIMENTATION";
@@ -443,10 +443,12 @@ bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
             cout << " CHECKSUM MISMATCH";
             result = false;
             break;
-        case UNLOADABLE_BAD_LENGTH:
+        case UNLOADABLE_BAD_LENGTH_TOO_LONG:
+        	cout << " LINE TOO LONG";
             result = false;
             break;
         case UNLOADABLE_BAD_LENGTH_TOO_SHORT:
+        	cout << " LINE TOO SHORT";
             result = false;
             break;
         case UNLOADABLE_INVALID_START_CHAR:
@@ -689,6 +691,11 @@ void FreeEMS_LoaderComms::parseFile() {
 	ifs.close();
 	initRecordSet(linesRead);
 	m_recordSetReady = generateRecords(lineArray);
+	if(m_recordSetReady == true) {
+		cout << endl << "Record Set OK";
+	}else {
+		cout << endl << "Record Set FAIL";
+	}
     delete rawStream;
 	delete readyStream;
 }
