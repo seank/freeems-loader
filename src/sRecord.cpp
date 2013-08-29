@@ -230,6 +230,11 @@ int FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			break;
 		case '2': //Record is S2
 			setTypeIndex(S2);
+			if(lineIn->length() < 4) {
+				//we need at least 4 bytes to get us the record length
+				m_payloadStatus = UNLOADABLE_BAD_LENGTH_TOO_SHORT;
+				break;
+			}
 			memcpy(recordTypeIdChars, lineIn->c_str(), TWO_BYTES);
 			memcpy(recordPayloadPairCountChars, lineIn->c_str() + S2_PAIR_COUNT_OFFSET, TWO_BYTES);
 			bytePairCount = (int) FreeEMS_LoaderParsing::asciiPairToChar(recordPayloadPairCountChars);
@@ -244,7 +249,7 @@ int FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 			//		m_payloadStatus = UNLOADABLE_BAD_LENGTH;
 			//	}
 			//} else
-			if (lengthDifference > 1) {
+			if (lengthDifference > 0) {
 				m_payloadStatus = UNLOADABLE_BAD_LENGTH_TOO_LONG;
 				//technically if the line is two long a valid s19 may exist in the rubble.
 			} else if (lengthDifference < 0) {
