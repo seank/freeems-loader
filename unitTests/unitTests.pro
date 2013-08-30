@@ -1,14 +1,9 @@
-TEMPLATE = app
-TARGET = unitTests
-QT += core
+CONFIG += qtestlib
 HEADERS += ../src/inc/sRecord.h
-SOURCES += main.cpp \
-    main.cpp \
-    ../src/sRecord.cpp
-FORMS += 
-RESOURCES += 
-QMAKE_CXXFLAGS_DEBUG += -pg
-QMAKE_LFLAGS_DEBUG += -pg
+SOURCES += unitTests.cpp \
+		   ../src/sRecord.cpp \
+		   ../src/parsing.cpp \
+		   ../src/types.cpp
 
 # default make spec stuff
 INCLUDEPATH *= ../src/inc/public
