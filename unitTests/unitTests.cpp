@@ -5,14 +5,14 @@
  {
      Q_OBJECT
  private slots:
-     void toUpper();
+     void createValidS2RecordFromString();
  };
 
- /* we will keep this test here since we know it *should always pass */
- void unitTests::toUpper()
- {
-     QString str = "Hello";
-     QCOMPARE(str.toUpper(), QString("HELLO"));
+ void unitTests::createValidS2RecordFromString() {
+	 string  validRecord = "S214FD82D001AE3048180B08004E180400443046FE28";
+	 FreeEMS_LoaderSREC record;
+	 record.createFromString(&validRecord);
+	 QCOMPARE(record.getPayloadStatus(), (int)LOADABLE);
  }
 
 QTEST_MAIN(unitTests)
