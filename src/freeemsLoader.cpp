@@ -130,7 +130,8 @@ FreeEMS_Loader::~FreeEMS_Loader() {
 }
 
 void FreeEMS_Loader::fillDevice() {
-	ui.comboDevice->clear();
+    //TODO move fillDevice function to comms class
+    ui.comboDevice->clear();
 	QStringList prefixes;
 	QDir path("/dev");
 #ifdef __linux__
@@ -519,6 +520,10 @@ void FreeEMS_Loader::setAutoRipDir() {
 	loaderSettings.setValue("autoRipDirectory", m_autoRipDirectory);
 }
 
+//<malcom2073> seank-work: https://github.com/seank/freeems-loader/blob/master/src/freeemsLoader.cpp#L514
+//<diyefi-bot> freeems-loader/src/freeemsLoader.cpp at master · seank/freeems-loader · GitHub
+//<malcom2073> unneccesary. Qt can handle a path: c:/Users/michael/test.txt
+
 void FreeEMS_Loader::saveSettings() {
 	QSettings loaderSettings(settingsFile, QSettings::IniFormat);
 
@@ -552,7 +557,10 @@ bool FreeEMS_Loader::eventFilter(QObject *target, QEvent *event) {
 }
 
 int FreeEMS_Loader::restoreSettings() {
-	/* restore settings */
+    //TODO move to seperate settings file and reduce the amount of code that is platform specific
+    // in other words use platform speficic code so that other code can be reused
+
+    /* restore settings */
 #ifdef __WIN32__
 		QString appDataDir = getenv("AppData");
 		m_autoRipDirectory = appDataDir;
