@@ -68,7 +68,6 @@ void FreeEMS_LoaderSREC::initVariables() {
 	numPairsSet = false;
 	mismatchedCheckSum = false;
 	correctLineLength = true;
-	charactersValid = true;
 	m_payloadStatus = RECORD_NULL;
 }
 
@@ -207,10 +206,6 @@ std::string FreeEMS_LoaderSREC::retRecordString() {
 	return str;
 }
 
-int FreeEMS_LoaderSREC::retRecordSize() {
-	return record.length();
-}
-
 int FreeEMS_LoaderSREC::createFromString(string* lineIn) {
 
 	char type = *(lineIn->c_str() + 1);
@@ -299,18 +294,6 @@ bool FreeEMS_LoaderSREC::isRecordNull() {
 
 unsigned char FreeEMS_LoaderSREC::getCalculatedSum() {
 	return recordChkSum;
-}
-
-bool FreeEMS_LoaderSREC::isCheckSumMismatched() {
-	return mismatchedCheckSum;
-}
-
-bool FreeEMS_LoaderSREC::isLineLengthCorrect() {
-	return correctLineLength;
-}
-
-bool FreeEMS_LoaderSREC::areCharactersValid() {
-	return charactersValid;
 }
 
 void FreeEMS_LoaderSREC::setPayloadStatus(int status) {

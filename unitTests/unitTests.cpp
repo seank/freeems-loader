@@ -59,12 +59,12 @@
      QCOMPARE(record.getRecordAddress(), (unsigned int)0xFD82D0);
  }
 
- void unitTests::checkS2RecordLength() {
-     string  validRecord = "S214FD82D001AE3048180B08004E180400443046FE28";
-     FreeEMS_LoaderSREC record;
-     record.createFromString(&validRecord);
-     QCOMPARE(record.getRecordAddress(), (unsigned int)0xFD82D0);
- }
+// void unitTests::checkS2RecordLength() {
+//     string  validRecord = "S214FD82D001AE3048180B08004E180400443046FE28";
+//     FreeEMS_LoaderSREC record;
+//     record.createFromString(&validRecord);
+//     QCOMPARE(record.getRecordAddress(), (unsigned int)0xFD82D0);
+// }
 
 QTEST_MAIN(unitTests)
 #include "unitTests.moc"

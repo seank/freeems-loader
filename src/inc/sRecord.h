@@ -106,7 +106,6 @@ public:
 	bool isRecordNull();
 	bool mismatchedCheckSum;
 	bool correctLineLength;
-	bool charactersValid;
 	void calculateCheckSum();
 	int putNextByte(char byte);
 	int setRecordAddress(unsigned int address);
@@ -117,8 +116,6 @@ public:
 	void initVariables();
     bool lineIsLoadable(string* line);
 	unsigned char getCalculatedSum();
-	bool isCheckSumMismatched();
-	bool isLineLengthCorrect();
 	bool areCharactersValid();
 	char recordPayload[512]; //ascii pair representaion of the payload
 	unsigned int payloadAddress;
