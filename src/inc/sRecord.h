@@ -95,7 +95,7 @@ public:
 	void setPayloadStatus(int);
 	int getPayloadStatus();
 	bool verifyRecord();
-	unsigned int	getRecordAddress();
+    unsigned int getRecordAddress();
 	char getNextByte();
 	int getRecordTypeIndex();
 	void buildRecord();
@@ -115,8 +115,7 @@ public:
 	int	setTypeIndex(int type);
 	void setNumPairsInRecord();
 	void initVariables();
-	int retRecordSize();
-	bool lineIsLoadable(string* line);
+    bool lineIsLoadable(string* line);
 	unsigned char getCalculatedSum();
 	bool isCheckSumMismatched();
 	bool isLineLengthCorrect();

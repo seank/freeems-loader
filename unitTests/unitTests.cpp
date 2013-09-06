@@ -10,6 +10,7 @@
      void checkS2RecordForCorruptionCSUM();
      void checkS2TooShort();
      void checkS2TooLong();
+     void checkS2RecordAddress();
  };
 
  void unitTests::createValidS2RecordFromString() {
@@ -50,5 +51,20 @@
      record.createFromString(&validRecord);
      QCOMPARE(record.getPayloadStatus(), (int)UNLOADABLE_BAD_LENGTH_TOO_LONG);
  }
+
+ void unitTests::checkS2RecordAddress() {
+     string  validRecord = "S214FD82D001AE3048180B08004E180400443046FE28";
+     FreeEMS_LoaderSREC record;
+     record.createFromString(&validRecord);
+     QCOMPARE(record.getRecordAddress(), (unsigned int)0xFD82D0);
+ }
+
+ void unitTests::checkS2RecordLength() {
+     string  validRecord = "S214FD82D001AE3048180B08004E180400443046FE28";
+     FreeEMS_LoaderSREC record;
+     record.createFromString(&validRecord);
+     QCOMPARE(record.getRecordAddress(), (unsigned int)0xFD82D0);
+ }
+
 QTEST_MAIN(unitTests)
 #include "unitTests.moc"
