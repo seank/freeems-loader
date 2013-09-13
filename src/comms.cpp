@@ -650,7 +650,6 @@ void FreeEMS_LoaderComms::parseFile() {
     char *rawStream = new char[end-begin];
 	char *readyStream = new char[end-begin]; //this will be slightly too big due to clipping the extra return char
     ifs.read(rawStream, (end-begin));
-	int i, j;
     std::stringstream s;
 
     //There doesnt seem to exist a STD function to convert line endings
@@ -660,6 +659,7 @@ void FreeEMS_LoaderComms::parseFile() {
 #else
     char c;
     bool expectingReturn;
+    int i, j;
     for(i = 0, j = 0, expectingReturn = false; i < (end-begin); i++) {
         c = rawStream[i];
 		if(c == '\n') {
