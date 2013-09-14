@@ -73,7 +73,7 @@ public:
 	int  loadDevice();
 	void init();
 	void clearSets();
-	bool generateRecords(vector<string> lineArray);
+    bool generateRecords(vector<string>* lineArray);
 	bool lineIsLoadable(string* line);
 	void initRecordSet(unsigned int numRecords);
 	void setRipFilename(QString name);
@@ -86,7 +86,7 @@ public:
 	void returnFlashType(unsigned char *responce);
 	void setAbort(bool abortOperation);
 	void setFlashType(const char *commonName);
-	void SMSetPPage(unsigned char PPage);
+    int SMSetPPage(unsigned char PPage);
 	int SMReadByteBlock(unsigned int address, unsigned int plusBytes, std::vector<unsigned char> &vec);
 	void SMReadChars(const char *data, unsigned int size);
 	void flushRXStream();
@@ -101,7 +101,7 @@ public:
 	void write(const unsigned char *data);
 	void writeString(const std::string& s);
 	void test();
-	void read(unsigned char *data, unsigned int size);
+    int read(unsigned char *data, unsigned int size);
 	std::vector<unsigned char> read(unsigned int size);
 	std::string	readString(unsigned int size);
 	std::string readStringUntil(const std::string& delim = "\n");

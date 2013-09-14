@@ -118,8 +118,10 @@ int FreeEMS_LoaderComms::ripDevice() {
 			nPages = dataVectorTable[i].stopPage - dataVectorTable[i].startPage;
 			nPages++; //there is always 1 page to rip
 			for (PPageIndex = dataVectorTable[i].startPage; nPages && (result == 1); PPageIndex++, nPages--) {
-				SMSetPPage(PPageIndex); //set Ppage register
-				firstAddress = dataVectorTable[i].startAddress;
+                if(SMSetPPage(PPageIndex)) { //set Ppage register
+                    return -1;
+                }
+                firstAddress = dataVectorTable[i].startAddress;
 				lastAddress = dataVectorTable[i].stopAddress;
 				s19Record.setRecordAddress(firstAddress);
 				numSectors = (lastAddress - firstAddress) / bytesPerRecord + 1;
@@ -179,7 +181,7 @@ void FreeEMS_LoaderComms::setFlashType(const char *commonName) {
 	}
 }
 
-void FreeEMS_LoaderComms::SMSetPPage(unsigned char PPage) {
+int FreeEMS_LoaderComms::SMSetPPage(unsigned char PPage) {
 	unsigned char page = PPage;
 	write(&SMWriteByte, 1);
 	write(&Zero, 1);
@@ -187,7 +189,9 @@ void FreeEMS_LoaderComms::SMSetPPage(unsigned char PPage) {
 	write(&page, 1);
 	if (verifyReturn(GENERIC) < 0) {
 		emit displayMessage(MESSAGE_ERROR, "cannot verify ACK after setting ppage");
+        return -1;
 	}
+    return 0;
 }
 
 void FreeEMS_LoaderComms::SMReadChars(const char *data, unsigned int size) {
@@ -242,15 +246,15 @@ void FreeEMS_LoaderComms::writeString(const std::string& s) {
 }
 
 //TODO add parity "double read" option
-void FreeEMS_LoaderComms::read(unsigned char* data, unsigned int size) {
+int FreeEMS_LoaderComms::read(unsigned char* data, unsigned int size) {
 	int readResult = m_serPort->readData(data, size);
 
 	if (readResult < 0) {
 		close();
 		emit displayMessage(MESSAGE_ERROR,"Problem reading from the device, is seems to have gone away, aborting");
-		close();
 		emit setGUI(STATE_STANDING_BY);
 	}
+    return readResult;
 }
 
 std::vector<unsigned char> FreeEMS_LoaderComms::read(unsigned int size) {
@@ -282,37 +286,36 @@ int FreeEMS_LoaderComms::verifyReturn(SM_COMMAND_TYPE type) { //TODO this should
 	//QByteArray tester(SMRDY);// = {0xe1, 0x00, 0xe3};
 	//usleep(5000);
 	unsigned char response[3] = { 0 };
-	unsigned char code = 0;
-	read(&code, 1);
+    if(read(response, 3) < 3 ){
+         emit displayMessage(MESSAGE_ERROR, "problem getting SM return message");
+    }
 	switch (type){
 		case GENERIC:
-			read(response, 2);
-			if (code ==  0xe0 && response[1] == 0x3E) {
+            if (response[0] ==  0xE0 && response[2] == 0x3E) {
 				qDebug("smVerify good");
 				return 1;
 			}
-			emit displayMessage(MESSAGE_ERROR, "unable to verify serial monitor return code");
-			return -1;
+            emit displayMessage(MESSAGE_ERROR, "unable to verify serial monitor return code");
+            qDebug("SM return reads %x %x %x", response[0], response[1], response[2]);
+            return -1;
 		break;
 		case SETSM:
-			if(code == 0xE0){
+            if(response[0] == 0xE0){
 				qDebug("need to read two bytes");
-				read(response, 2);
-				if(response[1] != 0x3e){
+                if(response[2] != 0x3e){
 					emit displayMessage(MESSAGE_ERROR, "unable to verify serial monitor presence");
 					return -1;
 				} else {
 					return 1;
 				}
-			}else if(code == 0xE1){
-				read(response, 2);
-				if(response[1] == (char)0x3e){
+        }else if(response[0] == 0xE1){
+                if(response[2] == (char)0x3e){
 					emit displayMessage(MESSAGE_INFO, "serial monitor already running");
 					return 1;
 				}
 			}
 			emit displayMessage(MESSAGE_ERROR, "Data read, but it was not a serial monitor ACK");
-			qDebug("code %x read %x %x %x", code, response[0], response[1], response[2]);
+            qDebug("read %x %x %x", response[0], response[1], response[2]);
 			return -1;
 		break;
 	}
@@ -339,7 +342,9 @@ int FreeEMS_LoaderComms::SMReadByteBlock(unsigned int address, unsigned int plus
 }
 
 int FreeEMS_LoaderComms::erasePage(char PPage) {
-	SMSetPPage(PPage);
+    if(SMSetPPage(PPage)) {
+        return -1;
+    }
 	write(&SMErasePage, 1);
 	if (verifyReturn(GENERIC) < 0) {
 		emit displayMessage(MESSAGE_ERROR, "Error validating SMErasePage confirmation");
@@ -411,15 +416,15 @@ int FreeEMS_LoaderComms::getDeviceByteCount() {
 	}
 }
 
-bool FreeEMS_LoaderComms::generateRecords(vector<string> lineArray) {
+bool FreeEMS_LoaderComms::generateRecords(vector<string>* lineArray) {
     unsigned int i;
     int status;
     bool result = true; //innocient until proven guilty
     string line;
     memset(&m_parsingResults, 0, sizeof(m_parsingResults));
 
-    for (i = 0; i < lineArray.size(); i++) {
-        line = lineArray.at(i);
+    for (i = 0; i < lineArray->size(); i++) {
+        line = lineArray->at(i);
         cout << endl << "Analysing: " << line;
         status = m_s19SetOne[i].createFromString(&line);
         switch (status) {
@@ -635,8 +640,9 @@ void FreeEMS_LoaderComms::parseFile() {
 	m_s19SetOneCount = 0;
 	m_recordSetReady = false;
 	int linesRead = 0;
-	vector < string > lineArray;
-	string line;
+    //vector < string > lineArray;
+    vector< string >* lineArray = new vector< string >;
+    string line;
 	ifstream ifs(m_loadFilename.toAscii());
 	if (ifs.fail()) {
 		emit displayMessage(MESSAGE_ERROR, "Error opening file");
@@ -680,7 +686,7 @@ void FreeEMS_LoaderComms::parseFile() {
 #endif
 	while (getline(s, line)) {
         if(line.length() > 0){
-            lineArray.push_back(line);
+            lineArray->push_back(line);
             linesRead++;
         } else{
             //TODO increment a blank line counter
@@ -689,7 +695,7 @@ void FreeEMS_LoaderComms::parseFile() {
 	}
 	qDebug() << "Lines read " << linesRead;
 	ifs.close();
-	initRecordSet(linesRead);
+    initRecordSet(linesRead);
 	m_recordSetReady = generateRecords(lineArray);
 	if(m_recordSetReady == true) {
 		cout << endl << "Record Set OK";
@@ -698,6 +704,7 @@ void FreeEMS_LoaderComms::parseFile() {
 	}
     delete rawStream;
 	delete readyStream;
+    delete lineArray;
 }
 
 int FreeEMS_LoaderComms::writeBlocks() {
