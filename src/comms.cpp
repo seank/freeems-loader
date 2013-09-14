@@ -663,7 +663,8 @@ void FreeEMS_LoaderComms::parseFile() {
 #else
     char c;
     bool expectingReturn;
-    int i, j;
+    int i;
+    int j;
     ifs.read(rawStream, (end-begin));
     for(i = 0, j = 0, expectingReturn = false; i < (end-begin); i++) {
         c = rawStream[i];
