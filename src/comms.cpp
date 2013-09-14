@@ -640,7 +640,6 @@ void FreeEMS_LoaderComms::parseFile() {
 	m_s19SetOneCount = 0;
 	m_recordSetReady = false;
 	int linesRead = 0;
-    //vector < string > lineArray;
     vector< string >* lineArray = new vector< string >;
     string line;
 	ifstream ifs(m_loadFilename.toAscii());
@@ -655,17 +654,17 @@ void FreeEMS_LoaderComms::parseFile() {
 	cout << endl << "File size is: " << (end-begin) << " bytes.\n";
     char *rawStream = new char[end-begin];
 	char *readyStream = new char[end-begin]; //this will be slightly too big due to clipping the extra return char
-    ifs.read(rawStream, (end-begin));
     std::stringstream s;
 
     //There doesnt seem to exist a STD function to convert line endings
 #ifdef __WIN32__
     //yep we are just fine using readline in windows
-    s << rawStream;
+    s << ifs.rdbuf();
 #else
     char c;
     bool expectingReturn;
     int i, j;
+    ifs.read(rawStream, (end-begin));
     for(i = 0, j = 0, expectingReturn = false; i < (end-begin); i++) {
         c = rawStream[i];
 		if(c == '\n') {
@@ -684,7 +683,7 @@ void FreeEMS_LoaderComms::parseFile() {
     }
     s << readyStream;
 #endif
-	while (getline(s, line)) {
+    while (getline(s, line)) {
         if(line.length() > 0){
             lineArray->push_back(line);
             linesRead++;
