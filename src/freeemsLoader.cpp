@@ -479,8 +479,7 @@ void FreeEMS_Loader::openFile() {
 }
 
 void FreeEMS_Loader::setAutoRipDir() {
-	QSettings loaderSettings(settingsFile, QSettings::IniFormat);
-	QFileDialog fileDialog;
+    QFileDialog fileDialog;
 	fileDialog.setViewMode(QFileDialog::Detail);
 	QString qSNum;
 	m_autoRipDirectory = QFileDialog::getExistingDirectory(this, "Set Auto Rip Directory", m_autoRipDirectory, QFileDialog::ShowDirsOnly);
@@ -489,6 +488,7 @@ void FreeEMS_Loader::setAutoRipDir() {
 #else
 	m_autoRipDirectory += "/";
 #endif
+    QSettings loaderSettings(settingsFile, QSettings::IniFormat);
 	loaderSettings.setValue("autoRipDirectory", m_autoRipDirectory);
 }
 
@@ -510,6 +510,7 @@ void FreeEMS_Loader::saveSettings() {
 	loaderSettings.setValue("lastRipFileName", ripFileName);
 	loaderSettings.setValue("numBurnsPerformed", _numBurnsPerformed);
 	loaderSettings.setValue("ripSMCode", ui.chkRipSMCode->isChecked());
+    loaderSettings.setValue("autoRipDirectory", m_autoRipDirectory);
 }
 
 void FreeEMS_Loader::abort() {
