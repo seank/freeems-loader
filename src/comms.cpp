@@ -623,6 +623,7 @@ void FreeEMS_LoaderComms::run() {
 			emit displayMessage(MESSAGE_INFO, "User Aborted!");
 		} else {
 			emit displayMessage(MESSAGE_INFO, "Load Successful!");
+            emit setGUI(STATE_LOAD_COMPLETE);
 		}
 	}
 	resetSM();

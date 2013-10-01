@@ -298,11 +298,11 @@ void FreeEMS_Loader::getFileName(QString name) {
 }
 
 void FreeEMS_Loader::initGUI() {
-	changeGUIState(STATE_STANDING_BY);
-	ui.progressBar->setValue(0);
+    ui.progressBar->setValue(0);
 	ui.radioRX->setEnabled(false);
 	ui.radioTX->setEnabled(false);
 	m_fileLoaded = false;
+    changeGUIState(STATE_STANDING_BY);
 }
 
 void FreeEMS_Loader::changeGUIState(int state) {
@@ -331,8 +331,12 @@ void FreeEMS_Loader::updateGUIState() {
 		ui.chkRip->setEnabled(true);
 		ui.chkVerify->setEnabled(true);
 		ui.pushOpenFile->setEnabled(true);
-		ui.pushLoad->setEnabled(false);
-		ui.pushAbort->setEnabled(false);
+        ui.pushAbort->setEnabled(false);
+        if(m_fileLoaded == true) {
+            ui.pushLoad->setEnabled(true);
+        }else {
+            ui.pushLoad->setEnabled(false);
+        }
 		break;
 	default:
 		displayMessage(MESSAGE_ERROR, "INVALID STATE REQUESTED, THIS IS A BUG");
