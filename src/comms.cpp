@@ -638,73 +638,36 @@ void FreeEMS_LoaderComms::abortOperation() {
 
 void FreeEMS_LoaderComms::parseFile() {
 
-	m_s19SetOneCount = 0;
-	m_recordSetReady = false;
-	int linesRead = 0;
+    m_s19SetOneCount = 0;
+    m_recordSetReady = false;
+    int linesRead = 0;
     vector< string >* lineArray = new vector< string >;
-    string line;
-	ifstream ifs(m_loadFilename.toAscii());
-	if (ifs.fail()) {
-		emit displayMessage(MESSAGE_ERROR, "Error opening file");
-		return;
-	}
-	int begin = ifs.tellg();
-	ifs.seekg (0, ios::end);
-	int end = ifs.tellg();
-	ifs.seekg(ios_base::beg);
-	cout << endl << "File size is: " << (end-begin) << " bytes.\n";
-    char *rawStream = new char[end-begin];
-	char *readyStream = new char[end-begin]; //this will be slightly too big due to clipping the extra return char
-    std::stringstream s;
-
-    //There doesnt seem to exist a STD function to convert line endings
-#ifdef __WIN32__
-    //yep we are just fine using readline in windows
-    s << ifs.rdbuf();
-#else
-    char c;
-    bool expectingReturn;
-    int i;
-    int j;
-    ifs.read(rawStream, (end-begin));
-    for(i = 0, j = 0, expectingReturn = false; i < (end-begin); i++) {
-        c = rawStream[i];
-		if(c == '\n') {
-			if(!expectingReturn) {
-				//todo emit visible error
-				qDebug() << "bogus line ending found";
-			}
-		}else if(c == '\r') {
-			expectingReturn = true;
-			readyStream[j++] = '\n';
-			qDebug() << "Replaced carriage return with POSIX newline";
-		} else {
-			readyStream[j++] = c;
-			expectingReturn = false;
-		}
+    QFile ifs(m_loadFilename);
+    if(!ifs.open(QIODevice::ReadOnly)) {
+        //QMessageBox::information(0, "error", file.errorString());
+        emit displayMessage(MESSAGE_ERROR, "Error opening file");
+        return;
     }
-    s << readyStream;
-#endif
-    while (getline(s, line)) {
-        if(line.length() > 0){
-            lineArray->push_back(line);
+    QTextStream in(&ifs);
+    while(!in.atEnd()) {
+        QString line = in.readLine();
+        if(line.length() > 0) {
+            lineArray->push_back(line.toStdString());
             linesRead++;
-        } else{
-            //TODO increment a blank line counter
-            qDebug() << "Skipping blank line";
+        } else {
+            qDebug() << "Skipping blank line at ";
         }
-	}
-	qDebug() << "Lines read " << linesRead;
-	ifs.close();
+
+    }
+    ifs.close();
+    qDebug() << "Lines read " << linesRead;
     initRecordSet(linesRead);
-	m_recordSetReady = generateRecords(lineArray);
-	if(m_recordSetReady == true) {
-		cout << endl << "Record Set OK";
-	}else {
-		cout << endl << "Record Set FAIL";
-	}
-    delete rawStream;
-	delete readyStream;
+    m_recordSetReady = generateRecords(lineArray);
+    if(m_recordSetReady == true) {
+        cout << endl << "Record Set OK";
+    }else {
+        cout << endl << "Record Set FAIL";
+    }
     delete lineArray;
 }
 
