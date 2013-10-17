@@ -132,8 +132,8 @@ win32 {
     #this is currently a bit dirty as linux and windows paths are in this block
     message("Straight compile on windows")
     INCLUDEPATH *= /usr/local/include/
-    Debug:LIBS += -L../FreeEMS-SerialIO/debug
-    Release:LIBS += -L../FreeEMS-SerialIO/release
+    Debug:LIBS += -L../FreeEMS-SerialIO/build/debug
+    Release:LIBS += -L../FreeEMS-SerialIO/build/release
     LIBS += -lSerialIO0
     INCLUDEPATH *= ../FreeEMS-SerialIO/src/inc/public
     LIBS += -L/usr/local/win32/lib \
