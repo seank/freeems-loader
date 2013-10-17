@@ -31,9 +31,17 @@ QMAKE_CXXFLAGS *= -Wall
 QMAKE_CXXFLAGS *= -Werror
 QMAKE_CXXFLAGS_DEBUG += -pg
 QMAKE_LFLAGS_DEBUG += -pg
-OBJECTS_DIR = build
-MOC_DIR = build
-UI_DIR = build
+#Build directories
+Release:DESTDIR = build/release
+Release:OBJECTS_DIR = build/release
+Release:MOC_DIR = build/release
+Release:RCC_DIR = build/release
+Release:UI_DIR = build/release
+Debug:DESTDIR = build/debug
+Debug:OBJECTS_DIR = build/debug
+Debug:MOC_DIR = build/debug
+Debug:RCC_DIR = build/debug
+Debug:UI_DIR = build/debug
 CONFIG *= qt \
     warn_on \
     thread \
@@ -121,8 +129,13 @@ linux-g++ {
 
 # Native Windows Build
 win32 { 
-    message("Straight compile on windows (seank only)")
+    #this is currently a bit dirty as linux and windows paths are in this block
+    message("Straight compile on windows")
     INCLUDEPATH *= /usr/local/include/
+    Debug:LIBS += -L../FreeEMS-SerialIO/debug
+    Release:LIBS += -L../FreeEMS-SerialIO/release
+    LIBS += -lSerialIO0
+    INCLUDEPATH *= ../FreeEMS-SerialIO/src/inc/public
     LIBS += -L/usr/local/win32/lib \
         -lSerialIO0
     win32:LIBS *= -Lc:/mingw/lib \
