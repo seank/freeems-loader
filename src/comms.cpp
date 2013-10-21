@@ -622,11 +622,11 @@ void FreeEMS_LoaderComms::run() {
 		} else if (result == -2) {
 			emit displayMessage(MESSAGE_INFO, "User Aborted!");
 		} else {
-			emit displayMessage(MESSAGE_INFO, "Load Successful!");
+			emit displayMessage(MESSAGE_INFO, "Load Successful, resetting device!");
+			resetSM();
             emit setGUI(STATE_LOAD_COMPLETE);
 		}
 	}
-	resetSM();
 	this->sleep(1); //temp hack, this should be done via a callback after the outgoing serial buffer is empty
 	close();
 	emit setGUI(STATE_STANDING_BY);
