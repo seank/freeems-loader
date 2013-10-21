@@ -213,11 +213,23 @@ void FreeEMS_LoaderComms::resetSM() {
 }
 
 void FreeEMS_LoaderComms::setSM() {
-	write(&SMReturn, 1);
-	if (verifyReturn(SETSM) > 0) {
-		m_smIsReady = true;
-	} else {
-		m_smIsReady = false;
+	//TODO make configurable
+	int i;
+	for(i = 3; i; --i) {
+        if(i < 3) {
+            emit displayMessage(MESSAGE_INFO, "Serial Monitor verification failed retrying...");
+        }
+        m_serPort->flushRX();
+        sleep(1);
+        write(&SMReturn, 1);
+		if (verifyReturn(SETSM) > 0) {
+			m_smIsReady = true;
+		} else {
+			m_smIsReady = false;
+		}
+		if(m_smIsReady == true)
+			break;
+		sleep(1);
 	}
 	return;
 }
@@ -622,7 +634,7 @@ void FreeEMS_LoaderComms::run() {
 		} else if (result == -2) {
 			emit displayMessage(MESSAGE_INFO, "User Aborted!");
 		} else {
-			emit displayMessage(MESSAGE_INFO, "Load Successful, resetting device!");
+            emit displayMessage(MESSAGE_INFO, "Load Successful, resetting device!");
 			resetSM();
             emit setGUI(STATE_LOAD_COMPLETE);
 		}
