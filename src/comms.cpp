@@ -605,6 +605,7 @@ void FreeEMS_LoaderComms::run() {
 		result = ripDevice();
 		if (result == -1) {
 			emit displayMessage(MESSAGE_ERROR, "Failed To Rip");
+            m_actionLoad = 0;
 		} else if (result == -2) {
 			emit displayMessage(MESSAGE_INFO, "User Aborted!");
 		} else {
@@ -613,7 +614,7 @@ void FreeEMS_LoaderComms::run() {
 	}
 	if (m_actionErase) {
 		emit setGUI(STATE_WORKING);
-		m_actionErase = false;
+        m_actionErase = false;
 		emit displayMessage(MESSAGE_INFO, "Erasing...");
 		result = eraseDevice();
 		if (result == -1) {
