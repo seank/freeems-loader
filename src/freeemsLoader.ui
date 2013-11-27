@@ -132,17 +132,7 @@
           <string notr="true">font: 10pt &quot;Bitstream Charter&quot;;</string>
          </property>
          <property name="text">
-          <string>Rip Before Load</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2" rowspan="2" colspan="3">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="pixmap">
-          <pixmap resource="resource-root.qrc">:/images/images/logos.png</pixmap>
+          <string>Rip(backup) Before Load</string>
          </property>
         </widget>
        </item>
@@ -199,6 +189,16 @@
          </property>
          <property name="text">
           <string>...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2" rowspan="2" colspan="3">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="resource-root.qrc">:/images/images/logos.png</pixmap>
          </property>
         </widget>
        </item>
