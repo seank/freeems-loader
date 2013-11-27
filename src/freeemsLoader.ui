@@ -433,7 +433,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>pushLoad</sender>
-   <signal>released()</signal>
+   <signal>clicked()</signal>
    <receiver>FreeEMS_LoaderClass</receiver>
    <slot>load()</slot>
    <hints>
@@ -497,7 +497,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>pushRipDir</sender>
-   <signal>released()</signal>
+   <signal>clicked()</signal>
    <receiver>FreeEMS_LoaderClass</receiver>
    <slot>setAutoRipDir()</slot>
    <hints>
@@ -513,7 +513,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>pushAbort</sender>
-   <signal>released()</signal>
+   <signal>clicked()</signal>
    <receiver>FreeEMS_LoaderClass</receiver>
    <slot>abort()</slot>
    <hints>
